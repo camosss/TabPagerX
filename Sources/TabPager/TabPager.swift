@@ -27,7 +27,34 @@ public struct TabPager<Content: View>: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-
+            TabBar(tabs: $tabs, selectedIndex: $selectedIndex)
+            TabContent(
+                selectedIndex: $selectedIndex,
+                tabCount: tabs.count,
+                content: content
+            )
         }
     }
 }
+
+struct ContentView: View {
+    @State private var tabs = ["Tab 1", "Tab 2", "Tab 3"]
+    @State private var selectedIndex = 0
+
+    var body: some View {
+        TabPager(tabs: $tabs, selectedIndex: $selectedIndex) { index in
+            Text("\(tabs[index])")
+                .font(.title)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.gray.opacity(0.2))
+        }
+    }
+}
+
+#if DEBUG
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+#endif
