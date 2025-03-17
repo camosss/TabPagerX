@@ -3,8 +3,8 @@
 
 import SwiftUI
 
-public struct TapPager: View {
+public struct TabPager: View {
     public var body: some View {
-        Text("Hello, TapPager!")
+        Text("Hello, TabPager!")
     }
 }
