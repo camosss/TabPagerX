@@ -8,16 +8,32 @@ struct TabContent<Content: View>: View {
     /// Content closure
     let content: (Int) -> Content
 
+    init(
+        selectedIndex: Binding<Int>,
+        tabCount: Int,
+        content: @escaping (Int) -> Content
+    ) {
+        self._selectedIndex = selectedIndex
+        self.tabCount = tabCount
+        self.content = content
+    }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 0) {
-                ForEach(0..<tabCount, id: \.self) { index in
-                    content(index)
-                        .frame(width: UIScreen.main.bounds.width)
+            ScrollViewReader { proxy in
+                LazyHStack(spacing: 0) {
+                    ForEach(0..<tabCount, id: \.self) { index in
+                        content(index)
+                            .frame(width: UIScreen.main.bounds.width)
+                            .id(index)
+                    }
+                }
+                .onChange(of: selectedIndex) { newIndex in
+                    withAnimation(.easeInOut) {
+                        proxy.scrollTo(newIndex, anchor: .leading)
+                    }
                 }
             }
-            .offset(x: -CGFloat(selectedIndex) * UIScreen.main.bounds.width)
         }
-        .animation(.easeInOut, value: selectedIndex)
     }
 }
