@@ -4,19 +4,7 @@ struct TabContent<Content: View>: View {
 
     @Binding var selectedIndex: Int
     let tabCount: Int
-
-    /// Content closure
     let content: (Int) -> Content
-
-    init(
-        selectedIndex: Binding<Int>,
-        tabCount: Int,
-        content: @escaping (Int) -> Content
-    ) {
-        self._selectedIndex = selectedIndex
-        self.tabCount = tabCount
-        self.content = content
-    }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {

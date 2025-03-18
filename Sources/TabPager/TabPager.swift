@@ -6,10 +6,10 @@ import SwiftUI
 public struct TabPager<Content: View>: View {
 
     /// List of tab titles
-    @Binding private var tabs: [String]
+    @Binding var tabs: [String]
 
     /// Index of the selected tab
-    @Binding private var selectedIndex: Int
+    @Binding var selectedIndex: Int
 
     /// Content view for each tab
     private let content: (Int) -> Content
