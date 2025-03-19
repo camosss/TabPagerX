@@ -11,6 +11,9 @@ public struct TabPager<Content: View>: View {
     /// Index of the selected tab
     @Binding var selectedIndex: Int
 
+    /// an option for the initial index
+    private let initialIndex: Int?
+
     /// Content view for each tab
     private let content: (Int) -> Content
 
@@ -18,10 +21,12 @@ public struct TabPager<Content: View>: View {
     public init(
         tabs: Binding<[String]>,
         selectedIndex: Binding<Int>,
+        initialIndex: Int? = nil,
         @ViewBuilder content: @escaping (Int) -> Content
     ) {
         self._tabs = tabs
         self._selectedIndex = selectedIndex
+        self.initialIndex = initialIndex
         self.content = content
     }
 
@@ -34,15 +39,31 @@ public struct TabPager<Content: View>: View {
                 content: content
             )
         }
+        .onAppear {
+            if let initialIndex = initialIndex,
+               initialIndex >= 0 && initialIndex < tabs.count {
+                // Forcefully set the initial index when the view appears
+                selectedIndex = initialIndex
+
+            } else if selectedIndex < 0 || selectedIndex >= tabs.count {
+                // Ensure the selected index remains within a valid range
+                selectedIndex = 0
+            }
+        }
     }
 }
 
 struct ContentView: View {
+
     @State private var tabs = ["Tab 1", "Tab 2", "Tab 3"]
     @State private var selectedIndex = 0
 
     var body: some View {
-        TabPager(tabs: $tabs, selectedIndex: $selectedIndex) { index in
+        TabPager(
+            tabs: $tabs,
+            selectedIndex: $selectedIndex,
+            initialIndex: 2
+        ) { index in
             Text("\(tabs[index])")
                 .font(.title)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
