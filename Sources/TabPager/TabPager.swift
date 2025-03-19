@@ -61,8 +61,7 @@ struct ContentView: View {
     var body: some View {
         TabPager(
             tabs: $tabs,
-            selectedIndex: $selectedIndex,
-            initialIndex: 2
+            selectedIndex: $selectedIndex
         ) { index in
             Text("\(tabs[index])")
                 .font(.title)
