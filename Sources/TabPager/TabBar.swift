@@ -6,16 +6,20 @@ struct TabBar: View {
     @Binding var selectedIndex: Int
 
     var body: some View {
-        HStack(spacing: 10) {
+        // Initialize spacing to 0, replace with dynamic adjustment
+        HStack(spacing: 0) {
             ForEach(tabs.indices, id: \.self) { index in
-                Text(tabs[index])
-                    .font(.headline)
-                    .padding(8)
-                    .onTapGesture {
+                TabButton(
+                    title: tabs[index],
+                    isSelected: index == selectedIndex
+                )
+                .onTapGesture {
+                    withAnimation(.easeInOut) {
                         selectedIndex = index
                     }
+                }
             }
         }
-        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
     }
 }
