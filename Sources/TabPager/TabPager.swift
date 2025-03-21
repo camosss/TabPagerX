@@ -1,6 +1,3 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
-
 import SwiftUI
 
 public struct TabPager<Content: View>: View {
@@ -14,6 +11,9 @@ public struct TabPager<Content: View>: View {
     /// an option for the initial index
     private let initialIndex: Int?
 
+    /// Defines the layout style for the tab bar
+    private let layoutStyle: TabLayoutStyle
+
     /// Content view for each tab
     private let content: (Int) -> Content
 
@@ -22,17 +22,23 @@ public struct TabPager<Content: View>: View {
         tabs: Binding<[String]>,
         selectedIndex: Binding<Int>,
         initialIndex: Int? = nil,
+        layoutStyle: TabLayoutStyle = .fixed,
         @ViewBuilder content: @escaping (Int) -> Content
     ) {
         self._tabs = tabs
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
+        self.layoutStyle = layoutStyle
         self.content = content
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            TabBar(tabs: $tabs, selectedIndex: $selectedIndex)
+            TabBar(
+                tabs: $tabs,
+                selectedIndex: $selectedIndex,
+                layoutStyle: layoutStyle
+            )
             TabContent(
                 selectedIndex: $selectedIndex,
                 tabCount: tabs.count,
@@ -61,8 +67,10 @@ struct ContentView: View {
     var body: some View {
         TabPager(
             tabs: $tabs,
-            selectedIndex: $selectedIndex
+            selectedIndex: $selectedIndex,
+            layoutStyle: .scrollable
         ) { index in
+
             Text("\(tabs[index])")
                 .font(.title)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
