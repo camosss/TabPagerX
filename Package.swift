@@ -1,17 +1,17 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.5
 
 import PackageDescription
 
 let package = Package(
-    name: "TabPager",
+    name: "TabPagerX",
     platforms: [
         .iOS(.v15)
     ],
     products: [
-        .library(name: "TabPager", targets: ["TabPager"]),
+        .library(name: "TabPagerX", targets: ["TabPagerX"]),
     ],
     targets: [
-        .target(name: "TabPager"),
-        .testTarget(name: "TabPagerTests", dependencies: ["TabPager"]),
+        .target(name: "TabPagerX"),
+        .testTarget(name: "TabPagerXTests", dependencies: ["TabPagerX"]),
     ]
 )
