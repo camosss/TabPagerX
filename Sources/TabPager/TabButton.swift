@@ -2,17 +2,17 @@ import SwiftUI
 
 // Individual tab button view
 struct TabButton: View {
-
     let title: String
     let isSelected: Bool
+    let style: TabButtonStyle
 
     var body: some View {
         Text(title)
-            .font(.headline)
-            .padding(.vertical, 12)
-            .padding(.horizontal, 12)
-            .frame(maxWidth: .infinity, alignment: .center) // Visualize selected state
-            .background(isSelected ? Color.blue : Color.clear)
-            .contentShape(Rectangle()) // Expand tap area
+            .font(style.font)
+            .foregroundColor(isSelected ? style.selectedTextColor : style.textColor)
+            .padding(style.padding)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .background(isSelected ? style.selectedBackgroundColor : style.backgroundColor)
+            .contentShape(Rectangle())
     }
 }

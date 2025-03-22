@@ -6,6 +6,7 @@ struct TabBar: View {
     @Binding var selectedIndex: Int
 
     let layoutStyle: TabLayoutStyle
+    let buttonStyle: TabButtonStyle
 
     var body: some View {
 
@@ -17,7 +18,8 @@ struct TabBar: View {
                 ForEach(tabs.indices, id: \.self) { index in
                     TabButton(
                         title: tabs[index],
-                        isSelected: index == selectedIndex
+                        isSelected: index == selectedIndex,
+                        style: buttonStyle
                     )
                     .onTapGesture {
                         withAnimation(.easeInOut) {
@@ -36,7 +38,8 @@ struct TabBar: View {
                         ForEach(tabs.indices, id: \.self) { index in
                             TabButton(
                                 title: tabs[index],
-                                isSelected: index == selectedIndex
+                                isSelected: index == selectedIndex,
+                                style: buttonStyle
                             )
                             .onTapGesture {
                                 withAnimation(.easeInOut) {

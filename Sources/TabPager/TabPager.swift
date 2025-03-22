@@ -12,7 +12,10 @@ public struct TabPager<Content: View>: View {
     private let initialIndex: Int?
 
     /// Defines the layout style for the tab bar
-    private let layoutStyle: TabLayoutStyle
+    private var layoutStyle: TabLayoutStyle
+
+    /// button style property
+    private var buttonStyle: TabButtonStyle
 
     /// Content view for each tab
     private let content: (Int) -> Content
@@ -22,14 +25,14 @@ public struct TabPager<Content: View>: View {
         tabs: Binding<[String]>,
         selectedIndex: Binding<Int>,
         initialIndex: Int? = nil,
-        layoutStyle: TabLayoutStyle = .fixed,
         @ViewBuilder content: @escaping (Int) -> Content
     ) {
         self._tabs = tabs
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
-        self.layoutStyle = layoutStyle
         self.content = content
+        self.layoutStyle = .fixed
+        self.buttonStyle = .default
     }
 
     public var body: some View {
@@ -37,7 +40,8 @@ public struct TabPager<Content: View>: View {
             TabBar(
                 tabs: $tabs,
                 selectedIndex: $selectedIndex,
-                layoutStyle: layoutStyle
+                layoutStyle: layoutStyle,
+                buttonStyle: buttonStyle
             )
             TabContent(
                 selectedIndex: $selectedIndex,
@@ -59,6 +63,36 @@ public struct TabPager<Content: View>: View {
     }
 }
 
+public extension TabPager {
+    /// Modifier to customize TabBar layout style
+    func tabBarLayoutStyle(_ style: TabLayoutStyle) -> Self {
+        var new = self
+        new.layoutStyle = style
+        return new
+    }
+
+    /// Modifier to customize TabButton style
+    func tabButtonStyle(
+        font: Font = .headline,
+        textColor: Color = .black,
+        selectedTextColor: Color = .black,
+        backgroundColor: Color = .clear,
+        selectedBackgroundColor: Color = .blue,
+        padding: EdgeInsets = EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+    ) -> Self {
+        var new = self
+        new.buttonStyle = TabButtonStyle(
+            font: font,
+            textColor: textColor,
+            selectedTextColor: selectedTextColor,
+            backgroundColor: backgroundColor,
+            selectedBackgroundColor: selectedBackgroundColor,
+            padding: padding
+        )
+        return new
+    }
+}
+
 struct ContentView: View {
 
     @State private var tabs = ["Tab 1", "Tab 2", "Tab 3"]
@@ -67,15 +101,22 @@ struct ContentView: View {
     var body: some View {
         TabPager(
             tabs: $tabs,
-            selectedIndex: $selectedIndex,
-            layoutStyle: .scrollable
+            selectedIndex: $selectedIndex
         ) { index in
-
             Text("\(tabs[index])")
                 .font(.title)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.gray.opacity(0.2))
         }
+        .tabBarLayoutStyle(.scrollable)
+        .tabButtonStyle(
+            font: .title2,
+            textColor: .gray,
+            selectedTextColor: .white,
+            backgroundColor: .gray.opacity(0.1),
+            selectedBackgroundColor: .purple,
+            padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+        )
     }
 }
 
