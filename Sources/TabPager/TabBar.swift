@@ -6,6 +6,7 @@ struct TabBar: View {
     @Binding var selectedIndex: Int
 
     let layoutStyle: TabLayoutStyle
+    let layoutConfig: TabBarLayoutConfig
     let buttonStyle: TabButtonStyle
 
     var body: some View {
@@ -14,7 +15,7 @@ struct TabBar: View {
 
         // Distributes tabs evenly across device width
         case .fixed:
-            HStack(spacing: 0) {
+            HStack(spacing: layoutConfig.buttonSpacing) {
                 ForEach(tabs.indices, id: \.self) { index in
                     TabButton(
                         title: tabs[index],
@@ -28,13 +29,14 @@ struct TabBar: View {
                     }
                 }
             }
+            .padding(.horizontal, layoutConfig.sidePadding)
             .frame(maxWidth: .infinity)
 
         // Adjusts tab size to content, enables horizontal scrolling
         case .scrollable:
             ScrollView(.horizontal, showsIndicators: false) {
                 ScrollViewReader { proxy in
-                    HStack(spacing: 0) {
+                    HStack(spacing: layoutConfig.buttonSpacing) {
                         ForEach(tabs.indices, id: \.self) { index in
                             TabButton(
                                 title: tabs[index],
@@ -48,7 +50,7 @@ struct TabBar: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 0)
+                    .padding(.horizontal, layoutConfig.sidePadding)
                     .onChange(of: selectedIndex) { newIndex in
                         withAnimation(.easeInOut) {
                             proxy.scrollTo(newIndex, anchor: .center)

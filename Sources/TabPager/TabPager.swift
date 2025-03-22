@@ -11,14 +11,18 @@ public struct TabPager<Content: View>: View {
     /// an option for the initial index
     private let initialIndex: Int?
 
+    /// Content view for each tab
+    private let content: (Int) -> Content
+
     /// Defines the layout style for the tab bar
     private var layoutStyle: TabLayoutStyle
 
-    /// button style property
+    /// Configures the layout properties of the tab bar
+    private var layoutConfig: TabBarLayoutConfig
+
+    /// Defines the visual style of individual tab buttons
     private var buttonStyle: TabButtonStyle
 
-    /// Content view for each tab
-    private let content: (Int) -> Content
 
     /// Designed for the user to provide the tab list, selected index, and content
     public init(
@@ -32,6 +36,7 @@ public struct TabPager<Content: View>: View {
         self.initialIndex = initialIndex
         self.content = content
         self.layoutStyle = .fixed
+        self.layoutConfig = .default
         self.buttonStyle = .default
     }
 
@@ -41,6 +46,7 @@ public struct TabPager<Content: View>: View {
                 tabs: $tabs,
                 selectedIndex: $selectedIndex,
                 layoutStyle: layoutStyle,
+                layoutConfig: layoutConfig,
                 buttonStyle: buttonStyle
             )
             TabContent(
@@ -68,6 +74,19 @@ public extension TabPager {
     func tabBarLayoutStyle(_ style: TabLayoutStyle) -> Self {
         var new = self
         new.layoutStyle = style
+        return new
+    }
+
+    /// Modifier to customize TabBar layout configuration
+    func tabBarLayoutConfig(
+        buttonSpacing: CGFloat = 0,
+        sidePadding: CGFloat = 0
+    ) -> Self {
+        var new = self
+        new.layoutConfig = TabBarLayoutConfig(
+            buttonSpacing: buttonSpacing,
+            sidePadding: sidePadding
+        )
         return new
     }
 
@@ -115,12 +134,16 @@ struct ContentView: View {
                 .background(Color.gray.opacity(0.2))
         }
         .tabBarLayoutStyle(.scrollable)
+        .tabBarLayoutConfig(
+            buttonSpacing: 8,
+            sidePadding: 12
+        )
         .tabButtonStyle(
             font: .title2,
             textColor: .gray,
             selectedTextColor: .white,
             backgroundColor: .white,
-            selectedBackgroundColor: .purple,
+            selectedBackgroundColor: .blue,
             padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16),
             borderColor: .gray,
             borderWidth: 1,
