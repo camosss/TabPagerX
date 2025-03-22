@@ -91,24 +91,18 @@ public extension TabPager {
 
     /// Modifier to customize TabButton style
     func tabButtonStyle(
-        font: Font = .headline,
-        textColor: Color = .black,
-        selectedTextColor: Color = .black,
-        backgroundColor: Color = .clear,
-        selectedBackgroundColor: Color = .blue,
-        padding: EdgeInsets = EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12),
-        borderColor: Color = .clear,
-        borderWidth: CGFloat = 0,
-        cornerRadius: CGFloat = 0,
-        indicatorStyle: TabIndicatorStyle = .default
+        normal: ButtonStateStyle,
+        selected: ButtonStateStyle? = nil,
+        padding: EdgeInsets? = nil,
+        borderColor: Color? = nil,
+        borderWidth: CGFloat? = nil,
+        cornerRadius: CGFloat? = nil,
+        indicatorStyle: TabIndicatorStyle? = nil
     ) -> Self {
         var new = self
         new.buttonStyle = TabButtonStyle(
-            font: font,
-            textColor: textColor,
-            selectedTextColor: selectedTextColor,
-            backgroundColor: backgroundColor,
-            selectedBackgroundColor: selectedBackgroundColor,
+            normal: normal,
+            selected: selected,
             padding: padding,
             borderColor: borderColor,
             borderWidth: borderWidth,
@@ -140,16 +134,21 @@ struct ContentView: View {
             sidePadding: 12
         )
         .tabButtonStyle(
-            font: .title2,
-            textColor: .gray,
-            selectedTextColor: .black,
-            backgroundColor: .white,
-            selectedBackgroundColor: .blue,
+            normal: ButtonStateStyle(
+                font: .title3,
+                textColor: .gray,
+                backgroundColor: .white
+            ),
+            selected: ButtonStateStyle(
+                font: .title2,
+                textColor: .blue,
+                backgroundColor: .white
+            ),
             padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16),
             indicatorStyle: TabIndicatorStyle(
                 height: 2,
-                color: .black,
-                horizontalInset: 4,
+                color: .blue,
+                horizontalInset: 8,
                 cornerRadius: 4
             )
         )

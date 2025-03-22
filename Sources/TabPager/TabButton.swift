@@ -9,11 +9,11 @@ struct TabButton: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Text(title)
-                .font(style.font)
-                .foregroundColor(isSelected ? style.selectedTextColor : style.textColor)
+                .font(isSelected ? style.selected.font : style.normal.font)
+                .foregroundColor(isSelected ? style.selected.textColor : style.normal.textColor)
                 .padding(style.padding)
                 .frame(maxWidth: .infinity, alignment: .center)
-                .background(isSelected ? style.selectedBackgroundColor : style.backgroundColor)
+                .background(isSelected ? style.selected.backgroundColor : style.normal.backgroundColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: style.cornerRadius)
                         .stroke(style.borderColor, lineWidth: style.borderWidth)
