@@ -23,7 +23,6 @@ public struct TabPager<Content: View>: View {
     /// Defines the visual style of individual tab buttons
     private var buttonStyle: TabButtonStyle
 
-
     /// Designed for the user to provide the tab list, selected index, and content
     public init(
         tabs: Binding<[String]>,
@@ -100,7 +99,8 @@ public extension TabPager {
         padding: EdgeInsets = EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12),
         borderColor: Color = .clear,
         borderWidth: CGFloat = 0,
-        cornerRadius: CGFloat = 0
+        cornerRadius: CGFloat = 0,
+        indicatorStyle: TabIndicatorStyle = .default
     ) -> Self {
         var new = self
         new.buttonStyle = TabButtonStyle(
@@ -112,7 +112,8 @@ public extension TabPager {
             padding: padding,
             borderColor: borderColor,
             borderWidth: borderWidth,
-            cornerRadius: cornerRadius
+            cornerRadius: cornerRadius,
+            indicatorStyle: indicatorStyle
         )
         return new
     }
@@ -141,13 +142,16 @@ struct ContentView: View {
         .tabButtonStyle(
             font: .title2,
             textColor: .gray,
-            selectedTextColor: .white,
+            selectedTextColor: .black,
             backgroundColor: .white,
             selectedBackgroundColor: .blue,
             padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16),
-            borderColor: .gray,
-            borderWidth: 1,
-            cornerRadius: 8
+            indicatorStyle: TabIndicatorStyle(
+                height: 2,
+                color: .black,
+                horizontalInset: 4,
+                cornerRadius: 4
+            )
         )
     }
 }
