@@ -78,7 +78,10 @@ public extension TabPager {
         selectedTextColor: Color = .black,
         backgroundColor: Color = .clear,
         selectedBackgroundColor: Color = .blue,
-        padding: EdgeInsets = EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+        padding: EdgeInsets = EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12),
+        borderColor: Color = .clear,
+        borderWidth: CGFloat = 0,
+        cornerRadius: CGFloat = 0
     ) -> Self {
         var new = self
         new.buttonStyle = TabButtonStyle(
@@ -87,7 +90,10 @@ public extension TabPager {
             selectedTextColor: selectedTextColor,
             backgroundColor: backgroundColor,
             selectedBackgroundColor: selectedBackgroundColor,
-            padding: padding
+            padding: padding,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
+            cornerRadius: cornerRadius
         )
         return new
     }
@@ -113,9 +119,12 @@ struct ContentView: View {
             font: .title2,
             textColor: .gray,
             selectedTextColor: .white,
-            backgroundColor: .gray.opacity(0.1),
+            backgroundColor: .white,
             selectedBackgroundColor: .purple,
-            padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+            padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16),
+            borderColor: .gray,
+            borderWidth: 1,
+            cornerRadius: 8
         )
     }
 }

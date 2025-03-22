@@ -13,6 +13,11 @@ struct TabButton: View {
             .padding(style.padding)
             .frame(maxWidth: .infinity, alignment: .center)
             .background(isSelected ? style.selectedBackgroundColor : style.backgroundColor)
+            .overlay(
+                RoundedRectangle(cornerRadius: style.cornerRadius)
+                    .stroke(style.borderColor, lineWidth: style.borderWidth)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius))
             .contentShape(Rectangle())
     }
 }
