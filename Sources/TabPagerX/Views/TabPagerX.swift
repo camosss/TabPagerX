@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct TabPager<Content: View>: View {
+public struct TabPagerX<Content: View>: View {
 
     /// List of tab titles
     @Binding var tabs: [String]
@@ -68,7 +68,7 @@ public struct TabPager<Content: View>: View {
     }
 }
 
-public extension TabPager {
+public extension TabPagerX {
     /// Modifier to customize TabBar layout style
     func tabBarLayoutStyle(_ style: TabLayoutStyle) -> Self {
         var new = self
