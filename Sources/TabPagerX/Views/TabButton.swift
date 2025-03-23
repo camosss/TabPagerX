@@ -16,7 +16,10 @@ struct TabButton: View {
                 .background(isSelected ? style.selected.backgroundColor : style.normal.backgroundColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: style.cornerRadius)
-                        .stroke(style.borderColor, lineWidth: style.borderWidth)
+                        .stroke(
+                            isSelected ? (style.selected.borderColor ?? .clear) : (style.normal.borderColor ?? .clear),
+                            lineWidth: (isSelected ? style.selected.borderWidth : style.normal.borderWidth) ?? 0
+                        )
                 )
                 .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius))
                 .contentShape(Rectangle())

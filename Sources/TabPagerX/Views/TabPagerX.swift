@@ -94,8 +94,6 @@ public extension TabPagerX {
         normal: ButtonStateStyle,
         selected: ButtonStateStyle? = nil,
         padding: EdgeInsets? = nil,
-        borderColor: Color? = nil,
-        borderWidth: CGFloat? = nil,
         cornerRadius: CGFloat? = nil,
         indicatorStyle: TabIndicatorStyle? = nil
     ) -> Self {
@@ -104,8 +102,6 @@ public extension TabPagerX {
             normal: normal,
             selected: selected,
             padding: padding,
-            borderColor: borderColor,
-            borderWidth: borderWidth,
             cornerRadius: cornerRadius,
             indicatorStyle: indicatorStyle
         )
