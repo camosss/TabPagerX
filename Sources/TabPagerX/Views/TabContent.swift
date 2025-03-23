@@ -12,61 +12,78 @@ struct TabContent<Content: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ScrollView(.horizontal, showsIndicators: false) {
-                ScrollViewReader { proxy in
+            createTabScrollView(geometry: geometry)
+                .ignoresSafeArea(edges: .bottom)
+        }
+    }
 
-                    // Create tab content
-                    HStack(spacing: 0) {
-                        ForEach(0..<tabCount, id: \.self) { index in
-                            content(index)
-                                .frame(width: geometry.size.width)
-                                .id(index)
-                        }
-                    }
-                    .offset(x: dragOffset) // Real-time position adjustment during swipe
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                // Reflect drag distance during the drag
-                                dragOffset = value.translation.width
-                            }
-                            .onEnded { gesture in
-                                let pageWidth = geometry.size.width
-                                let dragDistance = gesture.translation.width
-
-                                /// Page transition threshold
-                                let threshold = pageWidth / 2
-                                let newIndex = calculateNewIndex(
-                                    dragDistance: dragDistance,
-                                    threshold: threshold
-                                )
-
-                                withAnimation(.easeInOut) {
-                                    selectedIndex = newIndex
-
-                                    // Reset offset after drag ends
-                                    dragOffset = 0
-                                }
-                            }
-                    )
+    /// Create the scroll view for tab content
+    private func createTabScrollView(geometry: GeometryProxy) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            ScrollViewReader { proxy in
+                createTabContent(geometry: geometry)
+                    .offset(x: dragOffset)
+                    .gesture(createDragGesture(geometry: geometry))
                     .onChange(of: selectedIndex) { newIndex in
-                        withAnimation(.easeInOut) {
-                            // Scroll to the selected page
-                            proxy.scrollTo(newIndex, anchor: .leading)
-
-                            // Reset offset when index changes
-                            dragOffset = 0
-                        }
+                        handleIndexChange(newIndex: newIndex, proxy: proxy)
                     }
-                }
             }
+        }
+    }
+
+    /// Create the tab content with HStack
+    private func createTabContent(geometry: GeometryProxy) -> some View {
+        HStack(spacing: 0) {
+            ForEach(0..<tabCount, id: \.self) { index in
+                content(index)
+                    .frame(width: geometry.size.width)
+                    .id(index)
+            }
+        }
+    }
+
+    /// Create the drag gesture for swipe navigation
+    private func createDragGesture(geometry: GeometryProxy) -> some Gesture {
+        DragGesture()
+            .onChanged { value in
+                // Reflect drag distance during the drag
+                dragOffset = value.translation.width
+            }
+            .onEnded { gesture in
+                handleDragEnded(
+                    gesture: gesture,
+                    pageWidth: geometry.size.width
+                )
+            }
+    }
+
+    /// Handle drag gesture onEnded event
+    private func handleDragEnded(gesture: DragGesture.Value, pageWidth: CGFloat) {
+        let dragDistance = gesture.translation.width
+        let threshold = pageWidth / 2
+        let newIndex = calculateNewIndex(
+            dragDistance: dragDistance,
+            threshold: threshold
+        )
+
+        withAnimation(.easeInOut) {
+            selectedIndex = newIndex
+            dragOffset = 0
+        }
+    }
+
+    /// Handle selectedIndex change to scroll to the selected tab
+    private func handleIndexChange(newIndex: Int, proxy: ScrollViewProxy) {
+        withAnimation(.easeInOut) {
+            proxy.scrollTo(newIndex, anchor: .leading)
+            dragOffset = 0
         }
     }
 
     /// New index calculation logic
     private func calculateNewIndex(dragDistance: CGFloat, threshold: CGFloat) -> Int {
-
         var newIndex = selectedIndex
+
         if abs(dragDistance) > threshold {
             // Right swipe (previous page)
             if dragDistance > 0 {
