@@ -35,9 +35,16 @@ struct TabContent<Content: View>: View {
     private func createTabContent(geometry: GeometryProxy) -> some View {
         HStack(spacing: 0) {
             ForEach(0..<tabCount, id: \.self) { index in
-                content(index)
-                    .frame(width: geometry.size.width)
-                    .id(index)
+                ZStack {
+                    content(index)
+
+                    // Expand touch area"
+                    Color.clear
+                        .allowsHitTesting(false)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .id(index)
+                .contentShape(Rectangle())
             }
         }
     }
