@@ -4,7 +4,7 @@ import SwiftUI
 struct TabPagerXSampleApp: App {
     var body: some Scene {
         WindowGroup {
-            TabPagerXSample()
+            TabPagerXSampleHome()
         }
     }
 }
