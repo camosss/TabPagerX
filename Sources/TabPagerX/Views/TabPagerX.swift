@@ -14,6 +14,9 @@ public struct TabPagerX<Content: View>: View {
     /// Content view for each tab
     private let content: (Int) -> Content
 
+    /// Callback when tab changes
+    private var onTabChanged: ((Int) -> Void)? = nil
+
     /// Defines the layout style for the tab bar
     private var layoutStyle: TabLayoutStyle
 
@@ -65,6 +68,9 @@ public struct TabPagerX<Content: View>: View {
                 selectedIndex = 0
             }
         }
+        .onChange(of: selectedIndex) { newIndex in
+            onTabChanged?(newIndex)
+        }
     }
 }
 
@@ -105,6 +111,13 @@ public extension TabPagerX {
             cornerRadius: cornerRadius,
             indicatorStyle: indicatorStyle
         )
+        return new
+    }
+
+    /// Modifier to observe tab index changes
+    func onTabChanged(_ action: @escaping (Int) -> Void) -> Self {
+        var new = self
+        new.onTabChanged = action
         return new
     }
 }
