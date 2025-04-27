@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "TabPagerX"
-  spec.version      = "1.0.5"
+  spec.version      = "1.0.6"
   spec.summary      = "A SwiftUI-based tab pager library for iOS."
   spec.description  = <<-DESC
                       TabPagerX is a SwiftUI-based library that provides a customizable tab pager for iOS applications. It supports both fixed and scrollable tab layouts, with extensive styling options for tab buttons and indicators.
