@@ -10,6 +10,7 @@ struct TabPagerXSampleHome: View {
                 NavigationLink("2. Fixed Layout Tabs with List", destination: FixedTabWithListSample())
                 NavigationLink("3. Basic Scrollable Tabs", destination: BasicScrollableTabSample())
                 NavigationLink("4. Dynamic Tabs Add/Remove", destination: DynamicTabsSample())
+                NavigationLink("5. Mixed Content Tabs", destination: MixedContentTabsSample())
             }
             .navigationTitle("TabPagerX Samples")
         }
@@ -131,6 +132,51 @@ struct DynamicTabsSample: View {
                 }
                 .padding()
             }
+        }
+    }
+}
+
+/// Example demonstrating mixed content types per tab
+struct MixedContentTabsSample: View {
+    @State private var tabs = ["Text", "List", "Button"]
+    @State private var selectedIndex = 0
+
+    var body: some View {
+        TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
+            switch index {
+            case 0:
+                Text("simple text view")
+                    .font(.largeTitle)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            case 1:
+                VStack {
+                    Button(action: {
+                        print("Button tapped")
+                    }) {
+                        Text("Tap Me")
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            case 2:
+                List(0..<50) { item in
+                    Text("List item \(item)")
+                }
+                .listStyle(PlainListStyle())
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            default:
+                EmptyView()
+            }
+        }
+        .tabBarLayoutStyle(.fixed)
+        .onTabChanged { newIndex in
+            print("Selected tab: \(newIndex)")
         }
     }
 }
