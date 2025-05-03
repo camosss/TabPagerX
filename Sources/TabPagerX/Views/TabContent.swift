@@ -33,7 +33,7 @@ struct TabContent<Content: View>: View {
 
     /// Create the tab content with HStack
     private func createTabContent(geometry: GeometryProxy) -> some View {
-        HStack(spacing: 0) {
+        LazyHStack(spacing: 0) {
             ForEach(0..<tabCount, id: \.self) { index in
                 ZStack {
                     content(index)
