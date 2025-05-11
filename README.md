@@ -80,15 +80,29 @@ TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
 
 - Style normal and selected states with ButtonStateStyle.
 - If selected is omitted, normal style applies to both states.
-- Customize padding, cornerRadius, and indicatorStyle.
+- Customize padding and cornerRadius using `.tabButtonStyle(...)`.
 
 ```swift
 .tabButtonStyle(
     normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
     selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
     padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16),
-    cornerRadius: 8,
-    indicatorStyle: TabIndicatorStyle(height: 2, color: .blue, horizontalInset: 8, cornerRadius: 4, animationDuration: 0.3)
+    cornerRadius: 8
+)
+```
+
+### Customize Tab Indicator Style
+
+- Customize tab underline (indicator) with `.tabIndicatorStyle(...)`.
+- You can set height, color, horizontalInset, cornerRadius, and animationDuration.
+
+```swift
+.tabIndicatorStyle(
+    height: 2,
+    color: .blue,
+    horizontalInset: 8,
+    cornerRadius: 4,
+    animationDuration: 0.3
 )
 ```
 
@@ -118,4 +132,3 @@ pod install
 
 ## 💥 License
 `TabPagerX` is released under an MIT license. See [License](https://github.com/camosss/TabPagerX/blob/main/LICENSE) for more information.
-
