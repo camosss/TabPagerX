@@ -37,6 +37,7 @@ struct TabContent<Content: View>: View {
             ForEach(0..<tabCount, id: \.self) { index in
                 ZStack {
                     content(index)
+                        .id(index)
 
                     // Expand touch area"
                     Color.clear
