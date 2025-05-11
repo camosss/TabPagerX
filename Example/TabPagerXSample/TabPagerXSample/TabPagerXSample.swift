@@ -138,7 +138,7 @@ struct DynamicTabsSample: View {
 
 /// Example demonstrating mixed content types per tab
 struct MixedContentTabsSample: View {
-    @State private var tabs = ["Text", "List", "Button"]
+    @State private var tabs = ["Text", "Button",  "List"]
     @State private var selectedIndex = 0
 
     var body: some View {

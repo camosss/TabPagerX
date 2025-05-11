@@ -42,7 +42,7 @@ struct TabContent<Content: View>: View {
                     Color.clear
                         .allowsHitTesting(false)
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
+                .frame(width: geometry.size.width)
                 .id(index)
                 .contentShape(Rectangle())
             }
