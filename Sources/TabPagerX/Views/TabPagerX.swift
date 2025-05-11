@@ -26,6 +26,9 @@ public struct TabPagerX<Content: View>: View {
     /// Defines the visual style of individual tab buttons
     private var buttonStyle: TabButtonStyle
 
+    /// Defines the style of the tab indicator
+    private var indicatorStyle: TabIndicatorStyle
+
     /// Designed for the user to provide the tab list, selected index, and content
     public init(
         tabs: Binding<[String]>,
@@ -40,6 +43,7 @@ public struct TabPagerX<Content: View>: View {
         self.layoutStyle = .fixed
         self.layoutConfig = .default
         self.buttonStyle = .default
+        self.indicatorStyle = .default
     }
 
     public var body: some View {
@@ -49,7 +53,8 @@ public struct TabPagerX<Content: View>: View {
                 selectedIndex: $selectedIndex,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,
-                buttonStyle: buttonStyle
+                buttonStyle: buttonStyle,
+                indicatorStyle: indicatorStyle
             )
             TabContent(
                 selectedIndex: $selectedIndex,
@@ -100,16 +105,33 @@ public extension TabPagerX {
         normal: ButtonStateStyle,
         selected: ButtonStateStyle? = nil,
         padding: EdgeInsets? = nil,
-        cornerRadius: CGFloat? = nil,
-        indicatorStyle: TabIndicatorStyle? = nil
+        cornerRadius: CGFloat? = nil
     ) -> Self {
         var new = self
         new.buttonStyle = TabButtonStyle(
             normal: normal,
             selected: selected,
             padding: padding,
+            cornerRadius: cornerRadius
+        )
+        return new
+    }
+
+    /// Modifier to customize TabIndicator style
+    func tabIndicatorStyle(
+        height: CGFloat? = nil,
+        color: Color? = nil,
+        horizontalInset: CGFloat? = nil,
+        cornerRadius: CGFloat? = nil,
+        animationDuration: Double? = nil
+    ) -> Self {
+        var new = self
+        new.indicatorStyle = TabIndicatorStyle(
+            height: height,
+            color: color,
+            horizontalInset: horizontalInset,
             cornerRadius: cornerRadius,
-            indicatorStyle: indicatorStyle
+            animationDuration: animationDuration
         )
         return new
     }

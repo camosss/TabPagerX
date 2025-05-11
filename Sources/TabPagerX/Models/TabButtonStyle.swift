@@ -6,7 +6,6 @@ public struct TabButtonStyle: Sendable {
     public let selected: ButtonStateStyle
     public let padding: EdgeInsets
     public let cornerRadius: CGFloat
-    public let indicatorStyle: TabIndicatorStyle
 
     /// Default style
     public static let `default` = TabButtonStyle(
@@ -25,8 +24,7 @@ public struct TabButtonStyle: Sendable {
             borderWidth: 0
         ),
         padding: EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12),
-        cornerRadius: 0,
-        indicatorStyle: .default
+        cornerRadius: 0
     )
 
     /// Custom initializer with default values
@@ -34,13 +32,11 @@ public struct TabButtonStyle: Sendable {
         normal: ButtonStateStyle,
         selected: ButtonStateStyle? = nil,
         padding: EdgeInsets? = nil,
-        cornerRadius: CGFloat? = nil,
-        indicatorStyle: TabIndicatorStyle? = nil
+        cornerRadius: CGFloat? = nil
     ) {
         self.normal = normal
         self.selected = selected ?? normal
         self.padding = padding ?? Self.default.padding
         self.cornerRadius = cornerRadius ?? Self.default.cornerRadius
-        self.indicatorStyle = indicatorStyle ?? Self.default.indicatorStyle
     }
 }

@@ -8,6 +8,7 @@ struct TabBar: View {
     let layoutStyle: TabLayoutStyle
     let layoutConfig: TabBarLayoutConfig
     let buttonStyle: TabButtonStyle
+    let indicatorStyle: TabIndicatorStyle
 
     var body: some View {
 
@@ -20,7 +21,8 @@ struct TabBar: View {
                     TabButton(
                         title: tabs[index],
                         isSelected: index == selectedIndex,
-                        style: buttonStyle
+                        buttonStyle: buttonStyle,
+                        indicatorStyle: indicatorStyle
                     )
                     .onTapGesture {
                         withAnimation(.easeInOut) {
@@ -41,7 +43,8 @@ struct TabBar: View {
                             TabButton(
                                 title: tabs[index],
                                 isSelected: index == selectedIndex,
-                                style: buttonStyle
+                                buttonStyle: buttonStyle,
+                                indicatorStyle: indicatorStyle
                             )
                             .onTapGesture {
                                 withAnimation(.easeInOut) {

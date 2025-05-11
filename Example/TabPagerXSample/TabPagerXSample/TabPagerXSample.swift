@@ -75,14 +75,14 @@ struct BasicScrollableTabSample: View {
             normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
             selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
             padding: EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12),
-            cornerRadius: 8,
-            indicatorStyle: TabIndicatorStyle(
-                height: 2,
-                color: .blue,
-                horizontalInset: 8,
-                cornerRadius: 4,
-                animationDuration: 0.25
-            )
+            cornerRadius: 8
+        )
+        .tabIndicatorStyle(
+            height: 2,
+            color: .blue,
+            horizontalInset: 8,
+            cornerRadius: 4,
+            animationDuration: 0.25
         )
         .onTabChanged { newIndex in
             print("Selected tab: \(newIndex)")
@@ -106,14 +106,14 @@ struct DynamicTabsSample: View {
                 normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
                 selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
                 padding: EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12),
-                cornerRadius: 8,
-                indicatorStyle: TabIndicatorStyle(
-                    height: 2,
-                    color: .blue,
-                    horizontalInset: 8,
-                    cornerRadius: 4,
-                    animationDuration: 0.25
-                )
+                cornerRadius: 8
+            )
+            .tabIndicatorStyle(
+                height: 2,
+                color: .blue,
+                horizontalInset: 8,
+                cornerRadius: 4,
+                animationDuration: 0.25
             )
             .onTabChanged { newIndex in
                 print("Selected tab: \(newIndex)")

@@ -2,34 +2,37 @@ import SwiftUI
 
 /// Individual tab button view
 struct TabButton: View {
+
     let title: String
     let isSelected: Bool
-    let style: TabButtonStyle
+
+    let buttonStyle: TabButtonStyle
+    let indicatorStyle: TabIndicatorStyle
 
     var body: some View {
         ZStack(alignment: .bottom) {
             Text(title)
-                .font(isSelected ? style.selected.font : style.normal.font)
-                .foregroundColor(isSelected ? style.selected.textColor : style.normal.textColor)
-                .padding(style.padding)
+                .font(isSelected ? buttonStyle.selected.font : buttonStyle.normal.font)
+                .foregroundColor(isSelected ? buttonStyle.selected.textColor : buttonStyle.normal.textColor)
+                .padding(buttonStyle.padding)
                 .frame(maxWidth: .infinity, alignment: .center)
-                .background(isSelected ? style.selected.backgroundColor : style.normal.backgroundColor)
+                .background(isSelected ? buttonStyle.selected.backgroundColor : buttonStyle.normal.backgroundColor)
                 .overlay(
-                    RoundedRectangle(cornerRadius: style.cornerRadius)
+                    RoundedRectangle(cornerRadius: buttonStyle.cornerRadius)
                         .stroke(
-                            isSelected ? (style.selected.borderColor ?? .clear) : (style.normal.borderColor ?? .clear),
-                            lineWidth: (isSelected ? style.selected.borderWidth : style.normal.borderWidth) ?? 0
+                            isSelected ? (buttonStyle.selected.borderColor ?? .clear) : (buttonStyle.normal.borderColor ?? .clear),
+                            lineWidth: (isSelected ? buttonStyle.selected.borderWidth : buttonStyle.normal.borderWidth) ?? 0
                         )
                 )
-                .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius))
+                .clipShape(RoundedRectangle(cornerRadius: buttonStyle.cornerRadius))
                 .contentShape(Rectangle())
 
             // Indicator
             if isSelected {
-                RoundedRectangle(cornerRadius: style.indicatorStyle.cornerRadius)
-                    .fill(style.indicatorStyle.color)
-                    .frame(height: style.indicatorStyle.height)
-                    .padding(.horizontal, style.indicatorStyle.horizontalInset)
+                RoundedRectangle(cornerRadius: indicatorStyle.cornerRadius)
+                    .fill(indicatorStyle.color)
+                    .frame(height: indicatorStyle.height)
+                    .padding(.horizontal, indicatorStyle.horizontalInset)
             }
         }
     }
