@@ -1,7 +1,7 @@
 # TabPagerX
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-1.0.10-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-1.0.11-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 
