@@ -1,66 +1,7 @@
+import UIKit
 import SwiftUI
 
-// Wrapper for tabbed content that supports swipe and index binding
-struct TabContent<Content: View>: View {
-
-    @Binding var selectedIndex: Int
-    let tabCount: Int
-    @Binding var isSwipeEnabled: Bool
-    let content: (Int) -> Content
-
-    init(
-        selectedIndex: Binding<Int>,
-        tabCount: Int,
-        isSwipeEnabled: Binding<Bool> = .constant(true),
-        @ViewBuilder content: @escaping (Int) -> Content
-    ) {
-        self._selectedIndex = selectedIndex
-        self.tabCount = tabCount
-        self._isSwipeEnabled = isSwipeEnabled
-        self.content = content
-    }
-
-    var body: some View {
-        TabContentContainer(
-            selectedIndex: $selectedIndex,
-            tabCount: tabCount,
-            isSwipeEnabled: isSwipeEnabled,
-            content: content
-        )
-    }
-}
-
-// Bridges SwiftUI view with UIKit-based page controller
-private struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
-
-    @Binding var selectedIndex: Int
-
-    let tabCount: Int
-    let isSwipeEnabled: Bool
-    let content: (Int) -> Content
-
-    func makeUIViewController(context: Context) -> PageTabViewController<Content> {
-        let controller = PageTabViewController(
-            content: content,
-            tabCount: tabCount,
-            isSwipeEnabled: isSwipeEnabled
-        )
-        controller.selectedIndex = selectedIndex
-        controller.onIndexChanged = { newIndex in
-            selectedIndex = newIndex
-        }
-        return controller
-    }
-
-    func updateUIViewController(
-        _ uiViewController: PageTabViewController<Content>,
-        context: Context
-    ) {
-        uiViewController.updateIndex(to: selectedIndex)
-    }
-}
-
-private class PageTabViewController<Content: View>: UIPageViewController,
+class PageTabViewController<Content: View>: UIPageViewController,
                                                     UIPageViewControllerDataSource,
                                                     UIPageViewControllerDelegate {
 
