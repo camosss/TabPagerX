@@ -1,107 +1,175 @@
 import SwiftUI
 
+// Wrapper for tabbed content that supports swipe and index binding
 struct TabContent<Content: View>: View {
+
+    @Binding var selectedIndex: Int
+    let tabCount: Int
+    @Binding var isSwipeEnabled: Bool
+    let content: (Int) -> Content
+
+    init(
+        selectedIndex: Binding<Int>,
+        tabCount: Int,
+        isSwipeEnabled: Binding<Bool> = .constant(true),
+        @ViewBuilder content: @escaping (Int) -> Content
+    ) {
+        self._selectedIndex = selectedIndex
+        self.tabCount = tabCount
+        self._isSwipeEnabled = isSwipeEnabled
+        self.content = content
+    }
+
+    var body: some View {
+        TabContentContainer(
+            selectedIndex: $selectedIndex,
+            tabCount: tabCount,
+            isSwipeEnabled: isSwipeEnabled,
+            content: content
+        )
+    }
+}
+
+// Bridges SwiftUI view with UIKit-based page controller
+private struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
 
     @Binding var selectedIndex: Int
 
     let tabCount: Int
+    let isSwipeEnabled: Bool
     let content: (Int) -> Content
 
-    /// drag offset for swipe gesture
-    @State private var dragOffset: CGFloat = 0
-
-    var body: some View {
-        GeometryReader { geometry in
-            createTabScrollView(geometry: geometry)
-                .ignoresSafeArea(edges: .bottom)
+    func makeUIViewController(context: Context) -> PageTabViewController<Content> {
+        let controller = PageTabViewController(
+            content: content,
+            tabCount: tabCount,
+            isSwipeEnabled: isSwipeEnabled
+        )
+        controller.selectedIndex = selectedIndex
+        controller.onIndexChanged = { newIndex in
+            selectedIndex = newIndex
         }
+        return controller
     }
 
-    /// Create the scroll view for tab content
-    private func createTabScrollView(geometry: GeometryProxy) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            ScrollViewReader { proxy in
-                createTabContent(geometry: geometry)
-                    .offset(x: dragOffset)
-                    .gesture(createDragGesture(geometry: geometry))
-                    .onChange(of: selectedIndex) { newIndex in
-                        handleIndexChange(newIndex: newIndex, proxy: proxy)
-                    }
-            }
-        }
+    func updateUIViewController(
+        _ uiViewController: PageTabViewController<Content>,
+        context: Context
+    ) {
+        uiViewController.updateIndex(to: selectedIndex)
     }
+}
 
-    /// Create the tab content with HStack
-    private func createTabContent(geometry: GeometryProxy) -> some View {
-        LazyHStack(spacing: 0) {
-            ForEach(0..<tabCount, id: \.self) { index in
-                ZStack {
-                    content(index)
-                        .id(index)
+private class PageTabViewController<Content: View>: UIPageViewController,
+                                                    UIPageViewControllerDataSource,
+                                                    UIPageViewControllerDelegate {
 
-                    // Expand touch area"
-                    Color.clear
-                        .allowsHitTesting(false)
-                }
-                .frame(width: geometry.size.width)
-                .id(index)
-                .contentShape(Rectangle())
-            }
-        }
-    }
+    // Caches each tab's content to preserve state
+    private var viewControllersCache: [Int: UIHostingController<Content>] = [:]
 
-    /// Create the drag gesture for swipe navigation
-    private func createDragGesture(geometry: GeometryProxy) -> some Gesture {
-        DragGesture()
-            .onChanged { value in
-                // Reflect drag distance during the drag
-                dragOffset = value.translation.width
-            }
-            .onEnded { gesture in
-                handleDragEnded(
-                    gesture: gesture,
-                    pageWidth: geometry.size.width
-                )
-            }
-    }
+    private let content: (Int) -> Content
+    private let tabCount: Int
 
-    /// Handle drag gesture onEnded event
-    private func handleDragEnded(gesture: DragGesture.Value, pageWidth: CGFloat) {
-        let dragDistance = gesture.translation.width
-        let threshold = pageWidth / 2
-        let newIndex = calculateNewIndex(
-            dragDistance: dragDistance,
-            threshold: threshold
+    var selectedIndex: Int = 0
+
+    // Callback to notify parent of selected index change
+    var onIndexChanged: ((Int) -> Void)?
+
+    init(
+        content: @escaping (Int) -> Content,
+        tabCount: Int,
+        isSwipeEnabled: Bool
+    ) {
+        self.content = content
+        self.tabCount = tabCount
+
+        super.init(
+            transitionStyle: .scroll,
+            navigationOrientation: .horizontal,
+            options: nil
         )
 
-        withAnimation(.easeInOut) {
-            selectedIndex = newIndex
-            dragOffset = 0
+        self.dataSource = self
+        self.delegate = self
+
+        let initialVC = getViewController(at: selectedIndex)
+        setViewControllers([initialVC], direction: .forward, animated: false)
+
+        if !isSwipeEnabled {
+            view.subviews
+                .compactMap { $0 as? UIScrollView }
+                .forEach { $0.isScrollEnabled = false }
         }
     }
 
-    /// Handle selectedIndex change to scroll to the selected tab
-    private func handleIndexChange(newIndex: Int, proxy: ScrollViewProxy) {
-        withAnimation(.easeInOut) {
-            proxy.scrollTo(newIndex, anchor: .leading)
-            dragOffset = 0
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // Lazily loads and caches tab content
+    private func getViewController(at index: Int) -> UIHostingController<Content> {
+        if let cached = viewControllersCache[index] {
+            return cached
+
+        } else {
+            let vc = UIHostingController(rootView: content(index))
+            viewControllersCache[index] = vc
+            return vc
         }
     }
 
-    /// New index calculation logic
-    private func calculateNewIndex(dragDistance: CGFloat, threshold: CGFloat) -> Int {
-        var newIndex = selectedIndex
+    // Handles programmatic page transitions
+    func updateIndex(to newIndex: Int) {
+        guard newIndex != selectedIndex,
+              newIndex >= 0,
+              newIndex < tabCount
+        else { return }
 
-        if abs(dragDistance) > threshold {
-            // Right swipe (previous page)
-            if dragDistance > 0 {
-                newIndex = max(0, selectedIndex - 1)
+        let direction: NavigationDirection = (newIndex > selectedIndex) ? .forward : .reverse
+        let nextVC = getViewController(at: newIndex)
 
-                // Left swipe (next page)
-            } else {
-                newIndex = min(tabCount - 1, selectedIndex + 1)
-            }
+        setViewControllers(
+            [nextVC],
+            direction: direction,
+            animated: true
+        )
+        selectedIndex = newIndex
+    }
+
+    // MARK: - PageView DataSource
+    func pageViewController(
+        _: UIPageViewController,
+        viewControllerBefore viewController: UIViewController
+    ) -> UIViewController? {
+
+        guard selectedIndex > 0 else { return nil }
+        return getViewController(at: selectedIndex - 1)
+    }
+
+    func pageViewController(
+        _: UIPageViewController,
+        viewControllerAfter viewController: UIViewController
+    ) -> UIViewController? {
+
+        guard selectedIndex < tabCount - 1 else { return nil }
+        return getViewController(at: selectedIndex + 1)
+    }
+
+    // MARK: - PageView Delegate
+    // Syncs index when user swipes
+    func pageViewController(
+        _: UIPageViewController,
+        didFinishAnimating finished: Bool,
+        previousViewControllers: [UIViewController],
+        transitionCompleted completed: Bool
+    ) {
+
+        if completed,
+           let current = viewControllers?.first,
+           let index = viewControllersCache.first(where: { $0.value == current })?.key {
+
+            selectedIndex = index
+            onIndexChanged?(index)
         }
-        return newIndex
     }
 }

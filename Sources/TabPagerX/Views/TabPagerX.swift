@@ -29,6 +29,9 @@ public struct TabPagerX<Content: View>: View {
     /// Defines the style of the tab indicator
     private var indicatorStyle: TabIndicatorStyle
 
+    /// Controls whether swipe gesture is enabled for tab content
+    private var isSwipeEnabled: Bool = true
+
     /// Designed for the user to provide the tab list, selected index, and content
     public init(
         tabs: Binding<[String]>,
@@ -59,6 +62,7 @@ public struct TabPagerX<Content: View>: View {
             TabContent(
                 selectedIndex: $selectedIndex,
                 tabCount: tabs.count,
+                isSwipeEnabled: .constant(isSwipeEnabled),
                 content: content
             )
         }
@@ -140,6 +144,13 @@ public extension TabPagerX {
     func onTabChanged(_ action: @escaping (Int) -> Void) -> Self {
         var new = self
         new.onTabChanged = action
+        return new
+    }
+
+    /// Modifier to enable or disable swipe gesture for tab content
+    func contentSwipeEnabled(_ enabled: Bool) -> Self {
+        var new = self
+        new.isSwipeEnabled = enabled
         return new
     }
 }
