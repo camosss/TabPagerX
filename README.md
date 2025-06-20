@@ -1,7 +1,7 @@
 # TabPagerX
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-1.0.11-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-1.0.12-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 
@@ -104,6 +104,15 @@ TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
     cornerRadius: 4,
     animationDuration: 0.3
 )
+```
+
+### Enable or Disable Content Swipe
+
+- Allow or disable swipe gesture to switch between tabs.
+- Default is `true`. Use `.contentSwipeEnabled(false)` to disable swipe navigation.
+
+```swift
+.contentSwipeEnabled(false) // disables swipe gesture
 ```
 
 
