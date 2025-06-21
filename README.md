@@ -1,7 +1,7 @@
 # TabPagerX
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-1.0.12-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-1.1.0-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 
@@ -28,25 +28,21 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 
 ### Initialize TabPagerX
 
-- Set up `TabPagerX` with `tabs` `selectedIndex`
-- and optional `initialIndex` - Sets the initial tab on screen entry (defaults to 0)
+- Set up `TabPagerX` with `selectedIndex`
+- Optionally set `initialIndex` (default is 0)
+- Define each tab's content using child views
+- Use `.tabTitle("...")` on each view to specify the tab label
 
 ```swift
-@State private var tabs = ["Tab 1", "Tab 2", "Tab 3"]
 @State private var selectedIndex = 0
 
-TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex, initialIndex: 1) { index in
-    // Content goes here
-}
-```
-
-### Add Content
-
-- Define the content for each tab using the index.
-
-```swift
-TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
-    Text("Content for \(tabs[index])")
+TabPagerX(selectedIndex: $selectedIndex, initialIndex: 1) {
+    Text("Content for Tab 1")
+        .tabTitle("Tab 1")
+    Text("Content for Tab 2")
+        .tabTitle("Tab 2")
+    Text("Content for Tab 3")
+        .tabTitle("Tab 3")
 }
 ```
 
