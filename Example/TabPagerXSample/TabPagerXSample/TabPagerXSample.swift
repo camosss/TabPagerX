@@ -19,17 +19,33 @@ struct TabPagerXSampleHome: View {
 
 /// Example demonstrating fixed-width tab layout
 struct FixedTabSample: View {
-    @State private var tabs = ["One", "Two", "Three"]
     @State private var selectedIndex = 0
 
     var body: some View {
-        TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
+        TabPagerX(selectedIndex: $selectedIndex) {
             VStack {
                 Spacer()
-                Text("Tab \(tabs[index])")
+                Text("Tab One")
                     .font(.largeTitle)
                 Spacer()
             }
+            .tabTitle("One")
+
+            VStack {
+                Spacer()
+                Text("Tab Two")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle("Two")
+
+            VStack {
+                Spacer()
+                Text("Tab Three")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle("Three")
         }
         .tabBarLayoutStyle(.fixed)
         .onTabChanged { newIndex in
@@ -40,15 +56,31 @@ struct FixedTabSample: View {
 
 /// Example demonstrating fixed-width tab layout with List content
 struct FixedTabWithListSample: View {
-    @State private var tabs = ["First", "Second", "Third"]
     @State private var selectedIndex = 0
 
     var body: some View {
-        TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
+        TabPagerX(selectedIndex: $selectedIndex) {
             List(0..<20) { item in
-                Text("Item \(item) in \(tabs[index])")
+                Text("Item \(item) in First")
                     .padding()
             }
+            .tabTitle("First")
+            .listStyle(PlainListStyle())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            List(0..<20) { item in
+                Text("Item \(item) in Second")
+                    .padding()
+            }
+            .tabTitle("Second")
+            .listStyle(PlainListStyle())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            List(0..<20) { item in
+                Text("Item \(item) in Third")
+                    .padding()
+            }
+            .tabTitle("Third")
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -61,14 +93,24 @@ struct FixedTabWithListSample: View {
 
 /// Example demonstrating a scrollable tab bar
 struct BasicScrollableTabSample: View {
-    @State private var tabs = ["Home", "Profile", "Settings"]
     @State private var selectedIndex = 0
 
     var body: some View {
-        TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
-            Text("Content for \(tabs[index])")
+        TabPagerX(selectedIndex: $selectedIndex) {
+            Text("Content for Home")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.gray.opacity(0.2))
+                .tabTitle("Home")
+
+            Text("Content for Profile")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.gray.opacity(0.2))
+                .tabTitle("Profile")
+
+            Text("Content for Settings")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.gray.opacity(0.2))
+                .tabTitle("Settings")
         }
         .tabBarLayoutStyle(.scrollable)
         .tabButtonStyle(
@@ -97,9 +139,12 @@ struct DynamicTabsSample: View {
 
     var body: some View {
         VStack {
-            TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
-                Text("Content: \(tabs[index])")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            TabPagerX(selectedIndex: $selectedIndex) {
+                ForEach(tabs, id: \.self) { tab in
+                    Text("Content: \(tab)")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .tabTitle(tab)
+                }
             }
             .tabBarLayoutStyle(.scrollable)
             .tabButtonStyle(
@@ -128,6 +173,9 @@ struct DynamicTabsSample: View {
                 Button("Remove Tab") {
                     if !tabs.isEmpty {
                         tabs.removeLast()
+                        if selectedIndex >= tabs.count {
+                            selectedIndex = max(0, tabs.count - 1)
+                        }
                     }
                 }
                 .padding()
@@ -138,41 +186,35 @@ struct DynamicTabsSample: View {
 
 /// Example demonstrating mixed content types per tab
 struct MixedContentTabsSample: View {
-    @State private var tabs = ["Text", "Button",  "List"]
     @State private var selectedIndex = 0
 
     var body: some View {
-        TabPagerX(tabs: $tabs, selectedIndex: $selectedIndex) { index in
-            switch index {
-            case 0:
-                Text("simple text view")
-                    .font(.largeTitle)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            case 1:
-                VStack {
-                    Button(action: {
-                        print("Button tapped")
-                    }) {
-                        Text("Tap Me")
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                    }
-                }
+        TabPagerX(selectedIndex: $selectedIndex) {
+            Text("simple text view")
+                .font(.largeTitle)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .tabTitle("Text")
 
-            case 2:
-                List(0..<50) { item in
-                    Text("List item \(item)")
+            VStack {
+                Button(action: {
+                    print("Button tapped")
+                }) {
+                    Text("Tap Me")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                 }
-                .listStyle(PlainListStyle())
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            default:
-                EmptyView()
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tabTitle("Button")
+
+            List(0..<50) { item in
+                Text("List item \(item)")
+            }
+            .listStyle(PlainListStyle())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tabTitle("List")
         }
         .tabBarLayoutStyle(.fixed)
         .onTabChanged { newIndex in
