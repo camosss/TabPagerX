@@ -2,17 +2,17 @@ import SwiftUI
 
 public struct TabPagerX<Content: View>: View {
 
-    /// List of tab titles
-    @Binding var tabs: [String]
-
     /// Index of the selected tab
     @Binding var selectedIndex: Int
 
     /// an option for the initial index
     private let initialIndex: Int?
 
-    /// Content view for each tab
-    private let content: (Int) -> Content
+    /// Internal storage of tab titles
+    private let titles: [String]
+
+    /// Internal storage of tab views
+    private let views: [AnyView]
 
     /// Callback when tab changes
     private var onTabChanged: ((Int) -> Void)? = nil
@@ -32,17 +32,17 @@ public struct TabPagerX<Content: View>: View {
     /// Controls whether swipe gesture is enabled for tab content
     private var isSwipeEnabled: Bool = true
 
-    /// Designed for the user to provide the tab list, selected index, and content
+    /// Designed for the user to provide the selected index and content items
     public init(
-        tabs: Binding<[String]>,
         selectedIndex: Binding<Int>,
         initialIndex: Int? = nil,
-        @ViewBuilder content: @escaping (Int) -> Content
+        @TabPagerBuilder content: () -> [TabPagerItem<Content>]
     ) {
-        self._tabs = tabs
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
-        self.content = content
+        let items = content()
+        self.titles = items.map { $0.title }
+        self.views = items.map { AnyView($0.view) }
         self.layoutStyle = .fixed
         self.layoutConfig = .default
         self.buttonStyle = .default
@@ -52,7 +52,7 @@ public struct TabPagerX<Content: View>: View {
     public var body: some View {
         VStack(spacing: 0) {
             TabBar(
-                tabs: $tabs,
+                tabs: .constant(titles),
                 selectedIndex: $selectedIndex,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,
@@ -61,18 +61,18 @@ public struct TabPagerX<Content: View>: View {
             )
             TabContent(
                 selectedIndex: $selectedIndex,
-                tabCount: tabs.count,
+                tabCount: views.count,
                 isSwipeEnabled: .constant(isSwipeEnabled),
-                content: content
+                content: { views[$0] }
             )
         }
         .onAppear {
             if let initialIndex = initialIndex,
-               initialIndex >= 0 && initialIndex < tabs.count {
+               initialIndex >= 0 && initialIndex < titles.count {
                 // Forcefully set the initial index when the view appears
                 selectedIndex = initialIndex
 
-            } else if selectedIndex < 0 || selectedIndex >= tabs.count {
+            } else if selectedIndex < 0 || selectedIndex >= titles.count {
                 // Ensure the selected index remains within a valid range
                 selectedIndex = 0
             }
