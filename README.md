@@ -1,7 +1,7 @@
 # TabPagerX
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-1.1.1-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-1.1.2-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 
@@ -46,9 +46,54 @@ TabPagerX(selectedIndex: $selectedIndex, initialIndex: 1) {
 }
 ```
 
+### Initialize TabPagerX
+
+Follow these steps to get started with `TabPagerX`:
+- Bind a `@State` variable to `selectedIndex` to track the current tab.
+- Optionally set `initialIndex` to define which tab is shown first (default is 0).
+- Define tab content using standard SwiftUI views.
+- Add `.tabTitle("...")` to each view to label the tabs.
+
+
+There are two ways to initialize `TabPagerX`:
+
+#### 1. Using `@TabPagerBuilder` (Recommended for static tab lists)
+
+```swift
+@State private var selectedIndex = 0
+
+TabPagerX(selectedIndex: $selectedIndex, initialIndex: 0) {
+    Text("Content for Tab 1")
+        .tabTitle("Tab 1")
+    Text("Content for Tab 2")
+        .tabTitle("Tab 2")
+}
+```
+
+#### 2. Using a static array of `TabPagerItem` (Great for dynamic tab generation)
+
+```swift
+@State private var selectedIndex = 0
+let titles = ["Tab A", "Tab B", "Tab C"]
+
+let tabItems: [TabPagerItem] = titles.map { title in
+    Text("Content for \(title)")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .tabTitle(title)
+}
+
+TabPagerX(
+    selectedIndex: $selectedIndex,
+    items: tabItems
+)
+```
+
+---
+
 ### Set Tab Bar Layout Style
 
 - Choose between `fixed` or `scrollable` layouts.
+- For customizing button appearance, refer to [Customize Tab Button Style](#customize-tab-button-style).
 
 <table>
   <tr>
