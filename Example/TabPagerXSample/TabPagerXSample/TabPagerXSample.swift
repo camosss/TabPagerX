@@ -64,25 +64,25 @@ struct FixedTabWithListSample: View {
                 Text("Item \(item) in First")
                     .padding()
             }
-            .tabTitle("First")
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tabTitle("First")
 
             List(0..<20) { item in
                 Text("Item \(item) in Second")
                     .padding()
             }
-            .tabTitle("Second")
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tabTitle("Second")
 
             List(0..<20) { item in
                 Text("Item \(item) in Third")
                     .padding()
             }
-            .tabTitle("Third")
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tabTitle("Third")
         }
         .tabBarLayoutStyle(.fixed)
         .onTabChanged { newIndex in
