@@ -66,6 +66,7 @@ public struct TabPagerX: View {
                 content: { views[$0] }
             )
         }
+        .ignoresSafeArea(edges: .bottom)
         .onAppear {
             if let initialIndex = initialIndex,
                initialIndex >= 0 && initialIndex < titles.count {
