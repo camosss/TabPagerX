@@ -32,7 +32,11 @@ public struct TabPagerX: View {
     /// Controls whether swipe gesture is enabled for tab content
     private var isSwipeEnabled: Bool = true
 
-    /// Designed for the user to provide the selected index and content items
+    /// Initializes `TabPagerX` using a result builder that returns an array of `TabPagerItem`.
+    /// - Parameters:
+    ///   - selectedIndex: A binding to the currently selected tab index.
+    ///   - initialIndex: Optional index to select when the view first appears. Defaults to `nil`.
+    ///   - content: A builder closure that returns an array of `TabPagerItem` to populate the tabs.
     public init(
         selectedIndex: Binding<Int>,
         initialIndex: Int? = nil,
@@ -41,6 +45,26 @@ public struct TabPagerX: View {
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
         let items = content()
+        self.titles = items.map { $0.title }
+        self.views = items.map { AnyView($0.view) }
+        self.layoutStyle = .fixed
+        self.layoutConfig = .default
+        self.buttonStyle = .default
+        self.indicatorStyle = .default
+    }
+
+    /// Initializes a `TabPagerX` with a static array of `TabPagerItem`
+    /// - Parameters:
+    ///   - selectedIndex: A binding to the currently selected tab index
+    ///   - initialIndex: Optional initial index to select when the view appears
+    ///   - items: An array of `TabPagerItem` representing the tabs and their content
+    public init(
+        selectedIndex: Binding<Int>,
+        initialIndex: Int? = nil,
+        items: [TabPagerItem]
+    ) {
+        self._selectedIndex = selectedIndex
+        self.initialIndex = initialIndex
         self.titles = items.map { $0.title }
         self.views = items.map { AnyView($0.view) }
         self.layoutStyle = .fixed

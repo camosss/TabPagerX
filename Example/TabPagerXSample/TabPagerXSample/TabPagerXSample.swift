@@ -9,7 +9,7 @@ struct TabPagerXSampleHome: View {
                 NavigationLink("1. Fixed Layout Tabs", destination: FixedTabSample())
                 NavigationLink("2. Fixed Layout Tabs with List", destination: FixedTabWithListSample())
                 NavigationLink("3. Basic Scrollable Tabs", destination: BasicScrollableTabSample())
-                NavigationLink("4. Dynamic Tabs Add/Remove", destination: DynamicTabsSample())
+                NavigationLink("4. Generated Tabs from Data", destination: GeneratedTabsSample())
                 NavigationLink("5. Mixed Content Tabs", destination: MixedContentTabsSample())
             }
             .navigationTitle("TabPagerX Samples")
@@ -132,20 +132,29 @@ struct BasicScrollableTabSample: View {
     }
 }
 
-/// Example demonstrating dynamic tab addition and removal
-struct DynamicTabsSample: View {
-    @State private var tabs = ["Tab 1", "Tab 2"]
+/// Example demonstrating generating tabs from a fixed data list
+struct GeneratedTabsSample: View {
+    let titles = ["One", "Two", "Three"]
     @State private var selectedIndex = 0
+
+    private var tabItems: [TabPagerItem] {
+        titles.map { title in
+            List(0..<20) { item in
+                Text("Item \(item) in First")
+                    .padding()
+            }
+            .listStyle(PlainListStyle())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tabTitle(title)
+        }
+    }
 
     var body: some View {
         VStack {
-            TabPagerX(selectedIndex: $selectedIndex) {
-                ForEach(tabs, id: \.self) { tab in
-                    Text("Content: \(tab)")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .tabTitle(tab)
-                }
-            }
+            TabPagerX(
+                selectedIndex: $selectedIndex,
+                items: tabItems
+            )
             .tabBarLayoutStyle(.scrollable)
             .tabButtonStyle(
                 normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
@@ -162,23 +171,6 @@ struct DynamicTabsSample: View {
             )
             .onTabChanged { newIndex in
                 print("Selected tab: \(newIndex)")
-            }
-
-            HStack {
-                Button("Add Tab") {
-                    tabs.append("Tab \(tabs.count + 1)")
-                }
-                .padding()
-
-                Button("Remove Tab") {
-                    if !tabs.isEmpty {
-                        tabs.removeLast()
-                        if selectedIndex >= tabs.count {
-                            selectedIndex = max(0, tabs.count - 1)
-                        }
-                    }
-                }
-                .padding()
             }
         }
     }

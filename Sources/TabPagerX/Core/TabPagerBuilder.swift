@@ -8,10 +8,4 @@ public enum TabPagerBuilder {
     public static func buildBlock(_ components: TabPagerItem...) -> [TabPagerItem] {
         return components
     }
-
-    /// Handles arrays of TabPagerItem, such as when using `ForEach` or `.map`.
-    /// This enables dynamic generation of tab items inside the builder.
-    public static func buildArray(_ components: [TabPagerItem]) -> [TabPagerItem] {
-        components
-    }
 }
