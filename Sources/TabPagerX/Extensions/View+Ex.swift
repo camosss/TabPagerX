@@ -1,7 +1,7 @@
 import SwiftUI
 
-extension View {
-    func tabTitle(_ title: String) -> TabPagerItem<Self> {
+public extension View {
+    func tabTitle(_ title: String) -> TabPagerItem {
         TabPagerItem(view: self, title: title)
     }
 }

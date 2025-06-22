@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct TabPagerX<Content: View>: View {
+public struct TabPagerX: View {
 
     /// Index of the selected tab
     @Binding var selectedIndex: Int
@@ -36,7 +36,7 @@ public struct TabPagerX<Content: View>: View {
     public init(
         selectedIndex: Binding<Int>,
         initialIndex: Int? = nil,
-        @TabPagerBuilder content: () -> [TabPagerItem<Content>]
+        @TabPagerBuilder content: () -> [TabPagerItem]
     ) {
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
