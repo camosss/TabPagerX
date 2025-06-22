@@ -1,7 +1,7 @@
 # TabPagerX
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-1.1.2-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-1.1.3-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 
@@ -26,34 +26,14 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 ## 💥 Usage
 
 
-### Initialize TabPagerX
+### Getting Started with TabPagerX
 
-- Set up `TabPagerX` with `selectedIndex`
-- Optionally set `initialIndex` (default is 0)
-- Define each tab's content using child views
-- Use `.tabTitle("...")` on each view to specify the tab label
+To initialize and use `TabPagerX`, follow these steps:
 
-```swift
-@State private var selectedIndex = 0
-
-TabPagerX(selectedIndex: $selectedIndex, initialIndex: 1) {
-    Text("Content for Tab 1")
-        .tabTitle("Tab 1")
-    Text("Content for Tab 2")
-        .tabTitle("Tab 2")
-    Text("Content for Tab 3")
-        .tabTitle("Tab 3")
-}
-```
-
-### Initialize TabPagerX
-
-Follow these steps to get started with `TabPagerX`:
 - Bind a `@State` variable to `selectedIndex` to track the current tab.
-- Optionally set `initialIndex` to define which tab is shown first (default is 0).
-- Define tab content using standard SwiftUI views.
-- Add `.tabTitle("...")` to each view to label the tabs.
-
+- Optionally set `initialIndex` (default is 0) to define which tab is shown first.
+- Define each tab's content using SwiftUI views.
+- Use `.tabTitle("...")` on each view to specify the tab label.
 
 There are two ways to initialize `TabPagerX`:
 
@@ -88,7 +68,6 @@ TabPagerX(
 )
 ```
 
----
 
 ### Set Tab Bar Layout Style
 
