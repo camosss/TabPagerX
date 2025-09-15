@@ -5,12 +5,10 @@ import SwiftUI
 /// to the currently selected tab using shared coordinate space.
 struct FixedTabBarView: View {
 
-    @Binding var tabs: [String]
     let titleBuilders: [() -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
-    let buttonStyle: TabButtonStyle
     let indicatorStyle: TabIndicatorStyle
 
     /// Stores the screen-space frames of all tab buttons, used to align the indicator.
@@ -18,12 +16,11 @@ struct FixedTabBarView: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
+
             // Render the horizontal list of tab buttons
             TabButtonList(
-                tabs: tabs,
                 titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
-                buttonStyle: buttonStyle,
                 layoutConfig: layoutConfig
             )
             .padding(.horizontal, layoutConfig.sidePadding)
@@ -49,4 +46,3 @@ struct FixedTabBarView: View {
         .frame(maxWidth: .infinity)
     }
 }
-

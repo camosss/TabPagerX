@@ -8,9 +8,6 @@ public struct TabPagerX: View {
     /// an option for the initial index
     private let initialIndex: Int?
 
-    /// Internal storage of tab titles
-    private let titles: [String]
-
     /// Internal storage of tab views
     private let views: [AnyView]
 
@@ -25,9 +22,6 @@ public struct TabPagerX: View {
 
     /// Configures the layout properties of the tab bar
     private var layoutConfig: TabBarLayoutConfig
-
-    /// Defines the visual style of individual tab buttons
-    private var buttonStyle: TabButtonStyle
 
     /// Defines the style of the tab indicator
     private var indicatorStyle: TabIndicatorStyle
@@ -48,12 +42,10 @@ public struct TabPagerX: View {
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
         let items = content()
-        self.titles = items.map { $0.title }
         self.views = items.map { AnyView($0.view) }
         self.titleBuilders = items.map { $0.titleBuilder }
         self.layoutStyle = .fixed
         self.layoutConfig = .default
-        self.buttonStyle = .default
         self.indicatorStyle = .default
     }
 
@@ -69,24 +61,20 @@ public struct TabPagerX: View {
     ) {
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
-        self.titles = items.map { $0.title }
         self.views = items.map { AnyView($0.view) }
         self.titleBuilders = items.map { $0.titleBuilder }
         self.layoutStyle = .fixed
         self.layoutConfig = .default
-        self.buttonStyle = .default
         self.indicatorStyle = .default
     }
 
     public var body: some View {
         VStack(spacing: 0) {
             TabBar(
-                tabs: .constant(titles),
                 titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,
-                buttonStyle: buttonStyle,
                 indicatorStyle: indicatorStyle
             )
             TabContent(
@@ -99,11 +87,11 @@ public struct TabPagerX: View {
         .ignoresSafeArea(edges: .bottom)
         .onAppear {
             if let initialIndex = initialIndex,
-               initialIndex >= 0 && initialIndex < titles.count {
+               initialIndex >= 0 && initialIndex < titleBuilders.count {
                 // Forcefully set the initial index when the view appears
                 selectedIndex = initialIndex
 
-            } else if selectedIndex < 0 || selectedIndex >= titles.count {
+            } else if selectedIndex < 0 || selectedIndex >= titleBuilders.count {
                 // Ensure the selected index remains within a valid range
                 selectedIndex = 0
             }
@@ -131,23 +119,6 @@ public extension TabPagerX {
         new.layoutConfig = TabBarLayoutConfig(
             buttonSpacing: buttonSpacing,
             sidePadding: sidePadding
-        )
-        return new
-    }
-
-    /// Modifier to customize TabButton style
-    func tabButtonStyle(
-        normal: ButtonStateStyle,
-        selected: ButtonStateStyle? = nil,
-        padding: EdgeInsets? = nil,
-        cornerRadius: CGFloat? = nil
-    ) -> Self {
-        var new = self
-        new.buttonStyle = TabButtonStyle(
-            normal: normal,
-            selected: selected,
-            padding: padding,
-            cornerRadius: cornerRadius
         )
         return new
     }

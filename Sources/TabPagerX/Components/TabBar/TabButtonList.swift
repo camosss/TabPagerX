@@ -4,40 +4,34 @@ import SwiftUI
 /// Also reports button frames using PreferenceKey for indicator alignment.
 struct TabButtonList: View {
 
-    let tabs: [String]
     let titleBuilders: [() -> AnyView]
     @Binding var selectedIndex: Int
 
-    let buttonStyle: TabButtonStyle
     let layoutConfig: TabBarLayoutConfig
 
     var body: some View {
         // Horizontal stack of tab buttons
         HStack(spacing: layoutConfig.buttonSpacing) {
-            ForEach(tabs.indices, id: \.self) { index in
-                TabButton(
-                    title: tabs[index],
-                    titleBuilder: index < titleBuilders.count ? titleBuilders[index] : nil,
-                    isSelected: index == selectedIndex,
-                    buttonStyle: buttonStyle
-                )
-                .background(
-                    // Capture each button's frame to align the indicator later
-                    GeometryReader { proxy in
-                        Color.clear.preference(
-                            key: TabItemPreferenceKey.self,
-                            value: [index: proxy.frame(
-                                in: .named(CoordinateSpaces.tabBar)
-                            )]
-                        )
+            ForEach(titleBuilders.indices, id: \.self) { index in
+                titleBuilders[index]()
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .background(
+                        // Capture each button's frame to align the indicator later
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: TabItemPreferenceKey.self,
+                                value: [index: proxy.frame(
+                                    in: .named(CoordinateSpaces.tabBar)
+                                )]
+                            )
+                        }
+                    )
+                    .onTapGesture {
+                        withAnimation(.easeInOut) {
+                            selectedIndex = index
+                        }
                     }
-                )
-                .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        selectedIndex = index
-                    }
-                }
-                .id(index)
+                    .id(index)
             }
         }
     }

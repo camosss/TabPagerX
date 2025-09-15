@@ -4,9 +4,6 @@ import SwiftUI
 /// Switches internally between FixedTabBarView and ScrollableTabBarView based on the specified layout style.
 struct TabBar: View {
 
-    /// The array of tab titles to display.
-    @Binding var tabs: [String]
-
     /// The array of tab title builders for custom views.
     let titleBuilders: [() -> AnyView]
 
@@ -19,9 +16,6 @@ struct TabBar: View {
     /// Configuration for layout settings like spacing and padding.
     let layoutConfig: TabBarLayoutConfig
 
-    /// Style configuration for tab buttons.
-    let buttonStyle: TabButtonStyle
-
     /// Style configuration for the selection indicator.
     let indicatorStyle: TabIndicatorStyle
 
@@ -31,22 +25,18 @@ struct TabBar: View {
         // Distributes all tabs evenly across the full width
         case .fixed:
             FixedTabBarView(
-                tabs: $tabs,
                 titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutConfig: layoutConfig,
-                buttonStyle: buttonStyle,
                 indicatorStyle: indicatorStyle
             )
 
         // Sizes tabs according to content and allows horizontal scrolling
         case .scrollable:
             ScrollableTabBarView(
-                tabs: $tabs,
                 titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutConfig: layoutConfig,
-                buttonStyle: buttonStyle,
                 indicatorStyle: indicatorStyle
             )
         }

@@ -32,7 +32,11 @@ struct FixedTabSample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle("One")
+            .tabTitle {
+                Text("One")
+                    .padding()
+                    .cornerRadius(8)
+            }
 
             VStack {
                 Spacer()
@@ -40,7 +44,11 @@ struct FixedTabSample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle("Two")
+            .tabTitle {
+                Text("Two")
+                    .padding()
+                    .cornerRadius(8)
+            }
 
             VStack {
                 Spacer()
@@ -48,7 +56,11 @@ struct FixedTabSample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle("Three")
+            .tabTitle {
+                Text("Three")
+                    .padding()
+                    .cornerRadius(8)
+            }
         }
         .tabBarLayoutStyle(.fixed)
         .onTabChanged { newIndex in
@@ -69,7 +81,11 @@ struct FixedTabWithListSample: View {
             }
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .tabTitle("First")
+            .tabTitle {
+                Text("First")
+                    .padding()
+                    .cornerRadius(8)
+            }
 
             List(0..<20) { item in
                 Text("Item \(item) in Second")
@@ -77,7 +93,11 @@ struct FixedTabWithListSample: View {
             }
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .tabTitle("Second")
+            .tabTitle {
+                Text("Second")
+                    .padding()
+                    .cornerRadius(8)
+            }
 
             List(0..<20) { item in
                 Text("Item \(item) in Third")
@@ -85,7 +105,11 @@ struct FixedTabWithListSample: View {
             }
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .tabTitle("Third")
+            .tabTitle {
+                Text("Third")
+                    .padding()
+                    .cornerRadius(8)
+            }
         }
         .tabBarLayoutStyle(.fixed)
         .onTabChanged { newIndex in
@@ -103,25 +127,31 @@ struct BasicScrollableTabSample: View {
             Text("Content for Home")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.gray.opacity(0.2))
-                .tabTitle("Home")
+                .tabTitle {
+                    Text("Home")
+                        .padding()
+                        .cornerRadius(8)
+                }
 
             Text("Content for Profile")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.gray.opacity(0.2))
-                .tabTitle("Profile")
+                .tabTitle {
+                    Text("Profile")
+                        .padding()
+                        .cornerRadius(8)
+                }
 
             Text("Content for Settings")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.gray.opacity(0.2))
-                .tabTitle("Settings")
+                .tabTitle {
+                    Text("Settings")
+                        .padding()
+                        .cornerRadius(8)
+                }
         }
         .tabBarLayoutStyle(.scrollable)
-        .tabButtonStyle(
-            normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
-            selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
-            padding: EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12),
-            cornerRadius: 8
-        )
         .tabIndicatorStyle(
             height: 2,
             color: .blue,
@@ -148,7 +178,11 @@ struct GeneratedTabsSample: View {
             }
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .tabTitle(title)
+            .tabTitle {
+                Text(title)
+                    .padding()
+                    .cornerRadius(8)
+            }
         }
     }
 
@@ -159,12 +193,6 @@ struct GeneratedTabsSample: View {
                 items: tabItems
             )
             .tabBarLayoutStyle(.scrollable)
-            .tabButtonStyle(
-                normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
-                selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
-                padding: EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12),
-                cornerRadius: 8
-            )
             .tabIndicatorStyle(
                 height: 2,
                 color: .blue,
@@ -188,7 +216,11 @@ struct MixedContentTabsSample: View {
             Text("simple text view")
                 .font(.largeTitle)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .tabTitle("Text")
+                .tabTitle {
+                    Text("Text")
+                        .padding()
+                        .cornerRadius(8)
+                }
 
             VStack {
                 Button(action: {
@@ -202,14 +234,22 @@ struct MixedContentTabsSample: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .tabTitle("Button")
+            .tabTitle {
+                Text("Button")
+                    .padding()
+                    .cornerRadius(8)
+                }
 
             List(0..<50) { item in
                 Text("List item \(item)")
             }
             .listStyle(PlainListStyle())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .tabTitle("List")
+            .tabTitle {
+                Text("List")
+                    .padding()
+                    .cornerRadius(8)
+            }
         }
         .tabBarLayoutStyle(.fixed)
         .onTabChanged { newIndex in
@@ -240,6 +280,8 @@ struct CustomTabViewsSample: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(selectedIndex == 0 ? .blue : .gray)
                 }
+                .padding()
+                .cornerRadius(8)
             }
 
             VStack {
@@ -259,6 +301,8 @@ struct CustomTabViewsSample: View {
                         .fill(Color.red)
                         .frame(width: 8, height: 8)
                 }
+                .padding()
+                .cornerRadius(8)
             }
 
             VStack {
@@ -275,15 +319,11 @@ struct CustomTabViewsSample: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(selectedIndex == 2 ? .blue : .gray)
                 }
+                .padding()
+                .cornerRadius(8)
             }
         }
         .tabBarLayoutStyle(.fixed)
-        .tabButtonStyle(
-            normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
-            selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
-            padding: EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
-            cornerRadius: 8
-        )
         .tabIndicatorStyle(
             height: 3,
             color: .blue,
@@ -317,6 +357,8 @@ struct CustomTabViewsArraySample: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(selectedIndex == 0 ? .blue : .gray)
                 }
+                .padding()
+                .cornerRadius(8)
             },
             
             VStack {
@@ -336,6 +378,8 @@ struct CustomTabViewsArraySample: View {
                         .fill(Color.red)
                         .frame(width: 8, height: 8)
                 }
+                .padding()
+                .cornerRadius(8)
             },
             
             VStack {
@@ -352,6 +396,8 @@ struct CustomTabViewsArraySample: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(selectedIndex == 2 ? .blue : .gray)
                 }
+                .padding()
+                .cornerRadius(8)
             }
         ]
     }
@@ -362,12 +408,6 @@ struct CustomTabViewsArraySample: View {
             items: tabItems
         )
         .tabBarLayoutStyle(.scrollable)
-        .tabButtonStyle(
-            normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
-            selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
-            padding: EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
-            cornerRadius: 8
-        )
         .tabIndicatorStyle(
             height: 3,
             color: .blue,
@@ -435,6 +475,8 @@ struct APITabViewsSample: View {
                             .frame(width: 8, height: 8)
                     }
                 }
+                .padding()
+                .cornerRadius(8)
             }
         }
     }
@@ -455,12 +497,6 @@ struct APITabViewsSample: View {
                     items: tabItems
                 )
                 .tabBarLayoutStyle(.scrollable)
-                .tabButtonStyle(
-                    normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
-                    selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
-                    padding: EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
-                    cornerRadius: 8
-                )
                 .tabIndicatorStyle(
                     height: 3,
                     color: .blue,

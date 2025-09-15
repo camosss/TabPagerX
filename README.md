@@ -12,6 +12,7 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 
 ## 💥 Features
 - **Customizable Styles**: Tailor tab buttons and indicators with flexible styling.
+- **Custom Tab Views**: Use ViewBuilder to create completely custom tab buttons with images, badges, and more.
 - **Flexible Layouts**: Support for fixed or scrollable tab bars.
 - **Scroll Preservation**: Keeps scroll positions when switching tabs.
 - **Gesture Navigation**: Swipe to switch between tabs.
@@ -25,7 +26,6 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 
 ## 💥 Usage
 
-
 ### Getting Started with TabPagerX
 
 To initialize and use `TabPagerX`, follow these steps:
@@ -33,7 +33,7 @@ To initialize and use `TabPagerX`, follow these steps:
 - Bind a `@State` variable to `selectedIndex` to track the current tab.
 - Optionally set `initialIndex` (default is 0) to define which tab is shown first.
 - Define each tab's content using SwiftUI views.
-- Use `.tabTitle("...")` on each view to specify the tab label.
+- Use `.tabTitle { ... }` with ViewBuilder to specify custom tab labels.
 
 There are two ways to initialize `TabPagerX`:
 
@@ -44,9 +44,29 @@ There are two ways to initialize `TabPagerX`:
 
 TabPagerX(selectedIndex: $selectedIndex, initialIndex: 0) {
     Text("Content for Tab 1")
-        .tabTitle("Tab 1")
+        .tabTitle {
+            HStack {
+                Image(systemName: "house.fill")
+                Text("Home")
+            }
+            .padding()
+            .background(Color.blue.opacity(0.1))
+            .cornerRadius(8)
+        }
+
     Text("Content for Tab 2")
-        .tabTitle("Tab 2")
+        .tabTitle {
+            HStack {
+                Image(systemName: "person.fill")
+                Text("Profile")
+                Circle()
+                    .fill(Color.red)
+                    .frame(width: 8, height: 8)
+            }
+            .padding()
+            .background(Color.green.opacity(0.1))
+            .cornerRadius(8)
+        }
 }
 ```
 
@@ -54,12 +74,29 @@ TabPagerX(selectedIndex: $selectedIndex, initialIndex: 0) {
 
 ```swift
 @State private var selectedIndex = 0
-let titles = ["Tab A", "Tab B", "Tab C"]
+let tabData = [
+    (title: "Home", icon: "house.fill", hasBadge: false),
+    (title: "Messages", icon: "message.fill", hasBadge: true),
+    (title: "Settings", icon: "gear", hasBadge: false)
+]
 
-let tabItems: [TabPagerItem] = titles.map { title in
-    Text("Content for \(title)")
+let tabItems: [TabPagerItem] = tabData.enumerated().map { index, data in
+    Text("Content for \(data.title)")
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .tabTitle(title)
+        .tabTitle {
+            HStack {
+                Image(systemName: data.icon)
+                Text(data.title)
+                if data.hasBadge {
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 8, height: 8)
+                }
+            }
+            .padding()
+            .background(selectedIndex == index ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
+            .cornerRadius(8)
+        }
 }
 
 TabPagerX(
@@ -68,11 +105,10 @@ TabPagerX(
 )
 ```
 
-
 ### Set Tab Bar Layout Style
 
 - Choose between `fixed` or `scrollable` layouts.
-- For customizing button appearance, refer to [Customize Tab Button Style](#customize-tab-button-style).
+- Custom tab views are fully supported in both layouts.
 
 <table>
   <tr>
@@ -87,28 +123,12 @@ TabPagerX(
   </tr>
 </table>
 
-
 ### Configure Tab Bar Layout
 
 - Adjust buttonSpacing and sidePadding. (defaults to 0)
 
 ```swift
 .tabBarLayoutConfig(buttonSpacing: 8, sidePadding: 12)
-```
-
-### Customize Tab Button Style
-
-- Style normal and selected states with ButtonStateStyle.
-- If selected is omitted, normal style applies to both states.
-- Customize padding and cornerRadius using `.tabButtonStyle(...)`.
-
-```swift
-.tabButtonStyle(
-    normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
-    selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
-    padding: EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16),
-    cornerRadius: 8
-)
 ```
 
 ### Customize Tab Indicator Style
@@ -135,7 +155,6 @@ TabPagerX(
 .contentSwipeEnabled(false) // disables swipe gesture
 ```
 
-
 ## 💥 Installation
 
 ### SPM
@@ -157,7 +176,6 @@ Run
 ```
 pod install
 ```
-
 
 ## 💥 License
 `TabPagerX` is released under an MIT license. See [License](https://github.com/camosss/TabPagerX/blob/main/LICENSE) for more information.

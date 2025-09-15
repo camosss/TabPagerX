@@ -5,12 +5,10 @@ import SwiftUI
 /// Uses preference keys to track button positions and position the indicator.
 struct ScrollableTabBarView: View {
 
-    @Binding var tabs: [String]
     let titleBuilders: [() -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
-    let buttonStyle: TabButtonStyle
     let indicatorStyle: TabIndicatorStyle
 
     /// Stores the screen-space frames of all tab buttons, used to align the indicator.
@@ -18,14 +16,14 @@ struct ScrollableTabBarView: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
+
             // Scrollable row of tab buttons
             ScrollView(.horizontal, showsIndicators: false) {
                 ScrollViewReader { proxy in
+
                     TabButtonList(
-                        tabs: tabs,
                         titleBuilders: titleBuilders,
                         selectedIndex: $selectedIndex,
-                        buttonStyle: buttonStyle,
                         layoutConfig: layoutConfig
                     )
                     .padding(.horizontal, layoutConfig.sidePadding)
