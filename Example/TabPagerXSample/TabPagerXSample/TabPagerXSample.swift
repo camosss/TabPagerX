@@ -11,6 +11,9 @@ struct TabPagerXSampleHome: View {
                 NavigationLink("3. Basic Scrollable Tabs", destination: BasicScrollableTabSample())
                 NavigationLink("4. Generated Tabs from Data", destination: GeneratedTabsSample())
                 NavigationLink("5. Mixed Content Tabs", destination: MixedContentTabsSample())
+                NavigationLink("6. Custom Tab Views (Builder)", destination: CustomTabViewsSample())
+                NavigationLink("7. Custom Tab Views (Array)", destination: CustomTabViewsArraySample())
+                NavigationLink("8. Custom Tab Views (API)", destination: APITabViewsSample())
             }
             .navigationTitle("TabPagerX Samples")
         }
@@ -211,6 +214,267 @@ struct MixedContentTabsSample: View {
         .tabBarLayoutStyle(.fixed)
         .onTabChanged { newIndex in
             print("Selected tab: \(newIndex)")
+        }
+    }
+}
+
+// MARK: - Custom Tab Views Examples
+
+/// Example demonstrating custom tab views with images and badges (Builder 방식)
+struct CustomTabViewsSample: View {
+    @State private var selectedIndex = 0
+
+    var body: some View {
+        TabPagerX(selectedIndex: $selectedIndex) {
+            VStack {
+                Spacer()
+                Text("HOME")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle {
+                HStack(spacing: 4) {
+                    Image(systemName: "house.fill")
+                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                    Text("home")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                }
+            }
+
+            VStack {
+                Spacer()
+                Text("MESSAGE")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle {
+                HStack(spacing: 4) {
+                    Image(systemName: "message.fill")
+                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                    Text("message")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 8, height: 8)
+                }
+            }
+
+            VStack {
+                Spacer()
+                Text("PROFILE")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle {
+                HStack(spacing: 4) {
+                    Image(systemName: "person.fill")
+                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                    Text("profile")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                }
+            }
+        }
+        .tabBarLayoutStyle(.fixed)
+        .tabButtonStyle(
+            normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
+            selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
+            padding: EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
+            cornerRadius: 8
+        )
+        .tabIndicatorStyle(
+            height: 3,
+            color: .blue,
+            horizontalInset: 8,
+            cornerRadius: 2,
+            animationDuration: 0.3
+        )
+        .onTabChanged { newIndex in
+            print("Selected tab: \(newIndex)")
+        }
+    }
+}
+
+/// Example demonstrating custom tab views with images and badges (Array 방식)
+struct CustomTabViewsArraySample: View {
+    @State private var selectedIndex = 0
+    
+    private var tabItems: [TabPagerItem] {
+        [
+            VStack {
+                Spacer()
+                Text("HOME")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle {
+                HStack(spacing: 4) {
+                    Image(systemName: "house.fill")
+                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                    Text("home")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                }
+            },
+            
+            VStack {
+                Spacer()
+                Text("AlERT")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle {
+                HStack(spacing: 4) {
+                    Image(systemName: "bell.fill")
+                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                    Text("alert")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 8, height: 8)
+                }
+            },
+            
+            VStack {
+                Spacer()
+                Text("SETTING")
+                    .font(.largeTitle)
+                Spacer()
+            }
+            .tabTitle {
+                HStack(spacing: 4) {
+                    Image(systemName: "gear")
+                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                    Text("setting")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                }
+            }
+        ]
+    }
+    
+    var body: some View {
+        TabPagerX(
+            selectedIndex: $selectedIndex,
+            items: tabItems
+        )
+        .tabBarLayoutStyle(.scrollable)
+        .tabButtonStyle(
+            normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
+            selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
+            padding: EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
+            cornerRadius: 8
+        )
+        .tabIndicatorStyle(
+            height: 3,
+            color: .blue,
+            horizontalInset: 8,
+            cornerRadius: 2,
+            animationDuration: 0.3
+        )
+        .onTabChanged { newIndex in
+            print("Selected tab: \(newIndex)")
+        }
+    }
+}
+
+// MARK: - API 데이터 모델 예제
+struct TabData: Identifiable {
+    let id = UUID()
+    let title: String
+    let iconName: String
+    let hasBadge: Bool
+    let badgeColor: Color
+}
+
+/// Example demonstrating custom tab views with API data (API 방식)
+struct APITabViewsSample: View {
+    @State private var selectedIndex = 0
+    @State private var tabData: [TabData] = []
+    @State private var isLoading = true
+    
+    // API에서 받은 데이터를 시뮬레이션
+    private func loadTabData() {
+        // 실제로는 API 호출
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            tabData = [
+                TabData(title: "Home", iconName: "house.fill", hasBadge: false, badgeColor: .red),
+                TabData(title: "Message", iconName: "message.fill", hasBadge: true, badgeColor: .red),
+                TabData(title: "Alert", iconName: "bell.fill", hasBadge: true, badgeColor: .orange),
+                TabData(title: "Profile", iconName: "person.fill", hasBadge: false, badgeColor: .blue),
+                TabData(title: "Setting", iconName: "gear", hasBadge: false, badgeColor: .gray)
+            ]
+            isLoading = false
+        }
+    }
+    
+    private var tabItems: [TabPagerItem] {
+        tabData.enumerated().map { index, data in
+            VStack {
+                Spacer()
+                Text("data: - \(data.title)")
+                    .font(.largeTitle)
+                Text("index: \(index)")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            .tabTitle {
+                HStack(spacing: 4) {
+                    Image(systemName: data.iconName)
+                        .foregroundColor(selectedIndex == index ? .blue : .gray)
+                    Text(data.title)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selectedIndex == index ? .blue : .gray)
+                    if data.hasBadge {
+                        Circle()
+                            .fill(data.badgeColor)
+                            .frame(width: 8, height: 8)
+                    }
+                }
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack {
+            if isLoading {
+                VStack {
+                    ProgressView()
+                    Text("loading...")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                TabPagerX(
+                    selectedIndex: $selectedIndex,
+                    items: tabItems
+                )
+                .tabBarLayoutStyle(.scrollable)
+                .tabButtonStyle(
+                    normal: ButtonStateStyle(font: .body, textColor: .gray, backgroundColor: .white),
+                    selected: ButtonStateStyle(font: .headline, textColor: .blue, backgroundColor: .white),
+                    padding: EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
+                    cornerRadius: 8
+                )
+                .tabIndicatorStyle(
+                    height: 3,
+                    color: .blue,
+                    horizontalInset: 8,
+                    cornerRadius: 2,
+                    animationDuration: 0.3
+                )
+                .onTabChanged { newIndex in
+                    print("Selected tab: \(newIndex)")
+                }
+            }
+        }
+        .onAppear {
+            loadTabData()
         }
     }
 }

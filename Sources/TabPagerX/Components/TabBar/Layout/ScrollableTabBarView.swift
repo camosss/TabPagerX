@@ -6,6 +6,7 @@ import SwiftUI
 struct ScrollableTabBarView: View {
 
     @Binding var tabs: [String]
+    let titleBuilders: [() -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
@@ -22,6 +23,7 @@ struct ScrollableTabBarView: View {
                 ScrollViewReader { proxy in
                     TabButtonList(
                         tabs: tabs,
+                        titleBuilders: titleBuilders,
                         selectedIndex: $selectedIndex,
                         buttonStyle: buttonStyle,
                         layoutConfig: layoutConfig

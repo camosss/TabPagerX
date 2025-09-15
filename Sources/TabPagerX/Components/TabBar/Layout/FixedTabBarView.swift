@@ -6,6 +6,7 @@ import SwiftUI
 struct FixedTabBarView: View {
 
     @Binding var tabs: [String]
+    let titleBuilders: [() -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
@@ -20,6 +21,7 @@ struct FixedTabBarView: View {
             // Render the horizontal list of tab buttons
             TabButtonList(
                 tabs: tabs,
+                titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
                 buttonStyle: buttonStyle,
                 layoutConfig: layoutConfig

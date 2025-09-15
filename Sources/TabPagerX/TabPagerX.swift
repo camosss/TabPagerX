@@ -14,6 +14,9 @@ public struct TabPagerX: View {
     /// Internal storage of tab views
     private let views: [AnyView]
 
+    /// Internal storage of tab title builders
+    private let titleBuilders: [() -> AnyView]
+
     /// Callback when tab changes
     private var onTabChanged: ((Int) -> Void)? = nil
 
@@ -47,6 +50,7 @@ public struct TabPagerX: View {
         let items = content()
         self.titles = items.map { $0.title }
         self.views = items.map { AnyView($0.view) }
+        self.titleBuilders = items.map { $0.titleBuilder }
         self.layoutStyle = .fixed
         self.layoutConfig = .default
         self.buttonStyle = .default
@@ -67,6 +71,7 @@ public struct TabPagerX: View {
         self.initialIndex = initialIndex
         self.titles = items.map { $0.title }
         self.views = items.map { AnyView($0.view) }
+        self.titleBuilders = items.map { $0.titleBuilder }
         self.layoutStyle = .fixed
         self.layoutConfig = .default
         self.buttonStyle = .default
@@ -77,6 +82,7 @@ public struct TabPagerX: View {
         VStack(spacing: 0) {
             TabBar(
                 tabs: .constant(titles),
+                titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,

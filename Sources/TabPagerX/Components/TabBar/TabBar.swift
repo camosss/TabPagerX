@@ -7,6 +7,9 @@ struct TabBar: View {
     /// The array of tab titles to display.
     @Binding var tabs: [String]
 
+    /// The array of tab title builders for custom views.
+    let titleBuilders: [() -> AnyView]
+
     /// The currently selected tab index.
     @Binding var selectedIndex: Int
 
@@ -29,6 +32,7 @@ struct TabBar: View {
         case .fixed:
             FixedTabBarView(
                 tabs: $tabs,
+                titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutConfig: layoutConfig,
                 buttonStyle: buttonStyle,
@@ -39,6 +43,7 @@ struct TabBar: View {
         case .scrollable:
             ScrollableTabBarView(
                 tabs: $tabs,
+                titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutConfig: layoutConfig,
                 buttonStyle: buttonStyle,

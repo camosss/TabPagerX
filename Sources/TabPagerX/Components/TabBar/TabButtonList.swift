@@ -5,6 +5,7 @@ import SwiftUI
 struct TabButtonList: View {
 
     let tabs: [String]
+    let titleBuilders: [() -> AnyView]
     @Binding var selectedIndex: Int
 
     let buttonStyle: TabButtonStyle
@@ -16,6 +17,7 @@ struct TabButtonList: View {
             ForEach(tabs.indices, id: \.self) { index in
                 TabButton(
                     title: tabs[index],
+                    titleBuilder: index < titleBuilders.count ? titleBuilders[index] : nil,
                     isSelected: index == selectedIndex,
                     buttonStyle: buttonStyle
                 )
