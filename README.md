@@ -1,7 +1,7 @@
 # TabPagerX
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-1.3.0-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-1.3.1-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 
@@ -24,6 +24,19 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 - Swift 5.5+
 - Xcode 15.0+
 
+## 1.3.1 (Latest)
+
+### Highlights
+- Pass selection state to tab title builders: `(_ isSelected: Bool) -> View`
+- Add convenience overload for selection-agnostic titles
+- Fixed layout now evenly distributes tab widths; scrollable layout is content-sized
+- Removed legacy TabButton/TabButtonStyle APIs in favor of pure ViewBuilder customization
+
+### Migration Notes (Breaking)
+- `TabPagerItem.titleBuilder` changed from `() -> AnyView` to `(_ isSelected: Bool) -> AnyView`.
+- Update calls to `.tabTitle { ... }` to accept `isSelected` if you style based on selection.
+- A convenience overload without `isSelected` remains available for simple titles.
+
 ## 💥 Usage
 
 ### Getting Started with TabPagerX
@@ -44,18 +57,17 @@ There are two ways to initialize `TabPagerX`:
 
 TabPagerX(selectedIndex: $selectedIndex, initialIndex: 0) {
     Text("Content for Tab 1")
-        .tabTitle {
+        .tabTitle { isSelected in
             HStack {
                 Image(systemName: "house.fill")
                 Text("Home")
             }
             .padding()
-            .background(Color.blue.opacity(0.1))
-            .cornerRadius(8)
+            .foregroundColor(isSelected ? .blue : .gray)
         }
 
     Text("Content for Tab 2")
-        .tabTitle {
+        .tabTitle { isSelected in
             HStack {
                 Image(systemName: "person.fill")
                 Text("Profile")
@@ -64,8 +76,7 @@ TabPagerX(selectedIndex: $selectedIndex, initialIndex: 0) {
                     .frame(width: 8, height: 8)
             }
             .padding()
-            .background(Color.green.opacity(0.1))
-            .cornerRadius(8)
+            .foregroundColor(isSelected ? .green : .gray)
         }
 }
 ```
@@ -83,7 +94,7 @@ let tabData = [
 let tabItems: [TabPagerItem] = tabData.enumerated().map { index, data in
     Text("Content for \(data.title)")
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .tabTitle {
+        .tabTitle { isSelected in
             HStack {
                 Image(systemName: data.icon)
                 Text(data.title)
@@ -94,8 +105,7 @@ let tabItems: [TabPagerItem] = tabData.enumerated().map { index, data in
                 }
             }
             .padding()
-            .background(selectedIndex == index ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
-            .cornerRadius(8)
+            .foregroundColor(isSelected ? .blue : .gray)
         }
 }
 
