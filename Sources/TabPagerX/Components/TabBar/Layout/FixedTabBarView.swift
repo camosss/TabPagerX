@@ -5,7 +5,7 @@ import SwiftUI
 /// to the currently selected tab using shared coordinate space.
 struct FixedTabBarView: View {
 
-    let titleBuilders: [() -> AnyView]
+    let titleBuilders: [(_ isSelected: Bool) -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
@@ -21,7 +21,8 @@ struct FixedTabBarView: View {
             TabButtonList(
                 titleBuilders: titleBuilders,
                 selectedIndex: $selectedIndex,
-                layoutConfig: layoutConfig
+                layoutConfig: layoutConfig,
+                distributeEqually: true
             )
             .padding(.horizontal, layoutConfig.sidePadding)
             .frame(maxWidth: .infinity)

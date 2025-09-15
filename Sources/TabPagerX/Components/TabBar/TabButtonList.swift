@@ -4,17 +4,19 @@ import SwiftUI
 /// Also reports button frames using PreferenceKey for indicator alignment.
 struct TabButtonList: View {
 
-    let titleBuilders: [() -> AnyView]
+    let titleBuilders: [(_ isSelected: Bool) -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
+    /// When true, each tab occupies equal width (used in fixed layout). When false, content-sized.
+    let distributeEqually: Bool
 
     var body: some View {
         // Horizontal stack of tab buttons
         HStack(spacing: layoutConfig.buttonSpacing) {
             ForEach(titleBuilders.indices, id: \.self) { index in
-                titleBuilders[index]()
-                    .frame(maxWidth: .infinity, alignment: .center)
+                titleBuilders[index](index == selectedIndex)
+                    .frame(maxWidth: distributeEqually ? .infinity : nil, alignment: .center)
                     .background(
                         // Capture each button's frame to align the indicator later
                         GeometryReader { proxy in

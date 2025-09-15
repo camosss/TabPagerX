@@ -5,7 +5,7 @@ import SwiftUI
 /// Uses preference keys to track button positions and position the indicator.
 struct ScrollableTabBarView: View {
 
-    let titleBuilders: [() -> AnyView]
+    let titleBuilders: [(_ isSelected: Bool) -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
@@ -24,7 +24,8 @@ struct ScrollableTabBarView: View {
                     TabButtonList(
                         titleBuilders: titleBuilders,
                         selectedIndex: $selectedIndex,
-                        layoutConfig: layoutConfig
+                        layoutConfig: layoutConfig,
+                        distributeEqually: false
                     )
                     .padding(.horizontal, layoutConfig.sidePadding)
                     .onChange(of: selectedIndex) { newIndex in

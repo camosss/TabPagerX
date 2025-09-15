@@ -12,7 +12,7 @@ public struct TabPagerX: View {
     private let views: [AnyView]
 
     /// Internal storage of tab title builders
-    private let titleBuilders: [() -> AnyView]
+    private let titleBuilders: [(_ isSelected: Bool) -> AnyView]
 
     /// Callback when tab changes
     private var onTabChanged: ((Int) -> Void)? = nil

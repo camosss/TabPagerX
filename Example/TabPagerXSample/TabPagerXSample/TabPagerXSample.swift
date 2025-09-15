@@ -272,13 +272,13 @@ struct CustomTabViewsSample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle {
+            .tabTitle { isSelected in
                 HStack(spacing: 4) {
                     Image(systemName: "house.fill")
-                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Text("home")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                        .font(isSelected ? .headline : .body)
+                        .foregroundColor(isSelected ? .blue : .gray)
                 }
                 .padding()
                 .cornerRadius(8)
@@ -290,13 +290,13 @@ struct CustomTabViewsSample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle {
+            .tabTitle { isSelected in
                 HStack(spacing: 4) {
                     Image(systemName: "message.fill")
-                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Text("message")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                        .font(isSelected ? .headline : .body)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Circle()
                         .fill(Color.red)
                         .frame(width: 8, height: 8)
@@ -311,13 +311,13 @@ struct CustomTabViewsSample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle {
+            .tabTitle { isSelected in
                 HStack(spacing: 4) {
                     Image(systemName: "person.fill")
-                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Text("profile")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                        .font(isSelected ? .headline : .body)
+                        .foregroundColor(isSelected ? .blue : .gray)
                 }
                 .padding()
                 .cornerRadius(8)
@@ -349,13 +349,13 @@ struct CustomTabViewsArraySample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle {
+            .tabTitle { isSelected in
                 HStack(spacing: 4) {
                     Image(systemName: "house.fill")
-                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Text("home")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedIndex == 0 ? .blue : .gray)
+                        .font(isSelected ? .headline : .body)
+                        .foregroundColor(isSelected ? .blue : .gray)
                 }
                 .padding()
                 .cornerRadius(8)
@@ -367,13 +367,13 @@ struct CustomTabViewsArraySample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle {
+            .tabTitle { isSelected in
                 HStack(spacing: 4) {
                     Image(systemName: "bell.fill")
-                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Text("alert")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedIndex == 1 ? .blue : .gray)
+                        .font(isSelected ? .headline : .body)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Circle()
                         .fill(Color.red)
                         .frame(width: 8, height: 8)
@@ -388,13 +388,13 @@ struct CustomTabViewsArraySample: View {
                     .font(.largeTitle)
                 Spacer()
             }
-            .tabTitle {
+            .tabTitle { isSelected in
                 HStack(spacing: 4) {
                     Image(systemName: "gear")
-                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Text("setting")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedIndex == 2 ? .blue : .gray)
+                        .font(isSelected ? .headline : .body)
+                        .foregroundColor(isSelected ? .blue : .gray)
                 }
                 .padding()
                 .cornerRadius(8)
@@ -462,13 +462,13 @@ struct APITabViewsSample: View {
                     .foregroundColor(.gray)
                 Spacer()
             }
-            .tabTitle {
+            .tabTitle { isSelected in
                 HStack(spacing: 4) {
                     Image(systemName: data.iconName)
-                        .foregroundColor(selectedIndex == index ? .blue : .gray)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     Text(data.title)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(selectedIndex == index ? .blue : .gray)
+                        .font(isSelected ? .headline : .body)
+                        .foregroundColor(isSelected ? .blue : .gray)
                     if data.hasBadge {
                         Circle()
                             .fill(data.badgeColor)

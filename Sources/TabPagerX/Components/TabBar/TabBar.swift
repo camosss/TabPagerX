@@ -5,7 +5,7 @@ import SwiftUI
 struct TabBar: View {
 
     /// The array of tab title builders for custom views.
-    let titleBuilders: [() -> AnyView]
+    let titleBuilders: [(_ isSelected: Bool) -> AnyView]
 
     /// The currently selected tab index.
     @Binding var selectedIndex: Int
