@@ -36,6 +36,9 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
     /// Controls whether swipe gesture is enabled for tab content
     private var isSwipeEnabled: Bool = true
 
+    /// Separator style between TabBar and TabContent
+    private var separatorStyle: TabBarSeparatorStyle = .none
+
     /// Tracks whether initialIndex has been applied to prevent re-application
     @State private var hasAppliedInitialIndex = false
 
@@ -69,6 +72,15 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle
             )
+
+            if !separatorStyle.isHidden {
+                Rectangle()
+                    .fill(separatorStyle.color)
+                    .frame(height: separatorStyle.height)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, separatorStyle.horizontalPadding)
+            }
+
             TabContent(
                 selectedIndex: $selectedIndex,
                 tabCount: items.count,
@@ -184,6 +196,23 @@ public extension TabPagerX {
     func contentSwipeEnabled(_ enabled: Bool) -> Self {
         var new = self
         new.isSwipeEnabled = enabled
+        return new
+    }
+
+    /// Configure the separator between TabBar and content
+    func tabBarSeparator(
+        color: Color = .gray.opacity(0.2),
+        height: CGFloat = 1,
+        horizontalPadding: CGFloat = 0,
+        isHidden: Bool = false
+    ) -> Self {
+        var new = self
+        new.separatorStyle = TabBarSeparatorStyle(
+            color: color,
+            height: height,
+            horizontalPadding: horizontalPadding,
+            isHidden: isHidden
+        )
         return new
     }
 }
