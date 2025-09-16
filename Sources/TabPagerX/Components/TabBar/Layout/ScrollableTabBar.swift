@@ -3,9 +3,9 @@ import SwiftUI
 /// A horizontally scrollable tab bar with animated indicator.
 /// Each tab adjusts its width based on content and scrolls into view when selected.
 /// Uses preference keys to track button positions and position the indicator.
-struct ScrollableTabBarView: View {
+struct ScrollableTabBar: View {
 
-    let titleBuilders: [(_ isSelected: Bool) -> AnyView]
+    let tabTitleBuilders: [(_ isSelected: Bool) -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
@@ -21,11 +21,11 @@ struct ScrollableTabBarView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 ScrollViewReader { proxy in
 
-                    TabButtonList(
-                        titleBuilders: titleBuilders,
+                    TabButtons(
+                        tabTitleBuilders: tabTitleBuilders,
                         selectedIndex: $selectedIndex,
                         layoutConfig: layoutConfig,
-                        distributeEqually: false
+                        isFixedWidth: false
                     )
                     .padding(.horizontal, layoutConfig.sidePadding)
                     .onChange(of: selectedIndex) { newIndex in
@@ -37,7 +37,7 @@ struct ScrollableTabBarView: View {
             }
             .coordinateSpace(name: CoordinateSpaces.tabBar)
             .frame(maxWidth: .infinity)
-            .onPreferenceChange(TabItemPreferenceKey.self) { value in
+            .onPreferenceChange(TabButtonPreferenceKey.self) { value in
                 // Update tabFrames with button positions whenever layout changes
                 tabFrames = value
             }

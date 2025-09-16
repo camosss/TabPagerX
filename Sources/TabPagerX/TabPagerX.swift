@@ -63,7 +63,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
     public var body: some View {
         VStack(spacing: 0) {
             TabBar(
-                titleBuilders: titleBuilders,
+                tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,
@@ -80,13 +80,13 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .onAppear {
-            applyInitialIndexIfNeeded()
+            setupInitialIndexOnce()
         }
         .onChange(of: items) { _ in
             // Handle dynamic items changes
             hasAppliedInitialIndex = false
-            validateSelectedIndex()
-            applyInitialIndexIfNeeded()
+            clampSelectedIndex()
+            setupInitialIndexOnce()
         }
         .onChange(of: selectedIndex) { newIndex in
             onTabChanged?(newIndex)
@@ -94,7 +94,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
     }
 
     /// Computed property that creates title builders from data items
-    private var titleBuilders: [(_ isSelected: Bool) -> AnyView] {
+    private var tabTitleBuilders: [(_ isSelected: Bool) -> AnyView] {
         items.enumerated().map { index, item in
             { isSelected in
                 AnyView(tabTitle(item, isSelected))
@@ -105,7 +105,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
 
 private extension TabPagerX {
     /// Applies initialIndex only once when needed
-    private func applyInitialIndexIfNeeded() {
+    private func setupInitialIndexOnce() {
         guard !hasAppliedInitialIndex else { return }
 
         if let initialIndex = initialIndex,
@@ -114,13 +114,13 @@ private extension TabPagerX {
             hasAppliedInitialIndex = true
 
         } else {
-            validateSelectedIndex()
+            clampSelectedIndex()
             hasAppliedInitialIndex = true
         }
     }
 
     /// Validates and corrects selectedIndex when items change
-    private func validateSelectedIndex() {
+    private func clampSelectedIndex() {
         if items.isEmpty {
             selectedIndex = 0
 

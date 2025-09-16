@@ -1,11 +1,11 @@
 import SwiftUI
 
 /// A container view that renders a tab bar using either fixed-width or scrollable layout.
-/// Switches internally between FixedTabBarView and ScrollableTabBarView based on the specified layout style.
+/// Switches internally between FixedTabBar and ScrollableTabBar based on the specified layout style.
 struct TabBar: View {
 
     /// The array of tab title builders for custom views.
-    let titleBuilders: [(_ isSelected: Bool) -> AnyView]
+    let tabTitleBuilders: [(_ isSelected: Bool) -> AnyView]
 
     /// The currently selected tab index.
     @Binding var selectedIndex: Int
@@ -24,8 +24,8 @@ struct TabBar: View {
 
         // Distributes all tabs evenly across the full width
         case .fixed:
-            FixedTabBarView(
-                titleBuilders: titleBuilders,
+            FixedTabBar(
+                tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle
@@ -33,8 +33,8 @@ struct TabBar: View {
 
         // Sizes tabs according to content and allows horizontal scrolling
         case .scrollable:
-            ScrollableTabBarView(
-                titleBuilders: titleBuilders,
+            ScrollableTabBar(
+                tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle

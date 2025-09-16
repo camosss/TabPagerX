@@ -3,9 +3,9 @@ import SwiftUI
 /// A horizontal tab bar with fixed spacing and animated indicator movement.
 /// This view tracks the position of each tab button and renders an indicator aligned
 /// to the currently selected tab using shared coordinate space.
-struct FixedTabBarView: View {
+struct FixedTabBar: View {
 
-    let titleBuilders: [(_ isSelected: Bool) -> AnyView]
+    let tabTitleBuilders: [(_ isSelected: Bool) -> AnyView]
     @Binding var selectedIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
@@ -18,15 +18,15 @@ struct FixedTabBarView: View {
         ZStack(alignment: .bottomLeading) {
 
             // Render the horizontal list of tab buttons
-            TabButtonList(
-                titleBuilders: titleBuilders,
+            TabButtons(
+                tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
                 layoutConfig: layoutConfig,
-                distributeEqually: true
+                isFixedWidth: true
             )
             .padding(.horizontal, layoutConfig.sidePadding)
             .frame(maxWidth: .infinity)
-            .onPreferenceChange(TabItemPreferenceKey.self) { value in
+            .onPreferenceChange(TabButtonPreferenceKey.self) { value in
                 // Update tabFrames with button positions whenever layout changes
                 tabFrames = value
             }

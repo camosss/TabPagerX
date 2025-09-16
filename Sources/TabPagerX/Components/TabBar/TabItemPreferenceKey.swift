@@ -7,7 +7,7 @@ enum CoordinateSpaces {
 
 /// A PreferenceKey used to collect the layout frames of tab buttons by index.
 /// Enables indicator alignment by sharing geometry across views.
-struct TabItemPreferenceKey: PreferenceKey {
+struct TabButtonPreferenceKey: PreferenceKey {
 
     /// Default value is an empty dictionary of index-to-frame mappings.
     static var defaultValue: [Int: CGRect] = [:]
