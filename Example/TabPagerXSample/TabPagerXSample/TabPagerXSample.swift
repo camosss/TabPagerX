@@ -83,7 +83,7 @@ struct DifferentViewSample: View {
         let type: TabItemType
         let title: String
 
-        enum TabItemType {
+        enum TabItemType: Equatable {
             case text(String)
             case image(String)
             case custom
