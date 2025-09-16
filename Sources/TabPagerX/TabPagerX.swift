@@ -1,71 +1,59 @@
 import SwiftUI
 
-public struct TabPagerX: View {
+/// A flexible tab pager that works with any Identifiable data type
+/// Provides a more intuitive API using closures for content and tab titles
+public struct TabPagerX<Data, Content, TabTitle>: View 
+where Data: Identifiable, Content: View, TabTitle: View {
 
     /// Index of the selected tab
     @Binding var selectedIndex: Int
 
-    /// an option for the initial index
+    /// Optional initial index to select when the view first appears
     private let initialIndex: Int?
 
-    /// Internal storage of tab views
-    private let views: [AnyView]
+    /// Array of data items that populate the tabs
+    private let items: [Data]
 
-    /// Internal storage of tab title builders
-    private let titleBuilders: [(_ isSelected: Bool) -> AnyView]
+    /// Closure that creates content view for each data item
+    @ViewBuilder private let content: (Data) -> Content
+
+    /// Closure that creates tab title view for each data item
+    @ViewBuilder private let tabTitle: (Data, Bool) -> TabTitle
 
     /// Callback when tab changes
     private var onTabChanged: ((Int) -> Void)? = nil
 
     /// Defines the layout style for the tab bar
-    private var layoutStyle: TabLayoutStyle
+    private var layoutStyle: TabLayoutStyle = .fixed
 
     /// Configures the layout properties of the tab bar
-    private var layoutConfig: TabBarLayoutConfig
+    private var layoutConfig: TabBarLayoutConfig = .default
 
     /// Defines the style of the tab indicator
-    private var indicatorStyle: TabIndicatorStyle
+    private var indicatorStyle: TabIndicatorStyle = .default
 
     /// Controls whether swipe gesture is enabled for tab content
     private var isSwipeEnabled: Bool = true
-
-    /// Initializes `TabPagerX` using a result builder that returns an array of `TabPagerItem`.
-    /// - Parameters:
-    ///   - selectedIndex: A binding to the currently selected tab index.
-    ///   - initialIndex: Optional index to select when the view first appears. Defaults to `nil`.
-    ///   - content: A builder closure that returns an array of `TabPagerItem` to populate the tabs.
-    public init(
-        selectedIndex: Binding<Int>,
-        initialIndex: Int? = nil,
-        @TabPagerBuilder content: () -> [TabPagerItem]
-    ) {
-        self._selectedIndex = selectedIndex
-        self.initialIndex = initialIndex
-        let items = content()
-        self.views = items.map { AnyView($0.view) }
-        self.titleBuilders = items.map { $0.titleBuilder }
-        self.layoutStyle = .fixed
-        self.layoutConfig = .default
-        self.indicatorStyle = .default
-    }
-
-    /// Initializes a `TabPagerX` with a static array of `TabPagerItem`
+    
+    /// Initializes `TabPagerX` with generic data and view builders
     /// - Parameters:
     ///   - selectedIndex: A binding to the currently selected tab index
-    ///   - initialIndex: Optional initial index to select when the view appears
-    ///   - items: An array of `TabPagerItem` representing the tabs and their content
+    ///   - initialIndex: Optional index to select when the view first appears
+    ///   - items: Array of data items that populate the tabs
+    ///   - content: Closure that creates content view for each data item
+    ///   - tabTitle: Closure that creates tab title view for each data item
     public init(
         selectedIndex: Binding<Int>,
         initialIndex: Int? = nil,
-        items: [TabPagerItem]
+        items: [Data],
+        @ViewBuilder content: @escaping (Data) -> Content,
+        @ViewBuilder tabTitle: @escaping (Data, Bool) -> TabTitle
     ) {
         self._selectedIndex = selectedIndex
         self.initialIndex = initialIndex
-        self.views = items.map { AnyView($0.view) }
-        self.titleBuilders = items.map { $0.titleBuilder }
-        self.layoutStyle = .fixed
-        self.layoutConfig = .default
-        self.indicatorStyle = .default
+        self.items = items
+        self.content = content
+        self.tabTitle = tabTitle
     }
 
     public var body: some View {
@@ -79,25 +67,38 @@ public struct TabPagerX: View {
             )
             TabContent(
                 selectedIndex: $selectedIndex,
-                tabCount: views.count,
+                tabCount: items.count,
                 isSwipeEnabled: .constant(isSwipeEnabled),
-                content: { views[$0] }
+                content: { index in
+                    content(items[index])
+                }
             )
         }
         .ignoresSafeArea(edges: .bottom)
         .onAppear {
-            if let initialIndex = initialIndex,
-               initialIndex >= 0 && initialIndex < titleBuilders.count {
-                // Forcefully set the initial index when the view appears
-                selectedIndex = initialIndex
-
-            } else if selectedIndex < 0 || selectedIndex >= titleBuilders.count {
-                // Ensure the selected index remains within a valid range
-                selectedIndex = 0
-            }
+            setupInitialIndex()
         }
         .onChange(of: selectedIndex) { newIndex in
             onTabChanged?(newIndex)
+        }
+    }
+
+    /// Computed property that creates title builders from data items
+    private var titleBuilders: [(_ isSelected: Bool) -> AnyView] {
+        items.enumerated().map { index, item in
+            { isSelected in
+                AnyView(tabTitle(item, isSelected))
+            }
+        }
+    }
+
+    /// Sets up the initial selected index
+    private func setupInitialIndex() {
+        if let initialIndex = initialIndex,
+           initialIndex >= 0 && initialIndex < items.count {
+            selectedIndex = initialIndex
+        } else if selectedIndex < 0 || selectedIndex >= items.count {
+            selectedIndex = 0
         }
     }
 }
