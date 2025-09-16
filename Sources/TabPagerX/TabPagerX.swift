@@ -3,12 +3,13 @@ import SwiftUI
 /// A flexible tab pager that works with any Identifiable data type
 /// Provides a more intuitive API using closures for content and tab titles
 public struct TabPagerX<Data, Content, TabTitle>: View 
-where Data: Identifiable, Content: View, TabTitle: View {
+where Data: Identifiable & Equatable, Content: View, TabTitle: View {
 
-    /// Index of the selected tab
+    /// Index of the selected tab - synchronizes with external state
     @Binding var selectedIndex: Int
 
     /// Optional initial index to select when the view first appears
+    /// Only applied once when the view appears, then becomes independent of selectedIndex
     private let initialIndex: Int?
 
     /// Array of data items that populate the tabs
@@ -34,7 +35,10 @@ where Data: Identifiable, Content: View, TabTitle: View {
 
     /// Controls whether swipe gesture is enabled for tab content
     private var isSwipeEnabled: Bool = true
-    
+
+    /// Tracks whether initialIndex has been applied to prevent re-application
+    @State private var hasAppliedInitialIndex = false
+
     /// Initializes `TabPagerX` with generic data and view builders
     /// - Parameters:
     ///   - selectedIndex: A binding to the currently selected tab index
@@ -76,7 +80,13 @@ where Data: Identifiable, Content: View, TabTitle: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .onAppear {
-            setupInitialIndex()
+            applyInitialIndexIfNeeded()
+        }
+        .onChange(of: items) { _ in
+            // Handle dynamic items changes
+            hasAppliedInitialIndex = false
+            validateSelectedIndex()
+            applyInitialIndexIfNeeded()
         }
         .onChange(of: selectedIndex) { newIndex in
             onTabChanged?(newIndex)
@@ -91,13 +101,33 @@ where Data: Identifiable, Content: View, TabTitle: View {
             }
         }
     }
+}
 
-    /// Sets up the initial selected index
-    private func setupInitialIndex() {
+private extension TabPagerX {
+    /// Applies initialIndex only once when needed
+    private func applyInitialIndexIfNeeded() {
+        guard !hasAppliedInitialIndex else { return }
+
         if let initialIndex = initialIndex,
            initialIndex >= 0 && initialIndex < items.count {
             selectedIndex = initialIndex
-        } else if selectedIndex < 0 || selectedIndex >= items.count {
+            hasAppliedInitialIndex = true
+
+        } else {
+            validateSelectedIndex()
+            hasAppliedInitialIndex = true
+        }
+    }
+
+    /// Validates and corrects selectedIndex when items change
+    private func validateSelectedIndex() {
+        if items.isEmpty {
+            selectedIndex = 0
+
+        } else if selectedIndex >= items.count {
+            selectedIndex = items.count - 1
+
+        } else if selectedIndex < 0 {
             selectedIndex = 0
         }
     }
