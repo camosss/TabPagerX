@@ -112,12 +112,11 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
     }
 
     private var displayIndex: Int {
-        if scrollProgress > 0.5, selectedIndex + 1 < items.count {
-            return selectedIndex + 1
-        } else if scrollProgress < -0.5, selectedIndex - 1 >= 0 {
-            return selectedIndex - 1
-        }
-        return selectedIndex
+        TabPagerHelper.displayIndex(
+            selectedIndex: selectedIndex,
+            scrollProgress: scrollProgress,
+            itemCount: items.count
+        )
     }
 
     private var tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle] {
@@ -145,17 +144,8 @@ private extension TabPagerX {
         }
     }
 
-    /// Validates and corrects selectedIndex when items change
     private func clampSelectedIndex() {
-        if items.isEmpty {
-            selectedIndex = 0
-
-        } else if selectedIndex >= items.count {
-            selectedIndex = items.count - 1
-
-        } else if selectedIndex < 0 {
-            selectedIndex = 0
-        }
+        selectedIndex = TabPagerHelper.clampIndex(selectedIndex, itemCount: items.count)
     }
 }
 
