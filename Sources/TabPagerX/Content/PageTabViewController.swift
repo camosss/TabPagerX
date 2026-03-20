@@ -19,6 +19,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
 
     private var isProgrammaticTransition = false
     private var scrollViewObservation: NSKeyValueObservation?
+    private let isSwipeEnabled: Bool
 
     init(
         content: @escaping (Int) -> Content,
@@ -27,6 +28,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
     ) {
         self.content = content
         self.tabCount = tabCount
+        self.isSwipeEnabled = isSwipeEnabled
 
         super.init(
             transitionStyle: .scroll,
@@ -120,7 +122,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
         setViewControllers(
             [nextVC],
             direction: direction,
-            animated: true
+            animated: isSwipeEnabled
         ) { [weak self] _ in
             self?.isProgrammaticTransition = false
         }
