@@ -129,19 +129,16 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
 }
 
 private extension TabPagerX {
-    /// Applies initialIndex only once when needed
     private func setupInitialIndexOnce() {
-        guard !hasAppliedInitialIndex else { return }
+        guard !hasAppliedInitialIndex, !items.isEmpty else { return }
 
         if let initialIndex = initialIndex,
            initialIndex >= 0 && initialIndex < items.count {
             selectedIndex = initialIndex
-            hasAppliedInitialIndex = true
-
         } else {
             clampSelectedIndex()
-            hasAppliedInitialIndex = true
         }
+        hasAppliedInitialIndex = true
     }
 
     private func clampSelectedIndex() {
