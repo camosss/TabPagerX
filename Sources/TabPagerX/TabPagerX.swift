@@ -85,15 +85,13 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
                     .padding(.horizontal, separatorStyle.horizontalPadding)
             }
 
-            TabContent(
+            TabContentContainer(
                 selectedIndex: $selectedIndex,
                 scrollProgress: $scrollProgress,
                 tabCount: items.count,
-                isSwipeEnabled: .constant(isSwipeEnabled),
+                isSwipeEnabled: isSwipeEnabled,
                 content: { index in
-                    if index >= 0 && index < items.count {
-                        content(items[index])
-                    }
+                    content(items[max(0, min(index, items.count - 1))])
                 }
             )
         }
