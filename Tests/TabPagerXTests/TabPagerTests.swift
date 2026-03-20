@@ -95,6 +95,21 @@ final class DisplayIndexTests: XCTestCase {
         let result = TabPagerHelper.displayIndex(selectedIndex: 0, scrollProgress: -0.8, itemCount: 1)
         XCTAssertEqual(result, 0)
     }
+
+    func test_display_emptyItems_returnsZero() {
+        let result = TabPagerHelper.displayIndex(selectedIndex: 3, scrollProgress: 0.8, itemCount: 0)
+        XCTAssertEqual(result, 0)
+    }
+
+    func test_display_invalidSelectedIndex_clampsFirst() {
+        let result = TabPagerHelper.displayIndex(selectedIndex: 10, scrollProgress: 0, itemCount: 3)
+        XCTAssertEqual(result, 2)
+    }
+
+    func test_display_negativeSelectedIndex_clampsToZero() {
+        let result = TabPagerHelper.displayIndex(selectedIndex: -1, scrollProgress: 0.8, itemCount: 5)
+        XCTAssertEqual(result, 1)
+    }
 }
 
 // MARK: - Style Defaults

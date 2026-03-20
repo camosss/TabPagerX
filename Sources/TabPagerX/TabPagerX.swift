@@ -86,15 +86,20 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
                     .padding(.horizontal, separatorStyle.horizontalPadding)
             }
 
-            TabContentContainer(
-                selectedIndex: $selectedIndex,
-                scrollProgress: $scrollProgress,
-                tabCount: items.count,
-                isSwipeEnabled: isSwipeEnabled,
-                content: { index in
-                    content(items[max(0, min(index, items.count - 1))])
-                }
-            )
+            if !items.isEmpty {
+                TabContentContainer(
+                    selectedIndex: $selectedIndex,
+                    scrollProgress: $scrollProgress,
+                    tabCount: items.count,
+                    isSwipeEnabled: isSwipeEnabled,
+                    content: { index in
+                        content(items[safe: index] ?? items[0])
+                    }
+                )
+            } else {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .ignoresSafeArea(edges: .bottom)
         .onAppear {

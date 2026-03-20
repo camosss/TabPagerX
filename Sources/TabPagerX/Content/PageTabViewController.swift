@@ -135,7 +135,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
         viewControllerBefore viewController: UIViewController
     ) -> UIViewController? {
 
-        guard selectedIndex > 0 else { return nil }
+        guard tabCount > 0, selectedIndex > 0 else { return nil }
         return getViewController(at: selectedIndex - 1)
     }
 
@@ -144,7 +144,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
         viewControllerAfter viewController: UIViewController
     ) -> UIViewController? {
 
-        guard selectedIndex < tabCount - 1 else { return nil }
+        guard tabCount > 1, selectedIndex < tabCount - 1 else { return nil }
         return getViewController(at: selectedIndex + 1)
     }
 

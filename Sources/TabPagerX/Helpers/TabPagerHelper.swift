@@ -14,11 +14,13 @@ enum TabPagerHelper {
         scrollProgress: CGFloat,
         itemCount: Int
     ) -> Int {
-        if scrollProgress > 0.5, selectedIndex + 1 < itemCount {
-            return selectedIndex + 1
-        } else if scrollProgress < -0.5, selectedIndex - 1 >= 0 {
-            return selectedIndex - 1
+        guard itemCount > 0 else { return 0 }
+        let clamped = clampIndex(selectedIndex, itemCount: itemCount)
+        if scrollProgress > 0.5, clamped + 1 < itemCount {
+            return clamped + 1
+        } else if scrollProgress < -0.5, clamped - 1 >= 0 {
+            return clamped - 1
         }
-        return selectedIndex
+        return clamped
     }
 }
