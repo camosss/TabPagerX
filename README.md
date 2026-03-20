@@ -15,11 +15,12 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 ## 💥 Features
 - **Generic Data API**: Work with any `Identifiable & Equatable` data model.
 - **Type-safe Builders**: Closure-based `content` and `tabTitle` per item.
-- **Static & Dynamic Tabs**: Supports both fixed arrays and API-driven dynamic lists.
+- **Static & Dynamic Tabs**: Supports both fixed arrays and API-driven dynamic lists — safe with empty or async-loaded items.
 - **Configurable Layouts**: Fixed/Scrollable tab bar with spacing and padding controls.
 - **Indicator Customization**: Height, color, corner radius, horizontal inset, animation.
+- **Real-time Indicator Tracking**: Indicator follows your finger in real-time during swipe.
 - **Optional Separator**: Built-in separator between TabBar and content via modifier.
-- **Gesture Navigation**: Enable/disable swipe between pages.
+- **Gesture Navigation**: Enable/disable swipe between pages. Disabling swipe also removes tab transition animation.
 
 <br>
 
@@ -41,32 +42,17 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 - Define each tab's content using SwiftUI views via `content` closure.
 - Use `tabTitle` closure to provide a custom tab label per item (`@ViewBuilder`).
 
-<br>
-
-> Note (Dynamic/API-driven tabs): When tabs are loaded asynchronously (e.g., `isLoading == true`), guard against out-of-range indices until data is ready.
-> - Render a placeholder while loading, or when `items.isEmpty`.
-> - Safety for async loading and index clamping will be improved in a future update.
-
 ```swift
 @State private var selectedIndex = 0
-@State private var isLoading = true
-@State private var items: [Item] = []
+private let items = [..]
 
-var body: some View {
-    Group {
-        if isLoading || items.isEmpty {
-            ProgressView()
-        } else {
-            TabPagerX(
-                selectedIndex: $selectedIndex,
-                items: items
-            ) { item in
-                /* content */
-            } tabTitle: { item, isSelected in
-                /* title */
-            }
-        }
-    }
+TabPagerX(
+    selectedIndex: $selectedIndex,
+    items: items
+) { item in
+    /* content */
+} tabTitle: { item, isSelected in
+    /* title */
 }
 ```
 
@@ -101,7 +87,7 @@ TabPagerX(
 ) { item in
     Text(item.content)
     ...
-    
+
 } tabTitle: { item, isSelected in
     Text(item.title)
 }
@@ -145,7 +131,7 @@ TabPagerX(
         CustomView()
     }
     ...
-    
+
 } tabTitle: { item, isSelected in
     HStack {
         if case .image = item.type {
@@ -154,6 +140,32 @@ TabPagerX(
             Image(systemName: "star.circle")
         }
         Text(item.title)
+    }
+}
+```
+
+<br>
+
+### Dynamic / Async Tabs
+- Safe with empty or async-loaded items — no `isLoading` guard needed.
+- Tabs render automatically when data arrives.
+
+```swift
+@State private var selectedIndex = 0
+@State private var items: [Item] = [] // starts empty
+
+var body: some View {
+    TabPagerX(
+        selectedIndex: $selectedIndex,
+        initialIndex: 1, // applied once when items load
+        items: items
+    ) { item in
+        /* content */
+    } tabTitle: { item, isSelected in
+        /* title */
+    }
+    .onAppear {
+        fetchItems { items = $0 }
     }
 }
 ```
@@ -202,6 +214,7 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 ### indicatorStyle
 - Customize Tab underline (indicator) with `.tabIndicatorStyle(...)`.
 - You can set `height`, `color`, `horizontalInset`, `cornerRadius`, and `animationDuration`.
+- The indicator tracks your finger in real-time during swipe gestures.
 
 ```swift
 .tabIndicatorStyle(
@@ -216,10 +229,11 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 ### isSwipeEnabled
 - Enable or Disable Content Swipe
 - Allow or disable swipe gesture to switch between tabs.
-- Default is true. Use `.contentSwipeEnabled(false)` to disable swipe navigation.
+- Default is `true`. Use `.contentSwipeEnabled(false)` to disable swipe navigation.
+- When disabled, tab tap transitions are also instant (no slide animation).
 
 ```swift
-.contentSwipeEnabled(false) // disables swipe gesture
+.contentSwipeEnabled(false) // disables swipe and removes tab transition animation
 ```
 
 ### separatorStyle
