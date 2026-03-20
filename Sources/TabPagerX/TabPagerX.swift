@@ -71,6 +71,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
             TabBar(
                 tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
+                displayIndex: displayIndex,
                 scrollProgress: scrollProgress,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,
@@ -108,6 +109,15 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
         .onChangeCompat(of: selectedIndex) {
             onTabChanged?(selectedIndex)
         }
+    }
+
+    private var displayIndex: Int {
+        if scrollProgress > 0.5, selectedIndex + 1 < items.count {
+            return selectedIndex + 1
+        } else if scrollProgress < -0.5, selectedIndex - 1 >= 0 {
+            return selectedIndex - 1
+        }
+        return selectedIndex
     }
 
     private var tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle] {

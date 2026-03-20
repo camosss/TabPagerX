@@ -6,18 +6,18 @@ struct TabButtons<TabTitle: View>: View {
 
     let tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle]
     @Binding var selectedIndex: Int
+    let displayIndex: Int
 
     let layoutConfig: TabBarLayoutConfig
-    
+
     /// When true, each tab occupies equal width (used in fixed layout). When false, content-sized.
     let isFixedWidth: Bool
 
     var body: some View {
-        // Horizontal stack of tab buttons
         HStack(spacing: layoutConfig.buttonSpacing) {
             ForEach(tabTitleBuilders.indices, id: \.self) { index in
 
-                tabTitleBuilders[index](index == selectedIndex)
+                tabTitleBuilders[index](index == displayIndex)
                     .frame(maxWidth: isFixedWidth ? .infinity : nil, alignment: .center)
                     .background(
                         // Capture each button's frame to align the indicator later

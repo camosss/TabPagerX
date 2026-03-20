@@ -10,6 +10,9 @@ struct TabBar<TabTitle: View>: View {
     /// The currently selected tab index.
     @Binding var selectedIndex: Int
 
+    /// The visually highlighted tab index (follows scroll progress).
+    let displayIndex: Int
+
     /// Continuous scroll progress from page swipe (-1 to 1).
     let scrollProgress: CGFloat
 
@@ -25,21 +28,21 @@ struct TabBar<TabTitle: View>: View {
     var body: some View {
         switch layoutStyle {
 
-        // Distributes all tabs evenly across the full width
         case .fixed:
             FixedTabBar(
                 tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
+                displayIndex: displayIndex,
                 scrollProgress: scrollProgress,
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle
             )
 
-        // Sizes tabs according to content and allows horizontal scrolling
         case .scrollable:
             ScrollableTabBar(
                 tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
+                displayIndex: displayIndex,
                 scrollProgress: scrollProgress,
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle
