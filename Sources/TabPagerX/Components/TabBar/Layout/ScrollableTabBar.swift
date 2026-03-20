@@ -25,9 +25,9 @@ struct ScrollableTabBar<TabTitle: View>: View {
                         isFixedWidth: false
                     )
                     .padding(.horizontal, layoutConfig.sidePadding)
-                    .onChange(of: selectedIndex) { newIndex in
+                    .onChangeCompat(of: selectedIndex) {
                         withAnimation(.easeInOut) {
-                            proxy.scrollTo(newIndex, anchor: .center)
+                            proxy.scrollTo(selectedIndex, anchor: .center)
                         }
                     }
                 }

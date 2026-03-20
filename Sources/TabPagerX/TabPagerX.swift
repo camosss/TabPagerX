@@ -99,14 +99,14 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
         .onAppear {
             setupInitialIndexOnce()
         }
-        .onChange(of: items) { _ in
+        .onChangeCompat(of: items) {
             clampSelectedIndex()
             if !hasAppliedInitialIndex {
                 setupInitialIndexOnce()
             }
         }
-        .onChange(of: selectedIndex) { newIndex in
-            onTabChanged?(newIndex)
+        .onChangeCompat(of: selectedIndex) {
+            onTabChanged?(selectedIndex)
         }
     }
 
