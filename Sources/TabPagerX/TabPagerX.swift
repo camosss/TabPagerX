@@ -86,7 +86,9 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
                 tabCount: items.count,
                 isSwipeEnabled: .constant(isSwipeEnabled),
                 content: { index in
-                    content(items[index])
+                    if index >= 0 && index < items.count {
+                        content(items[index])
+                    }
                 }
             )
         }
@@ -95,10 +97,10 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
             setupInitialIndexOnce()
         }
         .onChange(of: items) { _ in
-            // Handle dynamic items changes
-            hasAppliedInitialIndex = false
             clampSelectedIndex()
-            setupInitialIndexOnce()
+            if !hasAppliedInitialIndex {
+                setupInitialIndexOnce()
+            }
         }
         .onChange(of: selectedIndex) { newIndex in
             onTabChanged?(newIndex)
@@ -214,5 +216,116 @@ public extension TabPagerX {
             isHidden: isHidden
         )
         return new
+    }
+}
+
+#Preview(body: {
+    DynamicTabsSample()
+})
+
+struct DynamicTabsSample: View {
+
+    struct DynamicTabItem: Identifiable, Equatable {
+        let id = UUID()
+        let title: String
+        let content: String
+        let color: Color
+        let icon: String
+        let source: String
+    }
+
+    @State private var selectedIndex = 0
+    @State private var items: [DynamicTabItem] = []
+    @State private var isLoading = true
+    @State private var loadCount = 0
+
+    var body: some View {
+        VStack {
+            Text("Dynamic Tabs (API Simulation)")
+                .font(.headline)
+                .padding()
+
+            HStack {
+                Text("Selected Index: \(selectedIndex)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Spacer()
+
+                Button("Reload Data") {
+                    loadData()
+                }
+                .font(.caption)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+            .padding(.horizontal)
+
+            TabPagerX(
+                    selectedIndex: $selectedIndex,
+                    initialIndex: 1,
+                    items: items
+                ) { item in
+                    VStack {
+                        Text(item.content)
+                            .font(.title2)
+                            .foregroundColor(item.color)
+
+                        Rectangle()
+                            .fill(item.color)
+                            .frame(height: 120)
+                            .cornerRadius(12)
+
+                        Text("Load #\(loadCount) - \(item.source)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                } tabTitle: { item, isSelected in
+                    HStack {
+                        Image(systemName: item.icon)
+                            .font(.caption)
+                        Text(item.title)
+                    }
+                    .font(isSelected ? .headline : .body)
+                    .foregroundColor(isSelected ? item.color : .secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(isSelected ? item.color.opacity(0.1) : Color.clear)
+                    )
+                }
+                .tabBarLayoutStyle(.scrollable)
+                .tabIndicatorStyle(height: 3, color: .green, horizontalInset: 8)
+                .onTabChanged { index in
+                    print("Selected tab: \(index)")
+                }
+        }
+        .onAppear {
+            loadData()
+        }
+    }
+
+    private func loadData() {
+        isLoading = true
+        loadCount += 1
+
+        // Simulate API call
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            let apiData = [
+                DynamicTabItem(title: "News", content: "Latest news from API", color: .red, icon: "newspaper", source: "API"),
+                DynamicTabItem(title: "Sports", content: "Sports updates", color: .orange, icon: "sportscourt", source: "API"),
+                DynamicTabItem(title: "Tech", content: "Technology news", color: .blue, icon: "laptopcomputer", source: "API"),
+                DynamicTabItem(title: "Weather", content: "Weather forecast", color: .cyan, icon: "cloud.sun", source: "API"),
+                DynamicTabItem(title: "Finance", content: "Market updates", color: .green, icon: "chart.line.uptrend.xyaxis", source: "API")
+            ]
+
+            items = apiData
+            isLoading = false
+        }
     }
 }

@@ -8,8 +8,8 @@ class PageTabViewController<Content: View>: UIPageViewController,
     // Caches each tab's content to preserve state
     private var viewControllersCache: [Int: UIHostingController<Content>] = [:]
 
-    private let content: (Int) -> Content
-    private let tabCount: Int
+    private var content: (Int) -> Content
+    private(set) var tabCount: Int
 
     var selectedIndex: Int = 0
 
@@ -33,8 +33,10 @@ class PageTabViewController<Content: View>: UIPageViewController,
         self.dataSource = self
         self.delegate = self
 
-        let initialVC = getViewController(at: selectedIndex)
-        setViewControllers([initialVC], direction: .forward, animated: false)
+        if tabCount > 0 {
+            let initialVC = getViewController(at: selectedIndex)
+            setViewControllers([initialVC], direction: .forward, animated: false)
+        }
 
         if !isSwipeEnabled {
             view.subviews
@@ -56,6 +58,27 @@ class PageTabViewController<Content: View>: UIPageViewController,
             let vc = UIHostingController(rootView: content(index))
             viewControllersCache[index] = vc
             return vc
+        }
+    }
+
+    func updateTabData(tabCount: Int, content: @escaping (Int) -> Content) {
+        let tabCountChanged = self.tabCount != tabCount
+        self.content = content
+        self.tabCount = tabCount
+
+        if tabCountChanged {
+            viewControllersCache.removeAll()
+
+            guard tabCount > 0 else { return }
+
+            let clamped = min(max(selectedIndex, 0), tabCount - 1)
+            selectedIndex = clamped
+            let vc = getViewController(at: clamped)
+            setViewControllers([vc], direction: .forward, animated: false)
+        } else {
+            for (index, vc) in viewControllersCache {
+                vc.rootView = content(index)
+            }
         }
     }
 

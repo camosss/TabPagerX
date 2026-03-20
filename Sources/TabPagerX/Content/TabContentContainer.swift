@@ -27,6 +27,7 @@ struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
         _ uiViewController: PageTabViewController<Content>,
         context: Context
     ) {
+        uiViewController.updateTabData(tabCount: tabCount, content: content)
         uiViewController.updateIndex(to: selectedIndex)
     }
 }
