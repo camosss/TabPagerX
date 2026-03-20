@@ -221,6 +221,7 @@ public extension TabPagerX {
     }
 }
 
+#if DEBUG
 #Preview(body: {
     DynamicTabsSample()
 })
@@ -331,3 +332,4 @@ struct DynamicTabsSample: View {
         }
     }
 }
+#endif

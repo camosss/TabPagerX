@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct TabBarSeparatorStyle {
+public struct TabBarSeparatorStyle: Sendable {
     let color: Color
     let height: CGFloat
     let horizontalPadding: CGFloat
