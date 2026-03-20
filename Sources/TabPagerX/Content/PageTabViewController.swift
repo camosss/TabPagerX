@@ -15,6 +15,10 @@ class PageTabViewController<Content: View>: UIPageViewController,
 
     // Callback to notify parent of selected index change
     var onIndexChanged: ((Int) -> Void)?
+    var onScrollProgressChanged: ((CGFloat) -> Void)?
+
+    private var isProgrammaticTransition = false
+    private var scrollViewObservation: NSKeyValueObservation?
 
     init(
         content: @escaping (Int) -> Content,
@@ -47,6 +51,24 @@ class PageTabViewController<Content: View>: UIPageViewController,
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupScrollViewObservation()
+    }
+
+    private func setupScrollViewObservation() {
+        guard let scrollView = view.subviews.compactMap({ $0 as? UIScrollView }).first else { return }
+
+        scrollViewObservation = scrollView.observe(\.contentOffset, options: [.new]) { [weak self] scrollView, _ in
+            guard let self = self, !self.isProgrammaticTransition else { return }
+            let width = scrollView.frame.width
+            guard width > 0 else { return }
+            let progress = (scrollView.contentOffset.x - width) / width
+            let clamped = min(max(progress, -1), 1)
+            self.onScrollProgressChanged?(clamped)
+        }
     }
 
     // Lazily loads and caches tab content
@@ -89,6 +111,9 @@ class PageTabViewController<Content: View>: UIPageViewController,
               newIndex < tabCount
         else { return }
 
+        isProgrammaticTransition = true
+        onScrollProgressChanged?(0)
+
         let direction: NavigationDirection = (newIndex > selectedIndex) ? .forward : .reverse
         let nextVC = getViewController(at: newIndex)
 
@@ -96,7 +121,9 @@ class PageTabViewController<Content: View>: UIPageViewController,
             [nextVC],
             direction: direction,
             animated: true
-        )
+        ) { [weak self] _ in
+            self?.isProgrammaticTransition = false
+        }
         selectedIndex = newIndex
     }
 
@@ -134,6 +161,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
 
             selectedIndex = index
             onIndexChanged?(index)
+            onScrollProgressChanged?(0)
         }
     }
 }

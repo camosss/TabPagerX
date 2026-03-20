@@ -42,6 +42,9 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
     /// Tracks whether initialIndex has been applied to prevent re-application
     @State private var hasAppliedInitialIndex = false
 
+    /// Continuous scroll progress from page swipe (-1 to 1)
+    @State private var scrollProgress: CGFloat = 0
+
     /// Initializes `TabPagerX` with generic data and view builders
     /// - Parameters:
     ///   - selectedIndex: A binding to the currently selected tab index
@@ -68,6 +71,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
             TabBar(
                 tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
+                scrollProgress: scrollProgress,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle
@@ -83,6 +87,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
 
             TabContent(
                 selectedIndex: $selectedIndex,
+                scrollProgress: $scrollProgress,
                 tabCount: items.count,
                 isSwipeEnabled: .constant(isSwipeEnabled),
                 content: { index in

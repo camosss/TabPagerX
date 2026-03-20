@@ -5,6 +5,7 @@ import SwiftUI
 struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
 
     @Binding var selectedIndex: Int
+    @Binding var scrollProgress: CGFloat
 
     let tabCount: Int
     let isSwipeEnabled: Bool
@@ -19,6 +20,9 @@ struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
         controller.selectedIndex = selectedIndex
         controller.onIndexChanged = { newIndex in
             selectedIndex = newIndex
+        }
+        controller.onScrollProgressChanged = { progress in
+            scrollProgress = progress
         }
         return controller
     }

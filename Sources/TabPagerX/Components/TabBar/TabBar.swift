@@ -10,6 +10,9 @@ struct TabBar: View {
     /// The currently selected tab index.
     @Binding var selectedIndex: Int
 
+    /// Continuous scroll progress from page swipe (-1 to 1).
+    let scrollProgress: CGFloat
+
     /// The layout style for tabs (fixed or scrollable).
     let layoutStyle: TabLayoutStyle
 
@@ -27,6 +30,7 @@ struct TabBar: View {
             FixedTabBar(
                 tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
+                scrollProgress: scrollProgress,
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle
             )
@@ -36,6 +40,7 @@ struct TabBar: View {
             ScrollableTabBar(
                 tabTitleBuilders: tabTitleBuilders,
                 selectedIndex: $selectedIndex,
+                scrollProgress: scrollProgress,
                 layoutConfig: layoutConfig,
                 indicatorStyle: indicatorStyle
             )
