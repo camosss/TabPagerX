@@ -110,11 +110,10 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
         }
     }
 
-    /// Computed property that creates title builders from data items
-    private var tabTitleBuilders: [(_ isSelected: Bool) -> AnyView] {
-        items.enumerated().map { index, item in
+    private var tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle] {
+        items.map { item in
             { isSelected in
-                AnyView(tabTitle(item, isSelected))
+                tabTitle(item, isSelected)
             }
         }
     }

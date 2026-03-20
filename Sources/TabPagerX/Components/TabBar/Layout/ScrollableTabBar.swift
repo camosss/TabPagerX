@@ -1,9 +1,9 @@
 import SwiftUI
 
 /// A horizontally scrollable tab bar with animated indicator.
-struct ScrollableTabBar: View {
+struct ScrollableTabBar<TabTitle: View>: View {
 
-    let tabTitleBuilders: [(_ isSelected: Bool) -> AnyView]
+    let tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle]
     @Binding var selectedIndex: Int
     let scrollProgress: CGFloat
 

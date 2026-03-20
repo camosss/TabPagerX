@@ -1,9 +1,9 @@
 import SwiftUI
 
 /// A horizontal tab bar with fixed-width tabs and animated indicator.
-struct FixedTabBar: View {
+struct FixedTabBar<TabTitle: View>: View {
 
-    let tabTitleBuilders: [(_ isSelected: Bool) -> AnyView]
+    let tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle]
     @Binding var selectedIndex: Int
     let scrollProgress: CGFloat
 
