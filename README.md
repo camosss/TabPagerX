@@ -60,7 +60,7 @@ TabPagerX(
 
 ### Same Content (all items share the same view)
 - Ideal for simple static lists or repeating the same layout.
-- All tabs use the same view
+- All tabs use the same view structure with different data.
 <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
   <tr>
     <td style="width:50%; padding:0 6px 0 0; vertical-align:top;">
@@ -77,28 +77,52 @@ TabPagerX(
 </table>
 
 ```swift
+struct TabItem: Identifiable, Equatable {
+    let id = UUID()
+    let title: String
+    let content: String
+    let color: Color
+}
+
 @State private var selectedIndex = 0
-private let items = [..]
+
+private let items = [
+    TabItem(title: "Home", content: "Welcome to Home", color: .blue),
+    TabItem(title: "Search", content: "Search content", color: .green),
+    TabItem(title: "Profile", content: "Profile content", color: .orange)
+]
 
 TabPagerX(
     selectedIndex: $selectedIndex,
-    initialIndex: 0, // optional
     items: items
 ) { item in
-    Text(item.content)
-    ...
+    VStack {
+        Text(item.content)
+            .font(.title2)
+            .foregroundColor(item.color)
+        Rectangle()
+            .fill(item.color)
+            .frame(height: 200)
+            .cornerRadius(12)
+    }
+    .padding()
 
 } tabTitle: { item, isSelected in
     Text(item.title)
+        .font(isSelected ? .headline : .body)
+        .foregroundColor(isSelected ? item.color : .secondary)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
 }
-.tabBarLayoutStyle(.scrollable)
+.tabBarLayoutStyle(.fixed)
+.tabIndicatorStyle(height: 3, color: .blue, horizontalInset: 16)
 ```
 
 <br>
 
 ### Different Views by Type (render different view per type)
 - Renders different views based on each item's `type`.
-- Useful when each tab needs heterogeneous UI
+- Useful when each tab needs heterogeneous UI.
 <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
   <tr>
     <td style="width:50%; padding:0 6px 0 0; vertical-align:top;">
@@ -115,8 +139,25 @@ TabPagerX(
 </table>
 
 ```swift
+struct MixedTabItem: Identifiable, Equatable {
+    let id = UUID()
+    let type: TabItemType
+    let title: String
+
+    enum TabItemType: Equatable {
+        case text(String)
+        case image(String)
+        case custom
+    }
+}
+
 @State private var selectedIndex = 0
-private let items = [..]
+
+private let items = [
+    MixedTabItem(type: .text("Hello World"), title: "Text"),
+    MixedTabItem(type: .image("star.fill"), title: "Image"),
+    MixedTabItem(type: .custom, title: "Custom")
+]
 
 TabPagerX(
     selectedIndex: $selectedIndex,
@@ -125,23 +166,33 @@ TabPagerX(
     switch item.type {
     case .text(let text):
         Text(text)
+            .font(.largeTitle)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     case .image(let name):
         Image(systemName: name)
+            .font(.system(size: 60))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     case .custom:
-        CustomView()
+        Circle()
+            .fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+            .frame(width: 100, height: 100)
     }
-    ...
 
 } tabTitle: { item, isSelected in
     HStack {
         if case .image = item.type {
             Image(systemName: "photo")
-        } else if case .text = item.type {
+        } else if case .custom = item.type {
             Image(systemName: "star.circle")
         }
         Text(item.title)
     }
+    .font(isSelected ? .headline : .body)
+    .foregroundColor(isSelected ? .blue : .secondary)
+    .padding(.horizontal, 12)
+    .padding(.vertical, 8)
 }
+.tabIndicatorStyle(height: 4, color: .purple)
 ```
 
 <br>
@@ -155,19 +206,108 @@ TabPagerX(
 @State private var items: [Item] = [] // starts empty
 
 var body: some View {
-    TabPagerX(
-        selectedIndex: $selectedIndex,
-        initialIndex: 1, // applied once when items load
-        items: items
-    ) { item in
-        /* content */
-    } tabTitle: { item, isSelected in
-        /* title */
+    VStack {
+        Button("Reload") { loadData() }
+
+        // No isLoading guard needed — safe with empty items
+        TabPagerX(
+            selectedIndex: $selectedIndex,
+            initialIndex: 1, // applied once when items load
+            items: items
+        ) { item in
+            Text(item.content)
+                .font(.title2)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+        } tabTitle: { item, isSelected in
+            HStack {
+                Image(systemName: item.icon)
+                Text(item.title)
+            }
+            .font(isSelected ? .headline : .body)
+            .foregroundColor(isSelected ? item.color : .secondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        }
+        .tabBarLayoutStyle(.scrollable)
+        .tabIndicatorStyle(height: 3, color: .green, horizontalInset: 8)
     }
-    .onAppear {
-        fetchItems { items = $0 }
+    .onAppear { loadData() }
+}
+
+func loadData() {
+    items = []
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        items = [/* fetched data */]
     }
 }
+```
+
+<br>
+
+### Scrollable Tabs (many tabs with real-time indicator)
+- Scrollable layout for many tabs with button spacing and side padding.
+- Indicator and tab title selection follow your finger in real-time during swipe.
+
+```swift
+@State private var selectedIndex = 0
+
+private let items = [
+    CategoryItem(title: "All", emoji: "🌐", color: .blue),
+    CategoryItem(title: "Music", emoji: "🎵", color: .pink),
+    CategoryItem(title: "Sports", emoji: "⚽", color: .green),
+    CategoryItem(title: "Gaming", emoji: "🎮", color: .purple),
+    CategoryItem(title: "Food", emoji: "🍕", color: .orange),
+    CategoryItem(title: "Travel", emoji: "✈️", color: .cyan),
+    // ...
+]
+
+TabPagerX(
+    selectedIndex: $selectedIndex,
+    items: items
+) { item in
+    VStack(spacing: 16) {
+        Text(item.emoji).font(.system(size: 80))
+        Text(item.title).font(.title).foregroundColor(item.color)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+} tabTitle: { item, isSelected in
+    Text("\(item.emoji) \(item.title)")
+        .font(isSelected ? .headline : .subheadline)
+        .foregroundColor(isSelected ? item.color : .secondary)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+}
+.tabBarLayoutStyle(.scrollable)
+.tabBarLayoutConfig(buttonSpacing: 4, sidePadding: 12)
+.tabIndicatorStyle(height: 3, color: .blue, cornerRadius: 1.5)
+```
+
+<br>
+
+### Swipe Disabled (instant tab switch)
+- When swipe is disabled, tapping a tab switches content instantly with no slide animation.
+
+```swift
+TabPagerX(
+    selectedIndex: $selectedIndex,
+    items: items
+) { item in
+    Text(item.title)
+        .font(.largeTitle)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+} tabTitle: { item, isSelected in
+    Text(item.title)
+        .font(isSelected ? .headline : .body)
+        .foregroundColor(isSelected ? item.color : .secondary)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+}
+.tabBarLayoutStyle(.fixed)
+.tabIndicatorStyle(height: 3, color: .red)
+.contentSwipeEnabled(false) // no swipe, no slide animation on tap
 ```
 
 <br>
@@ -179,7 +319,7 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 ## 💥 Configuration
 
 ### layoutStyle
-- Set Tab Bar Layout Style
+- Set Tab Bar Layout Style.
 - Choose between fixed or scrollable layouts.
 - Custom tab views are fully supported in both layouts.
 
@@ -200,14 +340,25 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
   </tr>
 </table>
 
+```swift
+// Fixed: tabs share equal width across the screen (default)
+.tabBarLayoutStyle(.fixed)
+
+// Scrollable: tabs size to content, horizontally scrollable
+.tabBarLayoutStyle(.scrollable)
+```
 
 ### layoutConfig
-- Configure Tab Bar Layout
+- Configure Tab Bar Layout.
 - Adjust `buttonSpacing` and `sidePadding`. (defaults to 0)
   - `buttonSpacing`: spacing between each tab button
   - `sidePadding`: horizontal padding applied to the whole tab bar (left & right)
 
 ```swift
+// No spacing (default)
+.tabBarLayoutConfig(buttonSpacing: 0, sidePadding: 0)
+
+// With spacing and padding
 .tabBarLayoutConfig(buttonSpacing: 8, sidePadding: 12)
 ```
 
@@ -217,23 +368,33 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 - The indicator tracks your finger in real-time during swipe gestures.
 
 ```swift
+// Thin blue underline
+.tabIndicatorStyle(height: 2, color: .blue)
+
+// Rounded pill with inset
 .tabIndicatorStyle(
-    height: 2,
-    color: .blue,
-    horizontalInset: 8,
-    cornerRadius: 4,
-    animationDuration: 0.3
+    height: 4,
+    color: .orange,
+    horizontalInset: 20,
+    cornerRadius: 2,
+    animationDuration: 0.25
 )
+
+// No indicator (default — height: 0, color: .clear)
 ```
 
 ### isSwipeEnabled
-- Enable or Disable Content Swipe
+- Enable or Disable Content Swipe.
 - Allow or disable swipe gesture to switch between tabs.
 - Default is `true`. Use `.contentSwipeEnabled(false)` to disable swipe navigation.
 - When disabled, tab tap transitions are also instant (no slide animation).
 
 ```swift
-.contentSwipeEnabled(false) // disables swipe and removes tab transition animation
+// Swipe enabled (default) — swipe between pages with slide animation
+.contentSwipeEnabled(true)
+
+// Swipe disabled — tap only, instant content switch
+.contentSwipeEnabled(false)
 ```
 
 ### separatorStyle
@@ -241,10 +402,17 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 - Use to visually distinguish the tab bar from page content.
 
 ```swift
+// Add separator
+.tabBarSeparator(
+    color: .gray.opacity(0.3),
+    height: 1
+)
+
+// Full customization
 .tabBarSeparator(
     color: .gray.opacity(0.2),
     height: 1,
-    horizontalPadding: 0,
+    horizontalPadding: 16,
     isHidden: false
 )
 ```
@@ -263,6 +431,15 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
     </td>
   </tr>
 </table>
+
+### onTabChanged
+- Observe tab index changes via callback.
+
+```swift
+.onTabChanged { index in
+    print("Selected tab: \(index)")
+}
+```
 
 <br>
 
