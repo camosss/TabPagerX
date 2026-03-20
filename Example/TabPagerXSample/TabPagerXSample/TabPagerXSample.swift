@@ -28,7 +28,7 @@ struct TabPagerXSampleHome: View {
 }
 
 // MARK: - 1. Same Content
-// 모든 탭이 동일한 뷰 구조를 사용하는 기본 예시
+// All tabs share the same view structure with different data
 
 struct SameViewSample: View {
 
@@ -71,7 +71,7 @@ struct SameViewSample: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
         }
-        // 고정 폭 레이아웃 (기본값)
+        // Fixed-width layout (default)
         .tabBarLayoutStyle(.fixed)
         .tabIndicatorStyle(height: 3, color: .blue, horizontalInset: 16)
         .onTabChanged { index in
@@ -81,7 +81,7 @@ struct SameViewSample: View {
 }
 
 // MARK: - 2. Different Views by Type
-// 아이템 타입에 따라 다른 뷰를 렌더링하는 예시
+// Renders different views based on each item's type
 
 struct DifferentViewSample: View {
 
@@ -110,7 +110,7 @@ struct DifferentViewSample: View {
             selectedIndex: $selectedIndex,
             items: items
         ) { item in
-            // switch문으로 타입별 다른 뷰 렌더링
+            // Switch on item type to render different views
             switch item.type {
             case .text(let content):
                 Text(content)
@@ -168,8 +168,8 @@ struct DifferentViewSample: View {
 }
 
 // MARK: - 3. Scrollable Tabs
-// 탭이 많을 때 스크롤 가능한 레이아웃 예시
-// 스와이프 시 인디케이터가 실시간으로 손가락을 따라 이동
+// Scrollable layout for many tabs
+// Indicator tracks finger movement in real-time during swipe
 
 struct ScrollableTabsSample: View {
 
@@ -215,7 +215,7 @@ struct ScrollableTabsSample: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
         }
-        // 스크롤 가능 레이아웃 + 버튼 간격 및 좌우 패딩 설정
+        // Scrollable layout with button spacing and side padding
         .tabBarLayoutStyle(.scrollable)
         .tabBarLayoutConfig(buttonSpacing: 4, sidePadding: 12)
         .tabIndicatorStyle(height: 3, color: .blue, cornerRadius: 1.5)
@@ -223,7 +223,7 @@ struct ScrollableTabsSample: View {
 }
 
 // MARK: - 4. Separator Style
-// 탭바와 콘텐츠 사이에 구분선을 추가하는 예시
+// Adds a separator line between the tab bar and content area
 
 struct SeparatorSample: View {
 
@@ -265,7 +265,7 @@ struct SeparatorSample: View {
         }
         .tabBarLayoutStyle(.fixed)
         .tabIndicatorStyle(height: 2, color: .blue)
-        // 탭바 하단 구분선 (.tabBarSeparator)
+        // Separator between tab bar and content
         .tabBarSeparator(
             color: .gray.opacity(0.3),
             height: 1
@@ -274,7 +274,7 @@ struct SeparatorSample: View {
 }
 
 // MARK: - 5. Indicator Customization
-// 인디케이터 스타일을 다양하게 커스터마이징하는 예시
+// Customize indicator height, color, cornerRadius, inset, and animation duration
 
 struct IndicatorCustomSample: View {
 
@@ -312,7 +312,7 @@ struct IndicatorCustomSample: View {
                 )
         }
         .tabBarLayoutStyle(.fixed)
-        // 높은 cornerRadius + horizontalInset으로 둥근 필 인디케이터
+        // Rounded pill indicator with cornerRadius + horizontalInset
         .tabIndicatorStyle(
             height: 4,
             color: .orange,
@@ -324,8 +324,8 @@ struct IndicatorCustomSample: View {
 }
 
 // MARK: - 6. Swipe Disabled (Instant Switch)
-// 스와이프 비활성화 시 탭 전환 애니메이션도 함께 제거되는 예시
-// contentSwipeEnabled(false) → 탭 클릭 시 즉시 전환 (슬라이드 애니메이션 없음)
+// When swipe is disabled, tab transition animation is also removed
+// contentSwipeEnabled(false) → tapping a tab switches instantly (no slide animation)
 
 struct SwipeDisabledSample: View {
 
@@ -375,14 +375,14 @@ struct SwipeDisabledSample: View {
             }
             .tabBarLayoutStyle(.fixed)
             .tabIndicatorStyle(height: 3, color: .red)
-            // 스와이프 비활성화 → 탭 클릭 시 슬라이드 애니메이션도 제거됨
+            // Disabling swipe also removes slide animation on tab tap
             .contentSwipeEnabled(false)
         }
     }
 }
 
 // MARK: - 7. Static Tabs (initialIndex)
-// initialIndex로 최초 표시 탭을 지정하는 예시
+// Specify which tab to show first using initialIndex (applied once on appearance)
 
 struct StaticTabsSample: View {
 
@@ -404,7 +404,7 @@ struct StaticTabsSample: View {
 
     var body: some View {
         VStack {
-            Text("initialIndex = 2 → 3번째 탭(Profile)부터 시작")
+            Text("initialIndex = 2 → Starts at 3rd tab (Profile)")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding()
@@ -415,7 +415,7 @@ struct StaticTabsSample: View {
 
             TabPagerX(
                 selectedIndex: $selectedIndex,
-                // 최초 표시 탭 지정 (한 번만 적용됨)
+                // Start at 3rd tab (applied once on first appearance)
                 initialIndex: 2,
                 items: items
             ) { item in
@@ -449,8 +449,8 @@ struct StaticTabsSample: View {
 }
 
 // MARK: - 8. Dynamic Tabs (No Guard Needed)
-// 비동기 데이터 로딩 시 isLoading guard 없이 안전하게 동작하는 예시
-// items가 []로 시작 → 데이터 도착 시 자동으로 탭 렌더링
+// Safely handles async data loading without isLoading guard
+// Starts with items = [] → tabs render automatically when data arrives
 
 struct DynamicTabsSample: View {
 
@@ -491,9 +491,8 @@ struct DynamicTabsSample: View {
             }
             .padding(.horizontal)
 
-            // isLoading guard 불필요!
-            // items가 빈 배열이어도 안전하게 렌더링되고,
-            // 데이터가 도착하면 자동으로 탭이 표시됨
+            // No isLoading guard needed!
+            // Safe with empty items — tabs appear automatically when data loads
             TabPagerX(
                 selectedIndex: $selectedIndex,
                 initialIndex: 1,
@@ -542,7 +541,7 @@ struct DynamicTabsSample: View {
         items = []
         loadCount += 1
 
-        // 1.5초 후 API 데이터 도착 시뮬레이션
+        // Simulate API response after 1.5 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             items = [
                 DynamicTabItem(title: "News", content: "Latest news from API", color: .red, icon: "newspaper"),
