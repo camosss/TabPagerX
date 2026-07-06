@@ -27,6 +27,12 @@ struct ScrollableTabBar<Label: View>: View {
                         isFixedWidth: false
                     )
                     .padding(.horizontal, layoutConfig.sidePadding)
+                    .onAppear {
+                        // Center the selected tab on first appearance —
+                        // a preset selection may otherwise start offscreen
+                        guard selectedIndex > 0 else { return }
+                        proxy.scrollTo(selectedIndex, anchor: .center)
+                    }
                     .onChangeCompat(of: selectedIndex) {
                         withAnimation(.easeInOut) {
                             proxy.scrollTo(selectedIndex, anchor: .center)
