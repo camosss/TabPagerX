@@ -1,26 +1,30 @@
 # TabPagerX
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-2.1.0-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-3.0.0-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
+[![CI](https://github.com/camosss/TabPagerX/actions/workflows/ci.yml/badge.svg)](https://github.com/camosss/TabPagerX/actions/workflows/ci.yml)
 
 Effortless SwiftUI tab pager with dynamic customization.
 
 `TabPagerX` is a SwiftUI-based library designed to help iOS developers create customizable tab pagers with ease.
-It offers flexible layouts, tab scroll preservation, and extensive styling options for tab buttons and indicators, making it a perfect choice for building tab-based navigation in your SwiftUI applications.
+It offers flexible layouts, per-tab state preservation, and extensive styling options for tab labels and indicators, making it a perfect choice for building tab-based navigation in your SwiftUI applications.
 
 <br>
 
 ## 💥 Features
+- **ID-based Selection**: Bind selection to your item's `id` — it survives reorders and removals, and deep links can select a tab without knowing its position.
 - **Generic Data API**: Work with any `Identifiable & Equatable` data model.
-- **Type-safe Builders**: Closure-based `content` and `tabTitle` per item.
+- **Type-safe Builders**: Closure-based `content` and `label` per item.
 - **Static & Dynamic Tabs**: Supports both fixed arrays and API-driven dynamic lists — safe with empty or async-loaded items.
+- **State Preservation**: Each tab's page (scroll position, internal state) is cached by item id — appending or reordering tabs keeps existing state.
+- **Real-time Label & Indicator Tracking**: `TabState.selectionProgress` interpolates 0→1 as your finger swipes, for the label and the indicator alike.
 - **Configurable Layouts**: Fixed/Scrollable tab bar with spacing and padding controls.
 - **Indicator Customization**: Height, color, corner radius, horizontal inset, animation.
-- **Real-time Indicator Tracking**: Indicator follows your finger in real-time during swipe.
 - **Optional Separator**: Built-in separator between TabBar and content via modifier.
-- **Gesture Navigation**: Enable/disable swipe between pages. Disabling swipe also removes tab transition animation.
+- **Gesture Navigation**: Enable/disable swipe between pages — togglable at runtime. Disabling swipe also removes tab transition animation.
+- **VoiceOver Support**: Tabs are announced as buttons with selection state and position.
 
 <br>
 
@@ -36,25 +40,28 @@ It offers flexible layouts, tab scroll preservation, and extensive styling optio
 
 ### Getting Started
 
-- Bind a `@State` variable to `selectedIndex` to track the current tab.
-- Optionally set `initialIndex` (default is 0) to define which tab is shown first (applied once on first appearance).
+- Bind a `@State` optional id to `selection` to track the current tab.
+  - `nil` until items arrive — the first tab is then selected automatically.
+  - Preset an id (e.g. `= "profile"`) to start on a specific tab.
 - Provide `items` (any `Identifiable & Equatable` type).
 - Define each tab's content using SwiftUI views via `content` closure.
-- Use `tabTitle` closure to provide a custom tab label per item (`@ViewBuilder`).
+- Use the `label` closure to build each tab's label from the item and its `TabState`.
 
 ```swift
-@State private var selectedIndex = 0
+@State private var selection: MyItem.ID? = nil
 private let items = [..]
 
 TabPagerX(
-    selectedIndex: $selectedIndex,
+    selection: $selection,
     items: items
 ) { item in
     /* content */
-} tabTitle: { item, isSelected in
-    /* title */
+} label: { item, state in
+    /* label — state.isSelected / state.selectionProgress */
 }
 ```
+
+> **Use stable ids.** Give items a stable identity (`let id: String` from your data), not `UUID()` created on the fly — stable ids are what make selection and per-tab state survive item updates.
 
 <br>
 
@@ -78,22 +85,22 @@ TabPagerX(
 
 ```swift
 struct TabItem: Identifiable, Equatable {
-    let id = UUID()
+    let id: String
     let title: String
     let content: String
     let color: Color
 }
 
-@State private var selectedIndex = 0
+@State private var selection: String? = nil
 
 private let items = [
-    TabItem(title: "Home", content: "Welcome to Home", color: .blue),
-    TabItem(title: "Search", content: "Search content", color: .green),
-    TabItem(title: "Profile", content: "Profile content", color: .orange)
+    TabItem(id: "home", title: "Home", content: "Welcome to Home", color: .blue),
+    TabItem(id: "search", title: "Search", content: "Search content", color: .green),
+    TabItem(id: "profile", title: "Profile", content: "Profile content", color: .orange)
 ]
 
 TabPagerX(
-    selectedIndex: $selectedIndex,
+    selection: $selection,
     items: items
 ) { item in
     VStack {
@@ -107,10 +114,10 @@ TabPagerX(
     }
     .padding()
 
-} tabTitle: { item, isSelected in
+} label: { item, state in
     Text(item.title)
-        .font(isSelected ? .headline : .body)
-        .foregroundColor(isSelected ? item.color : .secondary)
+        .font(state.isSelected ? .headline : .body)
+        .foregroundColor(state.isSelected ? item.color : .secondary)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
 }
@@ -140,7 +147,7 @@ TabPagerX(
 
 ```swift
 struct MixedTabItem: Identifiable, Equatable {
-    let id = UUID()
+    let id: String
     let type: TabItemType
     let title: String
 
@@ -151,16 +158,16 @@ struct MixedTabItem: Identifiable, Equatable {
     }
 }
 
-@State private var selectedIndex = 0
+@State private var selection: String? = nil
 
 private let items = [
-    MixedTabItem(type: .text("Hello World"), title: "Text"),
-    MixedTabItem(type: .image("star.fill"), title: "Image"),
-    MixedTabItem(type: .custom, title: "Custom")
+    MixedTabItem(id: "text", type: .text("Hello World"), title: "Text"),
+    MixedTabItem(id: "image", type: .image("star.fill"), title: "Image"),
+    MixedTabItem(id: "custom", type: .custom, title: "Custom")
 ]
 
 TabPagerX(
-    selectedIndex: $selectedIndex,
+    selection: $selection,
     items: items
 ) { item in
     switch item.type {
@@ -178,7 +185,7 @@ TabPagerX(
             .frame(width: 100, height: 100)
     }
 
-} tabTitle: { item, isSelected in
+} label: { item, state in
     HStack {
         if case .image = item.type {
             Image(systemName: "photo")
@@ -187,8 +194,8 @@ TabPagerX(
         }
         Text(item.title)
     }
-    .font(isSelected ? .headline : .body)
-    .foregroundColor(isSelected ? .blue : .secondary)
+    .font(state.isSelected ? .headline : .body)
+    .foregroundColor(state.isSelected ? .blue : .secondary)
     .padding(.horizontal, 12)
     .padding(.vertical, 8)
 }
@@ -199,10 +206,11 @@ TabPagerX(
 
 ### Dynamic / Async Tabs
 - Safe with empty or async-loaded items — no `isLoading` guard needed.
-- Tabs render automatically when data arrives.
+- Tabs render automatically when data arrives; the first tab (or a preset id) is selected.
+- With stable ids, appending tabs later keeps existing tabs' state intact.
 
 ```swift
-@State private var selectedIndex = 0
+@State private var selection: Item.ID? = nil
 @State private var items: [Item] = [] // starts empty
 
 var body: some View {
@@ -211,21 +219,20 @@ var body: some View {
 
         // No isLoading guard needed — safe with empty items
         TabPagerX(
-            selectedIndex: $selectedIndex,
-            initialIndex: 1, // applied once when items load
+            selection: $selection,
             items: items
         ) { item in
             Text(item.content)
                 .font(.title2)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-        } tabTitle: { item, isSelected in
+        } label: { item, state in
             HStack {
                 Image(systemName: item.icon)
                 Text(item.title)
             }
-            .font(isSelected ? .headline : .body)
-            .foregroundColor(isSelected ? item.color : .secondary)
+            .font(state.isSelected ? .headline : .body)
+            .foregroundColor(state.isSelected ? item.color : .secondary)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
         }
@@ -245,25 +252,22 @@ func loadData() {
 
 <br>
 
-### Scrollable Tabs (many tabs with real-time indicator)
+### Scrollable Tabs + Real-time Labels
 - Scrollable layout for many tabs with button spacing and side padding.
-- Indicator and tab title selection follow your finger in real-time during swipe.
+- `state.selectionProgress` (0...1) follows your finger — interpolate color, opacity, or scale for a continuous transition.
 
 ```swift
-@State private var selectedIndex = 0
+@State private var selection: String? = nil
 
 private let items = [
-    CategoryItem(title: "All", emoji: "🌐", color: .blue),
-    CategoryItem(title: "Music", emoji: "🎵", color: .pink),
-    CategoryItem(title: "Sports", emoji: "⚽", color: .green),
-    CategoryItem(title: "Gaming", emoji: "🎮", color: .purple),
-    CategoryItem(title: "Food", emoji: "🍕", color: .orange),
-    CategoryItem(title: "Travel", emoji: "✈️", color: .cyan),
+    CategoryItem(id: "all", title: "All", emoji: "🌐", color: .blue),
+    CategoryItem(id: "music", title: "Music", emoji: "🎵", color: .pink),
+    CategoryItem(id: "sports", title: "Sports", emoji: "⚽", color: .green),
     // ...
 ]
 
 TabPagerX(
-    selectedIndex: $selectedIndex,
+    selection: $selection,
     items: items
 ) { item in
     VStack(spacing: 16) {
@@ -272,10 +276,11 @@ TabPagerX(
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-} tabTitle: { item, isSelected in
+} label: { item, state in
     Text("\(item.emoji) \(item.title)")
-        .font(isSelected ? .headline : .subheadline)
-        .foregroundColor(isSelected ? item.color : .secondary)
+        .font(.subheadline)
+        .foregroundColor(item.color.opacity(0.35 + 0.65 * state.selectionProgress))
+        .scaleEffect(1 + 0.08 * state.selectionProgress)
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
 }
@@ -286,22 +291,36 @@ TabPagerX(
 
 <br>
 
+### Preset Selection / Deep Links
+- Preset the binding to start on a specific tab — no index math, works regardless of server-driven tab order.
+
+```swift
+// Start on the "profile" tab once items load
+@State private var selection: String? = "profile"
+
+// Deep link later — just assign the id
+selection = "event"
+```
+
+<br>
+
 ### Swipe Disabled (instant tab switch)
 - When swipe is disabled, tapping a tab switches content instantly with no slide animation.
+- Can be toggled at runtime.
 
 ```swift
 TabPagerX(
-    selectedIndex: $selectedIndex,
+    selection: $selection,
     items: items
 ) { item in
     Text(item.title)
         .font(.largeTitle)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-} tabTitle: { item, isSelected in
+} label: { item, state in
     Text(item.title)
-        .font(isSelected ? .headline : .body)
-        .foregroundColor(isSelected ? item.color : .secondary)
+        .font(state.isSelected ? .headline : .body)
+        .foregroundColor(state.isSelected ? item.color : .secondary)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
 }
@@ -387,6 +406,7 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 - Enable or Disable Content Swipe.
 - Allow or disable swipe gesture to switch between tabs.
 - Default is `true`. Use `.contentSwipeEnabled(false)` to disable swipe navigation.
+- Can be toggled at runtime (e.g. while editing).
 - When disabled, tab tap transitions are also instant (no slide animation).
 
 ```swift
@@ -434,12 +454,43 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 
 ### onTabChanged
 - Observe tab index changes via callback.
+- For the selected item itself, observe your `selection` binding with `onChange`.
 
 ```swift
 .onTabChanged { index in
     print("Selected tab: \(index)")
 }
 ```
+
+<br>
+
+## 💥 Migrating from 2.x
+
+The 2.x index-based initializer still compiles (deprecated) — migrate at your own pace:
+
+| 2.x | 3.0 |
+|---|---|
+| `selectedIndex: Binding<Int>` | `selection: Binding<Item.ID?>` |
+| `initialIndex: 2` | preset the binding: `@State var selection: ID? = "someId"` |
+| `tabTitle: { item, isSelected in }` | `label: { item, state in }` — use `state.isSelected` |
+
+```swift
+// 2.x
+TabPagerX(selectedIndex: $index, initialIndex: 1, items: items) { item in
+    ...
+} tabTitle: { item, isSelected in
+    Text(item.title).foregroundColor(isSelected ? .blue : .gray)
+}
+
+// 3.0
+TabPagerX(selection: $selection, items: items) { item in
+    ...
+} label: { item, state in
+    Text(item.title).foregroundColor(state.isSelected ? .blue : .gray)
+}
+```
+
+Also make sure your items use **stable ids** — replace `let id = UUID()` with an identity from your data (e.g. a server id or a constant string).
 
 <br>
 
