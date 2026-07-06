@@ -63,3 +63,42 @@ final class PageTabDataSourceTests: XCTestCase {
         XCTAssertNil(controller.pageViewController(controller, viewControllerBefore: first))
     }
 }
+
+// MARK: - Swipe Toggle
+
+final class SwipeToggleTests: XCTestCase {
+
+    private func makeController(isSwipeEnabled: Bool) -> PageTabViewController<Text> {
+        PageTabViewController(
+            content: { index in Text("\(index)") },
+            tabCount: 3,
+            isSwipeEnabled: isSwipeEnabled
+        )
+    }
+
+    private func pageScrollView(of controller: UIViewController) -> UIScrollView? {
+        controller.view.subviews.compactMap { $0 as? UIScrollView }.first
+    }
+
+    func test_updateSwipeEnabled_togglesScrollViewAtRuntime() {
+        let controller = makeController(isSwipeEnabled: true)
+        controller.loadViewIfNeeded()
+
+        XCTAssertEqual(pageScrollView(of: controller)?.isScrollEnabled, true)
+
+        controller.updateSwipeEnabled(false)
+        XCTAssertEqual(controller.isSwipeEnabled, false)
+        XCTAssertEqual(pageScrollView(of: controller)?.isScrollEnabled, false)
+
+        controller.updateSwipeEnabled(true)
+        XCTAssertEqual(controller.isSwipeEnabled, true)
+        XCTAssertEqual(pageScrollView(of: controller)?.isScrollEnabled, true)
+    }
+
+    func test_initWithSwipeDisabled_scrollViewDisabled() {
+        let controller = makeController(isSwipeEnabled: false)
+        controller.loadViewIfNeeded()
+
+        XCTAssertEqual(pageScrollView(of: controller)?.isScrollEnabled, false)
+    }
+}
