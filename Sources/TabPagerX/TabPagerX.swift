@@ -90,7 +90,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
                 TabContentContainer(
                     selectedIndex: $selectedIndex,
                     scrollProgress: $scrollProgress,
-                    tabCount: items.count,
+                    itemIDs: items.map { AnyHashable($0.id) },
                     isSwipeEnabled: isSwipeEnabled,
                     content: { index in
                         content(items[safe: index] ?? items[0])
