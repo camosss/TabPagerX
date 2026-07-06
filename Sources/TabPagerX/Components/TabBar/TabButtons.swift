@@ -2,11 +2,11 @@ import SwiftUI
 
 /// A reusable horizontal list of tab buttons that updates the selected index on tap.
 /// Also reports button frames using PreferenceKey for indicator alignment.
-struct TabButtons<TabTitle: View>: View {
+struct TabButtons<Label: View>: View {
 
-    let tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle]
+    let labelBuilders: [(TabState) -> Label]
     @Binding var selectedIndex: Int
-    let displayIndex: Int
+    let stateFor: (Int) -> TabState
 
     let layoutConfig: TabBarLayoutConfig
 
@@ -15,9 +15,9 @@ struct TabButtons<TabTitle: View>: View {
 
     var body: some View {
         HStack(spacing: layoutConfig.buttonSpacing) {
-            ForEach(tabTitleBuilders.indices, id: \.self) { index in
+            ForEach(labelBuilders.indices, id: \.self) { index in
 
-                tabTitleBuilders[index](index == displayIndex)
+                labelBuilders[index](stateFor(index))
                     .frame(maxWidth: isFixedWidth ? .infinity : nil, alignment: .center)
                     .background(
                         // Capture each button's frame to align the indicator later

@@ -1,11 +1,11 @@
 import SwiftUI
 
 /// A horizontally scrollable tab bar with animated indicator.
-struct ScrollableTabBar<TabTitle: View>: View {
+struct ScrollableTabBar<Label: View>: View {
 
-    let tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle]
+    let labelBuilders: [(TabState) -> Label]
     @Binding var selectedIndex: Int
-    let displayIndex: Int
+    let stateFor: (Int) -> TabState
     let scrollProgress: CGFloat
 
     let layoutConfig: TabBarLayoutConfig
@@ -20,9 +20,9 @@ struct ScrollableTabBar<TabTitle: View>: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 ScrollViewReader { proxy in
                     TabButtons(
-                        tabTitleBuilders: tabTitleBuilders,
+                        labelBuilders: labelBuilders,
                         selectedIndex: $selectedIndex,
-                        displayIndex: displayIndex,
+                        stateFor: stateFor,
                         layoutConfig: layoutConfig,
                         isFixedWidth: false
                     )
