@@ -331,7 +331,16 @@ TabPagerX(
 
 <br>
 
-For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSample](https://github.com/camosss/TabPagerX/blob/main/Example/TabPagerXSample/TabPagerXSample/TabPagerXSample.swift))
+For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/tree/main/Example/TabPagerXSample/TabPagerXSample). Each usage case is a focused, heavily commented file grouped by topic:
+
+| Topic | Cases |
+|-------|-------|
+| **Basics** | Same Content, Different Views by Type |
+| **Layout & Style** | Fixed vs Scrollable, Real-time Label (`selectionProgress`), Indicator Customization, Separator, Safe Area |
+| **Interaction** | Swipe Disabled, Runtime Swipe Toggle |
+| **Selection** | Preset Selection (by id), Deep Link / Programmatic, Observe Tab Changes |
+| **Dynamic Data** | Dynamic / Async Tabs, State Preservation (append / reorder) |
+| **Accessibility** | VoiceOver |
 
 <br>
 
