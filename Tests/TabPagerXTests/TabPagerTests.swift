@@ -112,6 +112,49 @@ final class DisplayIndexTests: XCTestCase {
     }
 }
 
+// MARK: - Selection Progress
+
+final class SelectionProgressTests: XCTestCase {
+
+    func test_selectedTab_noScroll_isFull() {
+        let result = TabPagerHelper.selectionProgress(for: 1, selectedIndex: 1, scrollProgress: 0)
+        XCTAssertEqual(result, 1)
+    }
+
+    func test_selectedTab_scrollForward_decreases() {
+        let result = TabPagerHelper.selectionProgress(for: 1, selectedIndex: 1, scrollProgress: 0.3)
+        XCTAssertEqual(result, 0.7, accuracy: 0.0001)
+    }
+
+    func test_nextTab_scrollForward_increases() {
+        let result = TabPagerHelper.selectionProgress(for: 2, selectedIndex: 1, scrollProgress: 0.3)
+        XCTAssertEqual(result, 0.3, accuracy: 0.0001)
+    }
+
+    func test_previousTab_scrollBackward_increases() {
+        let result = TabPagerHelper.selectionProgress(for: 0, selectedIndex: 1, scrollProgress: -0.4)
+        XCTAssertEqual(result, 0.4, accuracy: 0.0001)
+    }
+
+    func test_unrelatedTab_isZero() {
+        let result = TabPagerHelper.selectionProgress(for: 3, selectedIndex: 1, scrollProgress: 0.3)
+        XCTAssertEqual(result, 0)
+    }
+
+    func test_wrongDirectionNeighbor_isZero() {
+        let result = TabPagerHelper.selectionProgress(for: 0, selectedIndex: 1, scrollProgress: 0.3)
+        XCTAssertEqual(result, 0)
+    }
+
+    func test_overscroll_isClampedToOne() {
+        let next = TabPagerHelper.selectionProgress(for: 2, selectedIndex: 1, scrollProgress: 1.5)
+        XCTAssertEqual(next, 1)
+
+        let current = TabPagerHelper.selectionProgress(for: 1, selectedIndex: 1, scrollProgress: 1.5)
+        XCTAssertEqual(current, 0)
+    }
+}
+
 // MARK: - Style Defaults
 
 final class StyleDefaultsTests: XCTestCase {

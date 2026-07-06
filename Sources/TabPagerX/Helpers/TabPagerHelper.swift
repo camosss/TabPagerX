@@ -9,6 +9,24 @@ enum TabPagerHelper {
         return index
     }
 
+    // Per-tab selection progress (0...1) interpolated from swipe progress
+    static func selectionProgress(
+        for index: Int,
+        selectedIndex: Int,
+        scrollProgress: CGFloat
+    ) -> CGFloat {
+        if index == selectedIndex {
+            return 1 - min(abs(scrollProgress), 1)
+        }
+        if scrollProgress > 0, index == selectedIndex + 1 {
+            return min(scrollProgress, 1)
+        }
+        if scrollProgress < 0, index == selectedIndex - 1 {
+            return min(-scrollProgress, 1)
+        }
+        return 0
+    }
+
     static func displayIndex(
         selectedIndex: Int,
         scrollProgress: CGFloat,
