@@ -17,25 +17,30 @@ struct TabButtons<Label: View>: View {
         HStack(spacing: layoutConfig.buttonSpacing) {
             ForEach(labelBuilders.indices, id: \.self) { index in
 
-                labelBuilders[index](stateFor(index))
-                    .frame(maxWidth: isFixedWidth ? .infinity : nil, alignment: .center)
-                    .background(
-                        // Capture each button's frame to align the indicator later
-                        GeometryReader { proxy in
-                            Color.clear.preference(
-                                key: TabButtonPreferenceKey.self,
-                                value: [index: proxy.frame(
-                                    in: .named(CoordinateSpaces.tabBar)
-                                )]
-                            )
-                        }
-                    )
-                    .onTapGesture {
-                        withAnimation(.easeInOut) {
-                            selectedIndex = index
-                        }
+                Button {
+                    withAnimation(.easeInOut) {
+                        selectedIndex = index
                     }
-                    .id(index)
+                } label: {
+                    labelBuilders[index](stateFor(index))
+                        .frame(maxWidth: isFixedWidth ? .infinity : nil, alignment: .center)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .background(
+                    // Capture each button's frame to align the indicator later
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: TabButtonPreferenceKey.self,
+                            value: [index: proxy.frame(
+                                in: .named(CoordinateSpaces.tabBar)
+                            )]
+                        )
+                    }
+                )
+                .accessibilityAddTraits(stateFor(index).isSelected ? .isSelected : [])
+                .accessibilityValue("\(index + 1)/\(labelBuilders.count)")
+                .id(index)
             }
         }
     }
