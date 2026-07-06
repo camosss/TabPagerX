@@ -10,15 +10,15 @@ struct TabPagerXSampleHome: View {
                     NavigationLink("2. Different Views by Type", destination: DifferentViewSample())
                 }
                 Section("Layout & Style") {
-                    NavigationLink("3. Scrollable Tabs", destination: ScrollableTabsSample())
+                    NavigationLink("3. Scrollable Tabs + Real-time Labels", destination: ScrollableTabsSample())
                     NavigationLink("4. Separator Style", destination: SeparatorSample())
                     NavigationLink("5. Indicator Customization", destination: IndicatorCustomSample())
                 }
                 Section("Swipe Behavior") {
                     NavigationLink("6. Swipe Disabled (Instant Switch)", destination: SwipeDisabledSample())
                 }
-                Section("Initialization & Dynamic Data") {
-                    NavigationLink("7. Static Tabs (initialIndex)", destination: StaticTabsSample())
+                Section("Selection & Dynamic Data") {
+                    NavigationLink("7. Preset Selection (by id)", destination: PresetSelectionSample())
                     NavigationLink("8. Dynamic Tabs (No Guard Needed)", destination: DynamicTabsSample())
                 }
             }
@@ -29,27 +29,28 @@ struct TabPagerXSampleHome: View {
 
 // MARK: - 1. Same Content
 // All tabs share the same view structure with different data
+// Use a stable id (not UUID()) so tab state survives item updates
 
 struct SameViewSample: View {
 
     struct TabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
         let content: String
         let color: Color
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
 
     private let items = [
-        TabItem(title: "Home", content: "Welcome to Home", color: .blue),
-        TabItem(title: "Search", content: "Search content", color: .green),
-        TabItem(title: "Profile", content: "Profile content", color: .orange)
+        TabItem(id: "home", title: "Home", content: "Welcome to Home", color: .blue),
+        TabItem(id: "search", title: "Search", content: "Search content", color: .green),
+        TabItem(id: "profile", title: "Profile", content: "Profile content", color: .orange)
     ]
 
     var body: some View {
         TabPagerX(
-            selectedIndex: $selectedIndex,
+            selection: $selection,
             items: items
         ) { item in
             VStack {
@@ -64,10 +65,10 @@ struct SameViewSample: View {
             }
             .padding()
 
-        } tabTitle: { item, isSelected in
+        } label: { item, state in
             Text(item.title)
-                .font(isSelected ? .headline : .body)
-                .foregroundColor(isSelected ? item.color : .secondary)
+                .font(state.isSelected ? .headline : .body)
+                .foregroundColor(state.isSelected ? item.color : .secondary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
         }
@@ -75,7 +76,7 @@ struct SameViewSample: View {
         .tabBarLayoutStyle(.fixed)
         .tabIndicatorStyle(height: 3, color: .blue, horizontalInset: 16)
         .onTabChanged { index in
-            print("Selected tab: \(index)")
+            print("Selected tab: \(index), id: \(selection ?? "nil")")
         }
     }
 }
@@ -86,7 +87,7 @@ struct SameViewSample: View {
 struct DifferentViewSample: View {
 
     struct MixedTabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let type: TabItemType
         let title: String
 
@@ -97,17 +98,17 @@ struct DifferentViewSample: View {
         }
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
 
     private let items = [
-        MixedTabItem(type: .text("Hello World"), title: "Text"),
-        MixedTabItem(type: .image("star.fill"), title: "Image"),
-        MixedTabItem(type: .custom, title: "Custom")
+        MixedTabItem(id: "text", type: .text("Hello World"), title: "Text"),
+        MixedTabItem(id: "image", type: .image("star.fill"), title: "Image"),
+        MixedTabItem(id: "custom", type: .custom, title: "Custom")
     ]
 
     var body: some View {
         TabPagerX(
-            selectedIndex: $selectedIndex,
+            selection: $selection,
             items: items
         ) { item in
             // Switch on item type to render different views
@@ -146,7 +147,7 @@ struct DifferentViewSample: View {
                 .background(Color.purple.opacity(0.1))
             }
 
-        } tabTitle: { item, isSelected in
+        } label: { item, state in
             HStack {
                 if case .image = item.type {
                     Image(systemName: "photo")
@@ -157,8 +158,8 @@ struct DifferentViewSample: View {
                 }
                 Text(item.title)
             }
-            .foregroundColor(isSelected ? .blue : .secondary)
-            .font(isSelected ? .headline : .body)
+            .foregroundColor(state.isSelected ? .blue : .secondary)
+            .font(state.isSelected ? .headline : .body)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
         }
@@ -167,35 +168,35 @@ struct DifferentViewSample: View {
     }
 }
 
-// MARK: - 3. Scrollable Tabs
+// MARK: - 3. Scrollable Tabs + Real-time Labels
 // Scrollable layout for many tabs
-// Indicator tracks finger movement in real-time during swipe
+// selectionProgress interpolates label color and scale as your finger swipes
 
 struct ScrollableTabsSample: View {
 
     struct CategoryItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
         let emoji: String
         let color: Color
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
 
     private let items = [
-        CategoryItem(title: "All", emoji: "🌐", color: .blue),
-        CategoryItem(title: "Music", emoji: "🎵", color: .pink),
-        CategoryItem(title: "Sports", emoji: "⚽", color: .green),
-        CategoryItem(title: "Gaming", emoji: "🎮", color: .purple),
-        CategoryItem(title: "Food", emoji: "🍕", color: .orange),
-        CategoryItem(title: "Travel", emoji: "✈️", color: .cyan),
-        CategoryItem(title: "Science", emoji: "🔬", color: .teal),
-        CategoryItem(title: "Art", emoji: "🎨", color: .indigo),
+        CategoryItem(id: "all", title: "All", emoji: "🌐", color: .blue),
+        CategoryItem(id: "music", title: "Music", emoji: "🎵", color: .pink),
+        CategoryItem(id: "sports", title: "Sports", emoji: "⚽", color: .green),
+        CategoryItem(id: "gaming", title: "Gaming", emoji: "🎮", color: .purple),
+        CategoryItem(id: "food", title: "Food", emoji: "🍕", color: .orange),
+        CategoryItem(id: "travel", title: "Travel", emoji: "✈️", color: .cyan),
+        CategoryItem(id: "science", title: "Science", emoji: "🔬", color: .teal),
+        CategoryItem(id: "art", title: "Art", emoji: "🎨", color: .indigo),
     ]
 
     var body: some View {
         TabPagerX(
-            selectedIndex: $selectedIndex,
+            selection: $selection,
             items: items
         ) { item in
             VStack(spacing: 16) {
@@ -208,10 +209,12 @@ struct ScrollableTabsSample: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(item.color.opacity(0.05))
 
-        } tabTitle: { item, isSelected in
+        } label: { item, state in
+            // Color and scale follow the finger in real time during swipe
             Text("\(item.emoji) \(item.title)")
-                .font(isSelected ? .headline : .subheadline)
-                .foregroundColor(isSelected ? item.color : .secondary)
+                .font(.subheadline)
+                .foregroundColor(item.color.opacity(0.35 + 0.65 * state.selectionProgress))
+                .scaleEffect(1 + 0.08 * state.selectionProgress)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
         }
@@ -228,22 +231,22 @@ struct ScrollableTabsSample: View {
 struct SeparatorSample: View {
 
     struct TabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
         let content: String
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
 
     private let items = [
-        TabItem(title: "Feed", content: "Feed content area"),
-        TabItem(title: "Explore", content: "Explore content area"),
-        TabItem(title: "Notifications", content: "Notifications content area"),
+        TabItem(id: "feed", title: "Feed", content: "Feed content area"),
+        TabItem(id: "explore", title: "Explore", content: "Explore content area"),
+        TabItem(id: "notifications", title: "Notifications", content: "Notifications content area"),
     ]
 
     var body: some View {
         TabPagerX(
-            selectedIndex: $selectedIndex,
+            selection: $selection,
             items: items
         ) { item in
             VStack {
@@ -256,10 +259,10 @@ struct SeparatorSample: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemGroupedBackground))
 
-        } tabTitle: { item, isSelected in
+        } label: { item, state in
             Text(item.title)
-                .font(isSelected ? .headline : .body)
-                .foregroundColor(isSelected ? .primary : .secondary)
+                .font(state.isSelected ? .headline : .body)
+                .foregroundColor(state.isSelected ? .primary : .secondary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
         }
@@ -279,36 +282,36 @@ struct SeparatorSample: View {
 struct IndicatorCustomSample: View {
 
     struct TabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
 
     private let items = [
-        TabItem(title: "Rounded"),
-        TabItem(title: "Wide"),
-        TabItem(title: "Thin"),
+        TabItem(id: "rounded", title: "Rounded"),
+        TabItem(id: "wide", title: "Wide"),
+        TabItem(id: "thin", title: "Thin"),
     ]
 
     var body: some View {
         TabPagerX(
-            selectedIndex: $selectedIndex,
+            selection: $selection,
             items: items
         ) { item in
             Text("Content for \(item.title)")
                 .font(.title2)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-        } tabTitle: { item, isSelected in
+        } label: { item, state in
             Text(item.title)
-                .font(isSelected ? .headline : .body)
-                .foregroundColor(isSelected ? .white : .secondary)
+                .font(state.isSelected ? .headline : .body)
+                .foregroundColor(state.isSelected ? .white : .secondary)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(isSelected ? Color.blue : Color.clear)
+                        .fill(state.isSelected ? Color.blue : Color.clear)
                 )
         }
         .tabBarLayoutStyle(.fixed)
@@ -330,17 +333,17 @@ struct IndicatorCustomSample: View {
 struct SwipeDisabledSample: View {
 
     struct TabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
         let color: Color
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
 
     private let items = [
-        TabItem(title: "Tab A", color: .red),
-        TabItem(title: "Tab B", color: .blue),
-        TabItem(title: "Tab C", color: .green),
+        TabItem(id: "a", title: "Tab A", color: .red),
+        TabItem(id: "b", title: "Tab B", color: .blue),
+        TabItem(id: "c", title: "Tab C", color: .green),
     ]
 
     var body: some View {
@@ -351,7 +354,7 @@ struct SwipeDisabledSample: View {
                 .padding(.vertical, 8)
 
             TabPagerX(
-                selectedIndex: $selectedIndex,
+                selection: $selection,
                 items: items
             ) { item in
                 VStack {
@@ -366,10 +369,10 @@ struct SwipeDisabledSample: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(item.color.opacity(0.1))
 
-            } tabTitle: { item, isSelected in
+            } label: { item, state in
                 Text(item.title)
-                    .font(isSelected ? .headline : .body)
-                    .foregroundColor(isSelected ? item.color : .secondary)
+                    .font(state.isSelected ? .headline : .body)
+                    .foregroundColor(state.isSelected ? item.color : .secondary)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
             }
@@ -381,42 +384,42 @@ struct SwipeDisabledSample: View {
     }
 }
 
-// MARK: - 7. Static Tabs (initialIndex)
-// Specify which tab to show first using initialIndex (applied once on appearance)
+// MARK: - 7. Preset Selection (by id)
+// Preset the selection binding to start on a specific tab
+// The id keeps pointing at the same tab even if items are reordered
 
-struct StaticTabsSample: View {
+struct PresetSelectionSample: View {
 
     struct StaticTabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
         let content: String
         let color: Color
     }
 
-    @State private var selectedIndex = 0
+    // Start on "profile" — no index math needed
+    @State private var selection: String? = "profile"
 
     private let items = [
-        StaticTabItem(title: "Home", content: "Welcome to Home", color: .blue),
-        StaticTabItem(title: "Search", content: "Search content", color: .green),
-        StaticTabItem(title: "Profile", content: "Profile content", color: .orange),
-        StaticTabItem(title: "Settings", content: "Settings content", color: .purple)
+        StaticTabItem(id: "home", title: "Home", content: "Welcome to Home", color: .blue),
+        StaticTabItem(id: "search", title: "Search", content: "Search content", color: .green),
+        StaticTabItem(id: "profile", title: "Profile", content: "Profile content", color: .orange),
+        StaticTabItem(id: "settings", title: "Settings", content: "Settings content", color: .purple)
     ]
 
     var body: some View {
         VStack {
-            Text("initialIndex = 2 → Starts at 3rd tab (Profile)")
+            Text("selection preset to \"profile\" → starts on 3rd tab")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding()
 
-            Text("Selected Index: \(selectedIndex)")
+            Text("Selection: \(selection ?? "nil")")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             TabPagerX(
-                selectedIndex: $selectedIndex,
-                // Start at 3rd tab (applied once on first appearance)
-                initialIndex: 2,
+                selection: $selection,
                 items: items
             ) { item in
                 VStack {
@@ -431,15 +434,15 @@ struct StaticTabsSample: View {
                 }
                 .padding()
 
-            } tabTitle: { item, isSelected in
+            } label: { item, state in
                 Text(item.title)
-                    .font(isSelected ? .headline : .body)
-                    .foregroundColor(isSelected ? item.color : .secondary)
+                    .font(state.isSelected ? .headline : .body)
+                    .foregroundColor(state.isSelected ? item.color : .secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(isSelected ? item.color.opacity(0.1) : Color.clear)
+                            .fill(state.isSelected ? item.color.opacity(0.1) : Color.clear)
                     )
             }
             .tabBarLayoutStyle(.scrollable)
@@ -451,18 +454,19 @@ struct StaticTabsSample: View {
 // MARK: - 8. Dynamic Tabs (No Guard Needed)
 // Safely handles async data loading without isLoading guard
 // Starts with items = [] → tabs render automatically when data arrives
+// Stable ids preserve each tab's state across reloads
 
 struct DynamicTabsSample: View {
 
     struct DynamicTabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
         let content: String
         let color: Color
         let icon: String
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
     @State private var items: [DynamicTabItem] = []
     @State private var loadCount = 0
 
@@ -473,7 +477,7 @@ struct DynamicTabsSample: View {
                 .padding()
 
             HStack {
-                Text("Selected Index: \(selectedIndex)")
+                Text("Selection: \(selection ?? "nil")")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -494,8 +498,7 @@ struct DynamicTabsSample: View {
             // No isLoading guard needed!
             // Safe with empty items — tabs appear automatically when data loads
             TabPagerX(
-                selectedIndex: $selectedIndex,
-                initialIndex: 1,
+                selection: $selection,
                 items: items
             ) { item in
                 VStack {
@@ -513,19 +516,19 @@ struct DynamicTabsSample: View {
                         .foregroundColor(.secondary)
                 }
                 .padding()
-            } tabTitle: { item, isSelected in
+            } label: { item, state in
                 HStack {
                     Image(systemName: item.icon)
                         .font(.caption)
                     Text(item.title)
                 }
-                .font(isSelected ? .headline : .body)
-                .foregroundColor(isSelected ? item.color : .secondary)
+                .font(state.isSelected ? .headline : .body)
+                .foregroundColor(state.isSelected ? item.color : .secondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(isSelected ? item.color.opacity(0.1) : Color.clear)
+                        .fill(state.isSelected ? item.color.opacity(0.1) : Color.clear)
                 )
             }
             .tabBarLayoutStyle(.scrollable)
@@ -544,11 +547,11 @@ struct DynamicTabsSample: View {
         // Simulate API response after 1.5 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             items = [
-                DynamicTabItem(title: "News", content: "Latest news from API", color: .red, icon: "newspaper"),
-                DynamicTabItem(title: "Sports", content: "Sports updates", color: .orange, icon: "sportscourt"),
-                DynamicTabItem(title: "Tech", content: "Technology news", color: .blue, icon: "laptopcomputer"),
-                DynamicTabItem(title: "Weather", content: "Weather forecast", color: .cyan, icon: "cloud.sun"),
-                DynamicTabItem(title: "Finance", content: "Market updates", color: .green, icon: "chart.line.uptrend.xyaxis")
+                DynamicTabItem(id: "news", title: "News", content: "Latest news from API", color: .red, icon: "newspaper"),
+                DynamicTabItem(id: "sports", title: "Sports", content: "Sports updates", color: .orange, icon: "sportscourt"),
+                DynamicTabItem(id: "tech", title: "Tech", content: "Technology news", color: .blue, icon: "laptopcomputer"),
+                DynamicTabItem(id: "weather", title: "Weather", content: "Weather forecast", color: .cyan, icon: "cloud.sun"),
+                DynamicTabItem(id: "finance", title: "Finance", content: "Market updates", color: .green, icon: "chart.line.uptrend.xyaxis")
             ]
         }
     }
