@@ -73,6 +73,11 @@ class PageTabViewController<Content: View>: UIPageViewController,
         }
     }
 
+    // Reverse lookup of a cached view controller's index
+    private func index(of viewController: UIViewController) -> Int? {
+        viewControllersCache.first(where: { $0.value == viewController })?.key
+    }
+
     // Lazily loads and caches tab content
     private func getViewController(at index: Int) -> UIHostingController<Content> {
         if let cached = viewControllersCache[index] {
@@ -130,13 +135,15 @@ class PageTabViewController<Content: View>: UIPageViewController,
     }
 
     // MARK: - PageView DataSource
+    // Neighbors are resolved from the passed view controller, not selectedIndex —
+    // during fast successive swipes the data source is asked before selectedIndex syncs
     func pageViewController(
         _: UIPageViewController,
         viewControllerBefore viewController: UIViewController
     ) -> UIViewController? {
 
-        guard tabCount > 0, selectedIndex > 0 else { return nil }
-        return getViewController(at: selectedIndex - 1)
+        guard let index = index(of: viewController), index > 0 else { return nil }
+        return getViewController(at: index - 1)
     }
 
     func pageViewController(
@@ -144,8 +151,8 @@ class PageTabViewController<Content: View>: UIPageViewController,
         viewControllerAfter viewController: UIViewController
     ) -> UIViewController? {
 
-        guard tabCount > 1, selectedIndex < tabCount - 1 else { return nil }
-        return getViewController(at: selectedIndex + 1)
+        guard let index = index(of: viewController), index < tabCount - 1 else { return nil }
+        return getViewController(at: index + 1)
     }
 
     // MARK: - PageView Delegate
@@ -159,7 +166,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
 
         if completed,
            let current = viewControllers?.first,
-           let index = viewControllersCache.first(where: { $0.value == current })?.key {
+           let index = index(of: current) {
 
             selectedIndex = index
             onIndexChanged?(index)
