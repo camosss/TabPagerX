@@ -1,25 +1,30 @@
 import SwiftUI
 
 /// A flexible tab pager that works with any Identifiable data type
-/// Provides a more intuitive API using closures for content and tab titles
-public struct TabPagerX<Data, Content, TabTitle>: View 
-where Data: Identifiable & Equatable, Content: View, TabTitle: View {
+/// Provides a more intuitive API using closures for content and tab labels
+public struct TabPagerX<Item, Content, Label>: View
+where Item: Identifiable & Equatable, Content: View, Label: View {
 
-    /// Index of the selected tab - synchronizes with external state
-    @Binding var selectedIndex: Int
+    /// How the selected tab is bound to external state
+    private enum SelectionMode {
+        case index(Binding<Int>)
+        case id(Binding<Item.ID?>)
+    }
 
-    /// Optional initial index to select when the view first appears
+    private let selectionMode: SelectionMode
+
+    /// Optional initial index to select when the view first appears (index mode only)
     /// Only applied once when the view appears, then becomes independent of selectedIndex
     private let initialIndex: Int?
 
     /// Array of data items that populate the tabs
-    private let items: [Data]
+    private let items: [Item]
 
     /// Closure that creates content view for each data item
-    @ViewBuilder private let content: (Data) -> Content
+    @ViewBuilder private let content: (Item) -> Content
 
-    /// Closure that creates tab title view for each data item
-    @ViewBuilder private let tabTitle: (Data, Bool) -> TabTitle
+    /// Closure that creates tab label view for each data item
+    @ViewBuilder private let label: (Item, TabState) -> Label
 
     /// Callback when tab changes
     private var onTabChanged: ((Int) -> Void)? = nil
@@ -39,39 +44,56 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
     /// Separator style between TabBar and TabContent
     private var separatorStyle: TabBarSeparatorStyle = .none
 
-    /// Tracks whether initialIndex has been applied to prevent re-application
+    /// Tracks whether initialIndex has been applied (index mode only)
     @State private var hasAppliedInitialIndex = false
 
     /// Continuous scroll progress from page swipe (-1 to 1)
     @State private var scrollProgress: CGFloat = 0
 
-    /// Initializes `TabPagerX` with generic data and view builders
+    /// Initializes `TabPagerX` with id-based selection
+    /// Selection follows the item, so it survives reorders and removals,
+    /// and deep links can select a tab by id without knowing its position
     /// - Parameters:
-    ///   - selectedIndex: A binding to the currently selected tab index
-    ///   - initialIndex: Optional index to select when the view first appears
+    ///   - selection: A binding to the selected item's id — nil until items arrive,
+    ///     then the first item is selected automatically (preset an id to start elsewhere)
     ///   - items: Array of data items that populate the tabs
     ///   - content: Closure that creates content view for each data item
-    ///   - tabTitle: Closure that creates tab title view for each data item
+    ///   - label: Closure that creates tab label view for each data item
+    public init(
+        selection: Binding<Item.ID?>,
+        items: [Item],
+        @ViewBuilder content: @escaping (Item) -> Content,
+        @ViewBuilder label: @escaping (Item, TabState) -> Label
+    ) {
+        self.selectionMode = .id(selection)
+        self.initialIndex = nil
+        self.items = items
+        self.content = content
+        self.label = label
+    }
+
+    /// Initializes `TabPagerX` with index-based selection
+    @available(*, deprecated, message: "Use init(selection:items:content:label:) — id-based selection survives reorders and removals, and TabState enables real-time label effects")
     public init(
         selectedIndex: Binding<Int>,
         initialIndex: Int? = nil,
-        items: [Data],
-        @ViewBuilder content: @escaping (Data) -> Content,
-        @ViewBuilder tabTitle: @escaping (Data, Bool) -> TabTitle
+        items: [Item],
+        @ViewBuilder content: @escaping (Item) -> Content,
+        @ViewBuilder tabTitle: @escaping (Item, Bool) -> Label
     ) {
-        self._selectedIndex = selectedIndex
+        self.selectionMode = .index(selectedIndex)
         self.initialIndex = initialIndex
         self.items = items
         self.content = content
-        self.tabTitle = tabTitle
+        self.label = { item, state in tabTitle(item, state.isSelected) }
     }
 
     public var body: some View {
         VStack(spacing: 0) {
             TabBar(
-                tabTitleBuilders: tabTitleBuilders,
-                selectedIndex: $selectedIndex,
-                displayIndex: displayIndex,
+                labelBuilders: labelBuilders,
+                selectedIndex: selectedIndexBinding,
+                stateFor: tabState(for:),
                 scrollProgress: scrollProgress,
                 layoutStyle: layoutStyle,
                 layoutConfig: layoutConfig,
@@ -88,7 +110,7 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
 
             if !items.isEmpty {
                 TabContentContainer(
-                    selectedIndex: $selectedIndex,
+                    selectedIndex: selectedIndexBinding,
                     scrollProgress: $scrollProgress,
                     itemIDs: items.map { AnyHashable($0.id) },
                     isSwipeEnabled: isSwipeEnabled,
@@ -103,17 +125,42 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .onAppear {
-            setupInitialIndexOnce()
+            resolveSelection()
         }
         .onChangeCompat(of: items) {
-            clampSelectedIndex()
-            if !hasAppliedInitialIndex {
-                setupInitialIndexOnce()
-            }
+            resolveSelection()
         }
         .onChangeCompat(of: selectedIndex) {
             onTabChanged?(selectedIndex)
         }
+    }
+
+    /// Int binding used by the tab bar and page controller
+    /// In id mode it is derived from the id binding on the fly
+    private var selectedIndexBinding: Binding<Int> {
+        switch selectionMode {
+
+        case .index(let binding):
+            return binding
+
+        case .id(let binding):
+            return Binding(
+                get: {
+                    guard let id = binding.wrappedValue,
+                          let index = items.firstIndex(where: { $0.id == id })
+                    else { return 0 }
+                    return index
+                },
+                set: { newIndex in
+                    guard let item = items[safe: newIndex] else { return }
+                    binding.wrappedValue = item.id
+                }
+            )
+        }
+    }
+
+    private var selectedIndex: Int {
+        selectedIndexBinding.wrappedValue
     }
 
     private var displayIndex: Int {
@@ -124,30 +171,63 @@ where Data: Identifiable & Equatable, Content: View, TabTitle: View {
         )
     }
 
-    private var tabTitleBuilders: [(_ isSelected: Bool) -> TabTitle] {
+    private var labelBuilders: [(TabState) -> Label] {
         items.map { item in
-            { isSelected in
-                tabTitle(item, isSelected)
+            { state in
+                label(item, state)
             }
         }
+    }
+
+    private func tabState(for index: Int) -> TabState {
+        TabState(
+            isSelected: index == displayIndex,
+            selectionProgress: TabPagerHelper.selectionProgress(
+                for: index,
+                selectedIndex: TabPagerHelper.clampIndex(selectedIndex, itemCount: items.count),
+                scrollProgress: scrollProgress
+            )
+        )
     }
 }
 
 private extension TabPagerX {
-    private func setupInitialIndexOnce() {
-        guard !hasAppliedInitialIndex, !items.isEmpty else { return }
+    /// Ensures the selection points at a valid tab — called on appear and whenever items change
+    private func resolveSelection() {
+        switch selectionMode {
 
-        if let initialIndex = initialIndex,
-           initialIndex >= 0 && initialIndex < items.count {
-            selectedIndex = initialIndex
-        } else {
-            clampSelectedIndex()
+        case .index(let binding):
+            guard !items.isEmpty else { return }
+
+            if !hasAppliedInitialIndex {
+                if let initialIndex = initialIndex,
+                   initialIndex >= 0 && initialIndex < items.count {
+                    binding.wrappedValue = initialIndex
+                } else {
+                    clampIndexBinding(binding)
+                }
+                hasAppliedInitialIndex = true
+            } else {
+                clampIndexBinding(binding)
+            }
+
+        case .id(let binding):
+            // Keep a preset id while items are still loading — it may become valid
+            guard !items.isEmpty else { return }
+
+            if let id = binding.wrappedValue,
+               items.contains(where: { $0.id == id }) {
+                return
+            }
+            binding.wrappedValue = items[0].id
         }
-        hasAppliedInitialIndex = true
     }
 
-    private func clampSelectedIndex() {
-        selectedIndex = TabPagerHelper.clampIndex(selectedIndex, itemCount: items.count)
+    private func clampIndexBinding(_ binding: Binding<Int>) {
+        let clamped = TabPagerHelper.clampIndex(binding.wrappedValue, itemCount: items.count)
+        if binding.wrappedValue != clamped {
+            binding.wrappedValue = clamped
+        }
     }
 }
 
@@ -231,17 +311,15 @@ public extension TabPagerX {
 struct DynamicTabsSample: View {
 
     struct DynamicTabItem: Identifiable, Equatable {
-        let id = UUID()
+        let id: String
         let title: String
         let content: String
         let color: Color
         let icon: String
-        let source: String
     }
 
-    @State private var selectedIndex = 0
+    @State private var selection: String? = nil
     @State private var items: [DynamicTabItem] = []
-    @State private var isLoading = true
     @State private var loadCount = 0
 
     var body: some View {
@@ -251,7 +329,7 @@ struct DynamicTabsSample: View {
                 .padding()
 
             HStack {
-                Text("Selected Index: \(selectedIndex)")
+                Text("Selection: \(selection ?? "nil")")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -270,45 +348,37 @@ struct DynamicTabsSample: View {
             .padding(.horizontal)
 
             TabPagerX(
-                    selectedIndex: $selectedIndex,
-                    initialIndex: 1,
-                    items: items
-                ) { item in
-                    VStack {
-                        Text(item.content)
-                            .font(.title2)
-                            .foregroundColor(item.color)
+                selection: $selection,
+                items: items
+            ) { item in
+                VStack {
+                    Text(item.content)
+                        .font(.title2)
+                        .foregroundColor(item.color)
 
-                        Rectangle()
-                            .fill(item.color)
-                            .frame(height: 120)
-                            .cornerRadius(12)
+                    Rectangle()
+                        .fill(item.color)
+                        .frame(height: 120)
+                        .cornerRadius(12)
 
-                        Text("Load #\(loadCount) - \(item.source)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                } tabTitle: { item, isSelected in
-                    HStack {
-                        Image(systemName: item.icon)
-                            .font(.caption)
-                        Text(item.title)
-                    }
-                    .font(isSelected ? .headline : .body)
-                    .foregroundColor(isSelected ? item.color : .secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(isSelected ? item.color.opacity(0.1) : Color.clear)
-                    )
+                    Text("Load #\(loadCount)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
-                .tabBarLayoutStyle(.scrollable)
-                .tabIndicatorStyle(height: 3, color: .green, horizontalInset: 8)
-                .onTabChanged { index in
-                    print("Selected tab: \(index)")
+                .padding()
+            } label: { item, state in
+                HStack {
+                    Image(systemName: item.icon)
+                        .font(.caption)
+                    Text(item.title)
                 }
+                .font(state.isSelected ? .headline : .body)
+                .foregroundColor(item.color.opacity(0.4 + 0.6 * state.selectionProgress))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+            }
+            .tabBarLayoutStyle(.scrollable)
+            .tabIndicatorStyle(height: 3, color: .green, horizontalInset: 8)
         }
         .onAppear {
             loadData()
@@ -316,21 +386,17 @@ struct DynamicTabsSample: View {
     }
 
     private func loadData() {
-        isLoading = true
         loadCount += 1
 
         // Simulate API call
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            let apiData = [
-                DynamicTabItem(title: "News", content: "Latest news from API", color: .red, icon: "newspaper", source: "API"),
-                DynamicTabItem(title: "Sports", content: "Sports updates", color: .orange, icon: "sportscourt", source: "API"),
-                DynamicTabItem(title: "Tech", content: "Technology news", color: .blue, icon: "laptopcomputer", source: "API"),
-                DynamicTabItem(title: "Weather", content: "Weather forecast", color: .cyan, icon: "cloud.sun", source: "API"),
-                DynamicTabItem(title: "Finance", content: "Market updates", color: .green, icon: "chart.line.uptrend.xyaxis", source: "API")
+            items = [
+                DynamicTabItem(id: "news", title: "News", content: "Latest news from API", color: .red, icon: "newspaper"),
+                DynamicTabItem(id: "sports", title: "Sports", content: "Sports updates", color: .orange, icon: "sportscourt"),
+                DynamicTabItem(id: "tech", title: "Tech", content: "Technology news", color: .blue, icon: "laptopcomputer"),
+                DynamicTabItem(id: "weather", title: "Weather", content: "Weather forecast", color: .cyan, icon: "cloud.sun"),
+                DynamicTabItem(id: "finance", title: "Finance", content: "Market updates", color: .green, icon: "chart.line.uptrend.xyaxis")
             ]
-
-            items = apiData
-            isLoading = false
         }
     }
 }
