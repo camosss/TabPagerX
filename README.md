@@ -417,6 +417,18 @@ For more examples, see `TabPagerXSample` in the sample app. (link: [TabPagerXSam
 .contentSwipeEnabled(false)
 ```
 
+### contentIgnoresSafeArea
+- By default the pager **respects the safe area**, so it can sit above tab bars or toolbars without layout issues.
+- For full-screen content, opt in to extend into safe area edges.
+
+```swift
+// Full-screen content — extend into the bottom safe area (v2 default behavior)
+.contentIgnoresSafeArea()
+
+// Or specify edges explicitly
+.contentIgnoresSafeArea(edges: [.bottom, .horizontal])
+```
+
 ### separatorStyle
 - Adds a separator line between the TabBar and the content area.
 - Use to visually distinguish the tab bar from page content.
@@ -473,6 +485,7 @@ The 2.x index-based initializer still compiles (deprecated) — migrate at your 
 | `selectedIndex: Binding<Int>` | `selection: Binding<Item.ID?>` |
 | `initialIndex: 2` | preset the binding: `@State var selection: ID? = "someId"` |
 | `tabTitle: { item, isSelected in }` | `label: { item, state in }` — use `state.isSelected` |
+| bottom safe area always ignored | respected by default — add `.contentIgnoresSafeArea()` to keep the old behavior |
 
 ```swift
 // 2.x

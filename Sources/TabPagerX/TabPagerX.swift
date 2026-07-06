@@ -44,6 +44,9 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
     /// Separator style between TabBar and TabContent
     private var separatorStyle: TabBarSeparatorStyle = .none
 
+    /// Safe area edges the pager extends into — respects the safe area by default
+    private var ignoredSafeAreaEdges: Edge.Set = []
+
     /// Tracks whether initialIndex has been applied (index mode only)
     @State private var hasAppliedInitialIndex = false
 
@@ -123,7 +126,7 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .ignoresSafeArea(edges: .bottom)
+        .ignoresSafeArea(edges: ignoredSafeAreaEdges)
         .onAppear {
             resolveSelection()
         }
@@ -275,6 +278,14 @@ public extension TabPagerX {
     func onTabChanged(_ action: @escaping (Int) -> Void) -> Self {
         var new = self
         new.onTabChanged = action
+        return new
+    }
+
+    /// Extends the pager into the given safe area edges — full-screen content etc.
+    /// v2 always ignored the bottom edge; apply this modifier to restore that behavior
+    func contentIgnoresSafeArea(edges: Edge.Set = .bottom) -> Self {
+        var new = self
+        new.ignoredSafeAreaEdges = edges
         return new
     }
 
