@@ -19,7 +19,12 @@ class PageTabViewController<Content: View>: UIPageViewController,
 
     private var isProgrammaticTransition = false
     private var scrollViewObservation: NSKeyValueObservation?
-    private let isSwipeEnabled: Bool
+    private(set) var isSwipeEnabled: Bool
+
+    // Internal paging scroll view of UIPageViewController
+    private var pageScrollView: UIScrollView? {
+        view.subviews.compactMap { $0 as? UIScrollView }.first
+    }
 
     init(
         content: @escaping (Int) -> Content,
@@ -45,9 +50,7 @@ class PageTabViewController<Content: View>: UIPageViewController,
         }
 
         if !isSwipeEnabled {
-            view.subviews
-                .compactMap { $0 as? UIScrollView }
-                .forEach { $0.isScrollEnabled = false }
+            pageScrollView?.isScrollEnabled = false
         }
     }
 
@@ -60,8 +63,15 @@ class PageTabViewController<Content: View>: UIPageViewController,
         setupScrollViewObservation()
     }
 
+    // Allows toggling swipe at runtime via the contentSwipeEnabled modifier
+    func updateSwipeEnabled(_ enabled: Bool) {
+        guard enabled != isSwipeEnabled else { return }
+        isSwipeEnabled = enabled
+        pageScrollView?.isScrollEnabled = enabled
+    }
+
     private func setupScrollViewObservation() {
-        guard let scrollView = view.subviews.compactMap({ $0 as? UIScrollView }).first else { return }
+        guard let scrollView = pageScrollView else { return }
 
         scrollViewObservation = scrollView.observe(\.contentOffset, options: [.new]) { [weak self] scrollView, _ in
             guard let self = self, !self.isProgrammaticTransition else { return }
@@ -119,7 +129,12 @@ class PageTabViewController<Content: View>: UIPageViewController,
         else { return }
 
         isProgrammaticTransition = true
-        onScrollProgressChanged?(0)
+
+        // Deferred one tick — updateIndex runs inside updateUIViewController and
+        // writing SwiftUI state synchronously during a view update is undefined behavior
+        DispatchQueue.main.async { [weak self] in
+            self?.onScrollProgressChanged?(0)
+        }
 
         let direction: NavigationDirection = (newIndex > selectedIndex) ? .forward : .reverse
         let nextVC = getViewController(at: newIndex)
