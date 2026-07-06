@@ -7,7 +7,7 @@ struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
     @Binding var selectedIndex: Int
     @Binding var scrollProgress: CGFloat
 
-    let tabCount: Int
+    let itemIDs: [AnyHashable]
     let isSwipeEnabled: Bool
     let content: (Int) -> Content
 
@@ -30,7 +30,7 @@ struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> PageTabViewController<Content> {
         let controller = PageTabViewController(
             content: content,
-            tabCount: tabCount,
+            itemIDs: itemIDs,
             isSwipeEnabled: isSwipeEnabled
         )
         controller.selectedIndex = selectedIndex
@@ -53,7 +53,7 @@ struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
         context.coordinator.scrollProgress = $scrollProgress
 
         uiViewController.updateSwipeEnabled(isSwipeEnabled)
-        uiViewController.updateTabData(tabCount: tabCount, content: content)
+        uiViewController.updateTabData(itemIDs: itemIDs, content: content)
         uiViewController.updateIndex(to: selectedIndex)
     }
 }
