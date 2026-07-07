@@ -8,8 +8,30 @@
 
 Effortless SwiftUI tab pager with dynamic customization.
 
+<!-- TODO(image): HERO GIF — the headline demo. Record a scrollable tab bar being swiped slowly so the indicator (and label color/scale) track the finger in real time. This is the library's #1 selling point and should be the first thing a visitor sees. Suggested: ~4s loop, width 420px, 10–12fps, centered. -->
+<!--
+<p align="center">
+  <img src="REPLACE_WITH_HERO_GIF_URL" alt="TabPagerX real-time indicator demo" width="420" />
+</p>
+-->
+
 `TabPagerX` is a SwiftUI-based library designed to help iOS developers create customizable tab pagers with ease.
 It offers flexible layouts, per-tab state preservation, and extensive styling options for tab labels and indicators, making it a perfect choice for building tab-based navigation in your SwiftUI applications.
+
+<br>
+
+## Contents
+
+- [Features](#-features)
+- [Anatomy](#-anatomy)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Configuration](#-configuration)
+- [Migrating from 2.x](#-migrating-from-2x)
+- [Contributing](#-contributing)
+- [About](#-about)
+- [License](#-license)
 
 <br>
 
@@ -28,11 +50,56 @@ It offers flexible layouts, per-tab state preservation, and extensive styling op
 
 <br>
 
+## 💥 Anatomy
+
+A `TabPagerX` is a vertical stack of three parts. Each part maps to the API that controls it:
+
+```
+┌───────────────────────────────────────────────┐
+│   Home       Search       Profile              │ ← tab labels   label: { item, state in }
+│  ▔▔▔▔▔▔                                         │ ← indicator    .tabIndicatorStyle(…)
+│ ─────────────────────────────────────────────  │ ← separator    .tabBarSeparator(…)
+│                                                 │
+│                 page content                    │ ← content      content: { item in }
+│            ◀ swipe to change tabs ▶             │   paging       .contentSwipeEnabled(…)
+│                                                 │
+└───────────────────────────────────────────────┘
+        ▲
+        └ tab bar layout   .tabBarLayoutStyle(.fixed / .scrollable)
+                           .tabBarLayoutConfig(buttonSpacing:sidePadding:)
+```
+
+<br>
+
 ## 💥 Requirements
 
 - iOS 15.0+
 - Swift 5.5+
 - Xcode 15.0+
+
+<br>
+
+## 💥 Installation
+
+### SPM
+In Xcode, go to File > Add Packages
+
+```
+https://github.com/camosss/TabPagerX.git
+```
+
+### CocoaPods
+
+Add to your `Podfile`
+
+``` ruby
+pod 'TabPagerX'
+```
+
+Run
+```
+pod install
+```
 
 <br>
 
@@ -204,10 +271,52 @@ TabPagerX(
 
 <br>
 
+### Scrollable Tabs + Real-time Labels
+- Scrollable layout for many tabs with button spacing and side padding.
+- `state.selectionProgress` (0...1) follows your finger — interpolate color, opacity, or scale for a continuous transition.
+
+<!-- TODO(image): GIF — swipe slowly between tabs so the label color and scale visibly interpolate mid-swipe (not just snap). A still image cannot convey selectionProgress. Suggested: ~4s loop, width 420px. -->
+
+```swift
+@State private var selection: String? = nil
+
+private let items = [
+    CategoryItem(id: "all", title: "All", emoji: "🌐", color: .blue),
+    CategoryItem(id: "music", title: "Music", emoji: "🎵", color: .pink),
+    CategoryItem(id: "sports", title: "Sports", emoji: "⚽", color: .green),
+    // ...
+]
+
+TabPagerX(
+    selection: $selection,
+    items: items
+) { item in
+    VStack(spacing: 16) {
+        Text(item.emoji).font(.system(size: 80))
+        Text(item.title).font(.title).foregroundColor(item.color)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+} label: { item, state in
+    Text("\(item.emoji) \(item.title)")
+        .font(.subheadline)
+        .foregroundColor(item.color.opacity(0.35 + 0.65 * state.selectionProgress))
+        .scaleEffect(1 + 0.08 * state.selectionProgress)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+}
+.tabBarLayoutStyle(.scrollable)
+.tabBarLayoutConfig(buttonSpacing: 4, sidePadding: 12)
+.tabIndicatorStyle(height: 3, color: .blue, cornerRadius: 1.5)
+```
+
+<br>
+
 ### Dynamic / Async Tabs
 - Safe with empty or async-loaded items — no `isLoading` guard needed.
 - Tabs render automatically when data arrives; the first tab (or a preset id) is selected.
-- With stable ids, appending tabs later keeps existing tabs' state intact.
+
+<!-- TODO(image): GIF — start on an empty screen, then after ~1s the tabs appear as the fake API returns. Demonstrates "no isLoading guard needed". Suggested: ~3s loop, width 420px. -->
 
 ```swift
 @State private var selection: Item.ID? = nil
@@ -252,47 +361,34 @@ func loadData() {
 
 <br>
 
-### Scrollable Tabs + Real-time Labels
-- Scrollable layout for many tabs with button spacing and side padding.
-- `state.selectionProgress` (0...1) follows your finger — interpolate color, opacity, or scale for a continuous transition.
+### State Preservation (append / reorder)
+- Pages are cached by item **id**, so each tab keeps its scroll position and internal state across item updates.
+- Appending a tab preserves the existing tabs; reordering moves each page with its item; removing drops only that page.
+
+<!-- TODO(image): GIF — scroll one page down, then tap "Append" or "Shuffle"; the previously scrolled page keeps its exact offset. This is the strongest proof of the id-based cache. Suggested: ~5s loop, width 420px. -->
 
 ```swift
 @State private var selection: String? = nil
+@State private var items: [TabItem] = [/* ... */]
 
-private let items = [
-    CategoryItem(id: "all", title: "All", emoji: "🌐", color: .blue),
-    CategoryItem(id: "music", title: "Music", emoji: "🎵", color: .pink),
-    CategoryItem(id: "sports", title: "Sports", emoji: "⚽", color: .green),
-    // ...
-]
-
-TabPagerX(
-    selection: $selection,
-    items: items
-) { item in
-    VStack(spacing: 16) {
-        Text(item.emoji).font(.system(size: 80))
-        Text(item.title).font(.title).foregroundColor(item.color)
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+TabPagerX(selection: $selection, items: items) { item in
+    /* a scrollable page */
 } label: { item, state in
-    Text("\(item.emoji) \(item.title)")
-        .font(.subheadline)
-        .foregroundColor(item.color.opacity(0.35 + 0.65 * state.selectionProgress))
-        .scaleEffect(1 + 0.08 * state.selectionProgress)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
+    /* label */
 }
-.tabBarLayoutStyle(.scrollable)
-.tabBarLayoutConfig(buttonSpacing: 4, sidePadding: 12)
-.tabIndicatorStyle(height: 3, color: .blue, cornerRadius: 1.5)
+
+// Later — existing tabs keep their state because their ids are unchanged
+items.append(TabItem(id: "new", title: "New"))
+items.shuffle()
 ```
 
 <br>
 
 ### Preset Selection / Deep Links
 - Preset the binding to start on a specific tab — no index math, works regardless of server-driven tab order.
+- Assigning the id from anywhere (a deep link, a button) moves the pager to that tab.
+
+<!-- TODO(image): GIF — tap an external "Open <tab>" button and watch the pager jump to that tab. Demonstrates driving selection from outside the pager. Suggested: ~3s loop, width 420px. -->
 
 ```swift
 // Start on the "profile" tab once items load
@@ -307,6 +403,8 @@ selection = "event"
 ### Swipe Disabled (instant tab switch)
 - When swipe is disabled, tapping a tab switches content instantly with no slide animation.
 - Can be toggled at runtime.
+
+<!-- TODO(image): GIF — tap tabs with swipe disabled to show instant switching (no slide), ideally next to the default sliding behavior for contrast. Suggested: ~3s loop, width 420px. -->
 
 ```swift
 TabPagerX(
@@ -395,6 +493,8 @@ For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/
 - You can set `height`, `color`, `horizontalInset`, `cornerRadius`, and `animationDuration`.
 - The indicator tracks your finger in real-time during swipe gestures.
 
+<!-- TODO(image): Still — 2–3 stills side by side showing indicator variants (thin underline / rounded pill / inset pill) so the parameters are visually concrete. Suggested: width 420px each, in an HTML table like the layoutStyle section. -->
+
 ```swift
 // Thin blue underline
 .tabIndicatorStyle(height: 2, color: .blue)
@@ -429,6 +529,8 @@ For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/
 ### contentIgnoresSafeArea
 - By default the pager **respects the safe area**, so it can sit above tab bars or toolbars without layout issues.
 - For full-screen content, opt in to extend into safe area edges.
+
+<!-- TODO(image): Still — before/after pair showing the BOTTOM edge of the screen: default (content stops at the safe area) vs contentIgnoresSafeArea (content bleeds to the very bottom). Make sure the home-indicator area is visible. Suggested: width 420px each in a 2-col table. -->
 
 ```swift
 // Full-screen content — extend into the bottom safe area (v2 default behavior)
@@ -516,27 +618,15 @@ Also make sure your items use **stable ids** — replace `let id = UUID()` with 
 
 <br>
 
-## 💥 Installation
+## 💥 Contributing
 
-### SPM
-In Xcode, go to File > Add Packages
+Issues and pull requests are welcome. If you find a bug or want a feature, please [open an issue](https://github.com/camosss/TabPagerX/issues). For pull requests, keep changes focused and make sure the test suite passes (`⌘U`, or `xcodebuild test` on an iOS Simulator) — CI runs the same suite on every PR.
 
-```
-https://github.com/camosss/TabPagerX.git
-```
+<br>
 
-### CocoaPods
+## 💥 About
 
-Add to your `Podfile`
-
-``` ruby
-pod 'TabPagerX'
-```
-
-Run
-```
-pod install
-```
+Created and maintained by [camosss](https://github.com/camosss).
 
 <br>
 
