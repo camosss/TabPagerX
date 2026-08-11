@@ -118,7 +118,11 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
                     itemIDs: items.map { AnyHashable($0.id) },
                     isSwipeEnabled: isSwipeEnabled,
                     content: { index in
+                        // Each page is hosted in its own UIHostingController, which re-applies
+                        // the safe area inside the page — propagate the ignored edges so page
+                        // content actually reaches the screen edge (no-op when edges is empty)
                         content(items[safe: index] ?? items[0])
+                            .ignoresSafeArea(edges: ignoredSafeAreaEdges)
                     }
                 )
             } else {
