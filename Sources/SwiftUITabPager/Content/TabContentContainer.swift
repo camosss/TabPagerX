@@ -31,9 +31,9 @@ struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
         let controller = PageTabViewController(
             content: content,
             itemIDs: itemIDs,
-            isSwipeEnabled: isSwipeEnabled
+            isSwipeEnabled: isSwipeEnabled,
+            initialIndex: selectedIndex
         )
-        controller.selectedIndex = selectedIndex
 
         let coordinator = context.coordinator
         controller.onIndexChanged = { [weak coordinator] newIndex in

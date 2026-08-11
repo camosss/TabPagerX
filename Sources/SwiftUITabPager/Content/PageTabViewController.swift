@@ -32,7 +32,8 @@ class PageTabViewController<Content: View>: UIPageViewController,
     init(
         content: @escaping (Int) -> Content,
         itemIDs: [AnyHashable],
-        isSwipeEnabled: Bool
+        isSwipeEnabled: Bool,
+        initialIndex: Int = 0
     ) {
         self.content = content
         self.itemIDs = itemIDs
@@ -48,6 +49,10 @@ class PageTabViewController<Content: View>: UIPageViewController,
         self.delegate = self
 
         if !itemIDs.isEmpty {
+            // The first setViewControllers must use the preset index —
+            // assigning selectedIndex after init leaves page 0 on screen
+            // because updateIndex(to:) early-returns on an equal index
+            selectedIndex = min(max(initialIndex, 0), itemIDs.count - 1)
             let initialVC = getViewController(at: selectedIndex)
             setViewControllers([initialVC], direction: .forward, animated: false)
         }
