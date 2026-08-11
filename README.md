@@ -2,6 +2,7 @@
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
 ![Release Version](https://img.shields.io/badge/Release-4.0.0-blue.svg)
+![Platform](https://img.shields.io/badge/Platform-iOS%2015.0%2B-lightgrey.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 [![CI](https://github.com/camosss/SwiftUITabPager/actions/workflows/ci.yml/badge.svg)](https://github.com/camosss/SwiftUITabPager/actions/workflows/ci.yml)
@@ -115,7 +116,7 @@ pod install
 
 ```swift
 @State private var selection: MyItem.ID? = nil
-private let items = [..]
+private let items = [/* your items */]
 
 TabPager(
     selection: $selection,
@@ -419,11 +420,18 @@ For more examples, browse the [sample app](https://github.com/camosss/SwiftUITab
 | **Dynamic Data** | Dynamic / Async Tabs, State Preservation (append / reorder) |
 | **Accessibility** | VoiceOver |
 
+```bash
+# Run the sample app (the Xcode project is generated, not checked in)
+brew install xcodegen
+cd Example/SwiftUITabPagerSample && xcodegen generate
+open SwiftUITabPagerSample.xcodeproj
+```
+
 <br>
 
 ## 💥 Configuration
 
-### layoutStyle
+### tabBarLayoutStyle
 - Set Tab Bar Layout Style.
 - Choose between fixed or scrollable layouts.
 - Custom tab views are fully supported in both layouts.
@@ -440,7 +448,7 @@ For more examples, browse the [sample app](https://github.com/camosss/SwiftUITab
 .tabBarLayoutStyle(.scrollable)
 ```
 
-### layoutConfig
+### tabBarLayoutConfig
 - Configure Tab Bar Layout.
 - Adjust `buttonSpacing` and `sidePadding`. (defaults to 0)
   - `buttonSpacing`: spacing between each tab button
@@ -454,10 +462,11 @@ For more examples, browse the [sample app](https://github.com/camosss/SwiftUITab
 .tabBarLayoutConfig(buttonSpacing: 8, sidePadding: 12)
 ```
 
-### indicatorStyle
+### tabIndicatorStyle
 - Customize Tab underline (indicator) with `.tabIndicatorStyle(...)`.
 - You can set `height`, `color`, `horizontalInset`, `cornerRadius`, and `animationDuration`.
 - The indicator tracks your finger in real-time during swipe gestures.
+- The default is a 2pt accent-colored underline; pass `.hidden` to remove it.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/67e3f2eb-9ed5-4f74-a152-7c132539e22a" alt="Indicator customization demo" width="280" />
@@ -476,10 +485,11 @@ For more examples, browse the [sample app](https://github.com/camosss/SwiftUITab
     animationDuration: 0.25
 )
 
-// No indicator (default — height: 0, color: .clear)
+// No indicator
+.tabIndicatorStyle(.hidden)
 ```
 
-### isSwipeEnabled
+### contentSwipeEnabled
 - Enable or Disable Content Swipe.
 - Allow or disable swipe gesture to switch between tabs.
 - Default is `true`. Use `.contentSwipeEnabled(false)` to disable swipe navigation.
@@ -510,7 +520,7 @@ For more examples, browse the [sample app](https://github.com/camosss/SwiftUITab
 .contentIgnoresSafeArea(edges: [.bottom, .horizontal])
 ```
 
-### separatorStyle
+### tabBarSeparator
 - Adds a separator line between the TabBar and the content area.
 - Use to visually distinguish the tab bar from page content.
 
@@ -535,12 +545,12 @@ For more examples, browse the [sample app](https://github.com/camosss/SwiftUITab
 </p>
 
 ### onTabChanged
-- Observe tab index changes via callback.
-- For the selected item itself, observe your `selection` binding with `onChange`.
+- Observe changes of the selected item via callback.
+- Keyed to the item's id — reordering tabs doesn't fire it unless the selected item actually changes.
 
 ```swift
-.onTabChanged { index in
-    print("Selected tab: \(index)")
+.onTabChanged { item in
+    print("Selected tab: \(item.title)")
 }
 ```
 
@@ -548,9 +558,9 @@ For more examples, browse the [sample app](https://github.com/camosss/SwiftUITab
 
 ## 💥 Migrating from 2.x
 
-The 2.x index-based initializer still compiles (deprecated) — migrate at your own pace:
+The 2.x index-based initializer was removed in 4.0 — update call sites as follows:
 
-| 2.x | 3.0 |
+| 2.x | 4.0 |
 |---|---|
 | `selectedIndex: Binding<Int>` | `selection: Binding<Item.ID?>` |
 | `initialIndex: 2` | preset the binding: `@State var selection: ID? = "someId"` |
@@ -565,7 +575,7 @@ TabPager(selectedIndex: $index, initialIndex: 1, items: items) { item in
     Text(item.title).foregroundColor(isSelected ? .blue : .gray)
 }
 
-// 3.0
+// 4.0
 TabPager(selection: $selection, items: items) { item in
     ...
 } label: { item, state in
