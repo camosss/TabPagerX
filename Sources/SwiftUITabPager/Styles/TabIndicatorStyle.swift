@@ -8,8 +8,19 @@ public struct TabIndicatorStyle: Sendable {
     public let cornerRadius: CGFloat
     public let animationDuration: Double
 
-    /// Default style
+    /// Default style — a visible accent-colored underline, so the indicator
+    /// shows up out of the box and partial customization (e.g. color only)
+    /// still renders something
     public static let `default` = TabIndicatorStyle(
+        height: 2,
+        color: .accentColor,
+        horizontalInset: 0,
+        cornerRadius: 0,
+        animationDuration: 0.3
+    )
+
+    /// No indicator — apply via `.tabIndicatorStyle(.hidden)`
+    public static let hidden = TabIndicatorStyle(
         height: 0,
         color: .clear,
         horizontalInset: 0,

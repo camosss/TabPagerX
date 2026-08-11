@@ -5,17 +5,8 @@ import SwiftUI
 public struct TabPager<Item, Content, Label>: View
 where Item: Identifiable & Equatable, Content: View, Label: View {
 
-    /// How the selected tab is bound to external state
-    private enum SelectionMode {
-        case index(Binding<Int>)
-        case id(Binding<Item.ID?>)
-    }
-
-    private let selectionMode: SelectionMode
-
-    /// Optional initial index to select when the view first appears (index mode only)
-    /// Only applied once when the view appears, then becomes independent of selectedIndex
-    private let initialIndex: Int?
+    /// Binding to the selected item's id
+    private let selection: Binding<Item.ID?>
 
     /// Array of data items that populate the tabs
     private let items: [Item]
@@ -26,8 +17,8 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
     /// Closure that creates tab label view for each data item
     @ViewBuilder private let label: (Item, TabState) -> Label
 
-    /// Callback when tab changes
-    private var onTabChanged: ((Int) -> Void)? = nil
+    /// Callback when the selected item changes
+    private var onTabChanged: ((Item) -> Void)? = nil
 
     /// Defines the layout style for the tab bar
     private var layoutStyle: TabLayoutStyle = .fixed
@@ -47,9 +38,6 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
     /// Safe area edges the pager extends into — respects the safe area by default
     private var ignoredSafeAreaEdges: Edge.Set = []
 
-    /// Tracks whether initialIndex has been applied (index mode only)
-    @State private var hasAppliedInitialIndex = false
-
     /// Continuous scroll progress from page swipe (-1 to 1)
     @State private var scrollProgress: CGFloat = 0
 
@@ -68,27 +56,10 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
         @ViewBuilder content: @escaping (Item) -> Content,
         @ViewBuilder label: @escaping (Item, TabState) -> Label
     ) {
-        self.selectionMode = .id(selection)
-        self.initialIndex = nil
+        self.selection = selection
         self.items = items
         self.content = content
         self.label = label
-    }
-
-    /// Initializes `TabPager` with index-based selection
-    @available(*, deprecated, message: "Use init(selection:items:content:label:) — id-based selection survives reorders and removals, and TabState enables real-time label effects")
-    public init(
-        selectedIndex: Binding<Int>,
-        initialIndex: Int? = nil,
-        items: [Item],
-        @ViewBuilder content: @escaping (Item) -> Content,
-        @ViewBuilder tabTitle: @escaping (Item, Bool) -> Label
-    ) {
-        self.selectionMode = .index(selectedIndex)
-        self.initialIndex = initialIndex
-        self.items = items
-        self.content = content
-        self.label = { item, state in tabTitle(item, state.isSelected) }
     }
 
     public var body: some View {
@@ -137,33 +108,31 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
         .onChangeCompat(of: items) {
             resolveSelection()
         }
-        .onChangeCompat(of: selectedIndex) {
-            onTabChanged?(selectedIndex)
+        .onChangeCompat(of: selection.wrappedValue) {
+            // Keyed to the id, not the index — reordering items moves the
+            // selected tab's position without changing which item is selected
+            if let id = selection.wrappedValue,
+               let item = items.first(where: { $0.id == id }) {
+                onTabChanged?(item)
+            }
         }
     }
 
-    /// Int binding used by the tab bar and page controller
-    /// In id mode it is derived from the id binding on the fly
+    /// Int binding used by the tab bar and page controller,
+    /// derived from the id binding on the fly
     private var selectedIndexBinding: Binding<Int> {
-        switch selectionMode {
-
-        case .index(let binding):
-            return binding
-
-        case .id(let binding):
-            return Binding(
-                get: {
-                    guard let id = binding.wrappedValue,
-                          let index = items.firstIndex(where: { $0.id == id })
-                    else { return 0 }
-                    return index
-                },
-                set: { newIndex in
-                    guard let item = items[safe: newIndex] else { return }
-                    binding.wrappedValue = item.id
-                }
-            )
-        }
+        Binding(
+            get: {
+                guard let id = selection.wrappedValue,
+                      let index = items.firstIndex(where: { $0.id == id })
+                else { return 0 }
+                return index
+            },
+            set: { newIndex in
+                guard let item = items[safe: newIndex] else { return }
+                selection.wrappedValue = item.id
+            }
+        )
     }
 
     private var selectedIndex: Int {
@@ -201,40 +170,14 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
 private extension TabPager {
     /// Ensures the selection points at a valid tab — called on appear and whenever items change
     private func resolveSelection() {
-        switch selectionMode {
+        // Keep a preset id while items are still loading — it may become valid
+        guard !items.isEmpty else { return }
 
-        case .index(let binding):
-            guard !items.isEmpty else { return }
-
-            if !hasAppliedInitialIndex {
-                if let initialIndex = initialIndex,
-                   initialIndex >= 0 && initialIndex < items.count {
-                    binding.wrappedValue = initialIndex
-                } else {
-                    clampIndexBinding(binding)
-                }
-                hasAppliedInitialIndex = true
-            } else {
-                clampIndexBinding(binding)
-            }
-
-        case .id(let binding):
-            // Keep a preset id while items are still loading — it may become valid
-            guard !items.isEmpty else { return }
-
-            if let id = binding.wrappedValue,
-               items.contains(where: { $0.id == id }) {
-                return
-            }
-            binding.wrappedValue = items[0].id
+        if let id = selection.wrappedValue,
+           items.contains(where: { $0.id == id }) {
+            return
         }
-    }
-
-    private func clampIndexBinding(_ binding: Binding<Int>) {
-        let clamped = TabPagerHelper.clampIndex(binding.wrappedValue, itemCount: items.count)
-        if binding.wrappedValue != clamped {
-            binding.wrappedValue = clamped
-        }
+        selection.wrappedValue = items[0].id
     }
 }
 
@@ -259,6 +202,13 @@ public extension TabPager {
         return new
     }
 
+    /// Modifier to apply a preset TabIndicator style (e.g. `.hidden`)
+    func tabIndicatorStyle(_ style: TabIndicatorStyle) -> Self {
+        var new = self
+        new.indicatorStyle = style
+        return new
+    }
+
     /// Modifier to customize TabIndicator style
     func tabIndicatorStyle(
         height: CGFloat? = nil,
@@ -278,8 +228,8 @@ public extension TabPager {
         return new
     }
 
-    /// Modifier to observe tab index changes
-    func onTabChanged(_ action: @escaping (Int) -> Void) -> Self {
+    /// Modifier to observe changes of the selected item
+    func onTabChanged(_ action: @escaping (Item) -> Void) -> Self {
         var new = self
         new.onTabChanged = action
         return new
@@ -317,102 +267,3 @@ public extension TabPager {
         return new
     }
 }
-
-#if DEBUG
-#Preview(body: {
-    DynamicTabsSample()
-})
-
-struct DynamicTabsSample: View {
-
-    struct DynamicTabItem: Identifiable, Equatable {
-        let id: String
-        let title: String
-        let content: String
-        let color: Color
-        let icon: String
-    }
-
-    @State private var selection: String? = nil
-    @State private var items: [DynamicTabItem] = []
-    @State private var loadCount = 0
-
-    var body: some View {
-        VStack {
-            Text("Dynamic Tabs (API Simulation)")
-                .font(.headline)
-                .padding()
-
-            HStack {
-                Text("Selection: \(selection ?? "nil")")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Spacer()
-
-                Button("Reload Data") {
-                    loadData()
-                }
-                .font(.caption)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            }
-            .padding(.horizontal)
-
-            TabPager(
-                selection: $selection,
-                items: items
-            ) { item in
-                VStack {
-                    Text(item.content)
-                        .font(.title2)
-                        .foregroundColor(item.color)
-
-                    Rectangle()
-                        .fill(item.color)
-                        .frame(height: 120)
-                        .cornerRadius(12)
-
-                    Text("Load #\(loadCount)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .padding()
-            } label: { item, state in
-                HStack {
-                    Image(systemName: item.icon)
-                        .font(.caption)
-                    Text(item.title)
-                }
-                .font(state.isSelected ? .headline : .body)
-                .foregroundColor(item.color.opacity(0.4 + 0.6 * state.selectionProgress))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-            }
-            .tabBarLayoutStyle(.scrollable)
-            .tabIndicatorStyle(height: 3, color: .green, horizontalInset: 8)
-        }
-        .onAppear {
-            loadData()
-        }
-    }
-
-    private func loadData() {
-        loadCount += 1
-
-        // Simulate API call
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            items = [
-                DynamicTabItem(id: "news", title: "News", content: "Latest news from API", color: .red, icon: "newspaper"),
-                DynamicTabItem(id: "sports", title: "Sports", content: "Sports updates", color: .orange, icon: "sportscourt"),
-                DynamicTabItem(id: "tech", title: "Tech", content: "Technology news", color: .blue, icon: "laptopcomputer"),
-                DynamicTabItem(id: "weather", title: "Weather", content: "Weather forecast", color: .cyan, icon: "cloud.sun"),
-                DynamicTabItem(id: "finance", title: "Finance", content: "Market updates", color: .green, icon: "chart.line.uptrend.xyaxis")
-            ]
-        }
-    }
-}
-#endif

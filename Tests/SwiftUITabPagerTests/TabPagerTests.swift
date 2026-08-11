@@ -161,13 +161,16 @@ final class StyleDefaultsTests: XCTestCase {
 
     // MARK: TabIndicatorStyle
 
-    func test_indicatorStyle_default_heightIsZero() {
+    func test_indicatorStyle_default_isVisible() {
         let style = TabIndicatorStyle.default
-        XCTAssertEqual(style.height, 0)
+        XCTAssertEqual(style.height, 2)
+        XCTAssertEqual(style.color, .accentColor)
     }
 
-    func test_indicatorStyle_default_colorIsClear() {
-        XCTAssertEqual(TabIndicatorStyle.default.color, .clear)
+    func test_indicatorStyle_hidden_isInvisible() {
+        let style = TabIndicatorStyle.hidden
+        XCTAssertEqual(style.height, 0)
+        XCTAssertEqual(style.color, .clear)
     }
 
     func test_indicatorStyle_default_animationDuration() {

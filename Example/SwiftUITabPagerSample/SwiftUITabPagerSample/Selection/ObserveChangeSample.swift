@@ -5,8 +5,8 @@
 //  CASE: Reacting to tab changes.
 //
 //  Two complementary ways to observe changes:
-//    1. `.onTabChanged { index in ... }` — a callback with the new INDEX.
-//       Handy for analytics ("viewed tab 2").
+//    1. `.onTabChanged { item in ... }` — a callback with the new ITEM.
+//       Handy for analytics ("viewed the Billing tab").
 //    2. `.onChange(of: selection)` — react to the selected item's ID.
 //       Handy when you care about *which item*, not its position.
 //
@@ -36,7 +36,7 @@ struct ObserveChangeSample: View {
         VStack(spacing: 0) {
             CaseBanner(
                 title: "Observe Tab Changes",
-                description: "onTabChanged gives the index; onChange(of: selection) gives the item id. Swipe or tap to see both."
+                description: "onTabChanged gives the selected item; onChange(of: selection) gives its id. Swipe or tap to see both."
             )
 
             TabPager(
@@ -56,9 +56,9 @@ struct ObserveChangeSample: View {
             }
             .tabBarLayoutStyle(.fixed)
             .tabIndicatorStyle(height: 3, color: .blue)
-            // (1) Index callback — fires on tap AND on swipe completion.
-            .onTabChanged { index in
-                append("onTabChanged → index \(index)")
+            // (1) Item callback — fires on tap AND on swipe completion.
+            .onTabChanged { item in
+                append("onTabChanged → \(item.title)")
             }
             // (2) Selection binding — observe the id itself.
             .onChange(of: selection) { newValue in
