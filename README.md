@@ -7,7 +7,7 @@
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
 [![CI](https://github.com/camosss/SwiftUITabPager/actions/workflows/ci.yml/badge.svg)](https://github.com/camosss/SwiftUITabPager/actions/workflows/ci.yml)
 
-Effortless SwiftUI tab pager with dynamic customization.
+A data-driven SwiftUI tab pager — built for tab lists that come from an API and change at runtime. iOS 15+.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/30816226-5f96-4628-a8d2-8211b876c5fc" alt="Same Content demo" width="250" />
@@ -15,8 +15,9 @@ Effortless SwiftUI tab pager with dynamic customization.
   <img src="https://github.com/user-attachments/assets/67e3f2eb-9ed5-4f74-a152-7c132539e22a" alt="Indicator customization demo" width="250" />
 </p>
 
-`SwiftUITabPager` is a SwiftUI-based library designed to help iOS developers create customizable tab pagers with ease.
-It offers flexible layouts, per-tab state preservation, and extensive styling options for tab labels and indicators, making it a perfect choice for building tab-based navigation in your SwiftUI applications.
+`SwiftUITabPager` builds the tab bar and the pages from **your data**, not from a statically declared list of views. You pass an array of `Identifiable` items — so a tab set that arrives from an API, gets appended, reordered or removed at runtime needs no special handling, and an empty array while loading is safe.
+
+Each page is cached by its item `id`, so tabs keep their scroll position and internal state across those updates. Paging is backed by `UIPageViewController`, so swipe inertia, bounce and nested scrolling behave exactly like the system — and it runs on **iOS 15**, not just the latest OS.
 
 <br>
 
@@ -36,17 +37,24 @@ It offers flexible layouts, per-tab state preservation, and extensive styling op
 <br>
 
 ## 💥 Features
-- **ID-based Selection**: Bind selection to your item's `id` — it survives reorders and removals, and deep links can select a tab without knowing its position.
-- **Generic Data API**: Work with any `Identifiable & Equatable` data model.
-- **Type-safe Builders**: Closure-based `content` and `label` per item.
-- **Static & Dynamic Tabs**: Supports both fixed arrays and API-driven dynamic lists — safe with empty or async-loaded items.
-- **State Preservation**: Each tab's page (scroll position, internal state) is cached by item id — appending or reordering tabs keeps existing state.
+
+**Built for tabs that change**
+- **Data-Driven Tabs**: Pass `[Item]` and the pager renders from it. Static arrays, API-driven lists, runtime append / reorder / remove — all the same code path, and an empty array is safe, so no `isLoading` guard around the pager.
+- **State Preservation**: Pages are cached by item `id`, so each tab keeps its scroll position and internal state when the item list changes.
+- **ID-based Selection**: Bind selection to the item's `id` — it survives reorders and removals, and a deep link can select a tab without knowing its position.
+- **iOS 15+**: No need to raise your deployment target to adopt it.
+
+**Interaction**
+- **Native Paging**: Backed by `UIPageViewController` — system swipe physics, inertia and nested scrolling, not a hand-rolled drag gesture.
 - **Real-time Label & Indicator Tracking**: `TabState.selectionProgress` interpolates 0→1 as your finger swipes, for the label and the indicator alike.
+- **Gesture Navigation**: Enable/disable swipe between pages — togglable at runtime. Disabling swipe also removes tab transition animation.
+- **VoiceOver Support**: Tabs are announced as buttons with selection state and position.
+
+**Styling**
+- **Generic Data API**: Work with any `Identifiable & Equatable` data model, with closure-based `content` and `label` per item.
 - **Configurable Layouts**: Fixed/Scrollable tab bar with spacing and padding controls.
 - **Indicator Customization**: Height, color, corner radius, horizontal inset, animation.
 - **Optional Separator**: Built-in separator between TabBar and content via modifier.
-- **Gesture Navigation**: Enable/disable swipe between pages — togglable at runtime. Disabling swipe also removes tab transition animation.
-- **VoiceOver Support**: Tabs are announced as buttons with selection state and position.
 
 <br>
 
