@@ -47,5 +47,9 @@ struct TabBarContainer<Content: View>: View {
                 )
             }
         }
+        // The indicator is overlaid outside the scroll view's coordinate space —
+        // without clipping it can draw past the bar edge when the selected tab
+        // is scrolled offscreen
+        .clipped()
     }
 }
