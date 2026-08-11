@@ -3,15 +3,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "TabPagerX",
+    name: "SwiftUITabPager",
     platforms: [
         .iOS(.v15)
     ],
     products: [
-        .library(name: "TabPagerX", targets: ["TabPagerX"]),
+        .library(name: "SwiftUITabPager", targets: ["SwiftUITabPager"]),
     ],
     targets: [
-        .target(name: "TabPagerX"),
-        .testTarget(name: "TabPagerXTests", dependencies: ["TabPagerX"]),
+        .target(name: "SwiftUITabPager"),
+        .testTarget(name: "SwiftUITabPagerTests", dependencies: ["SwiftUITabPager"]),
     ]
 )

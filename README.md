@@ -1,10 +1,10 @@
-# TabPagerX
+# SwiftUITabPager
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-3.0.0-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-4.0.0-blue.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
-[![CI](https://github.com/camosss/TabPagerX/actions/workflows/ci.yml/badge.svg)](https://github.com/camosss/TabPagerX/actions/workflows/ci.yml)
+[![CI](https://github.com/camosss/SwiftUITabPager/actions/workflows/ci.yml/badge.svg)](https://github.com/camosss/SwiftUITabPager/actions/workflows/ci.yml)
 
 Effortless SwiftUI tab pager with dynamic customization.
 
@@ -14,7 +14,7 @@ Effortless SwiftUI tab pager with dynamic customization.
   <img src="https://github.com/user-attachments/assets/67e3f2eb-9ed5-4f74-a152-7c132539e22a" alt="Indicator customization demo" width="250" />
 </p>
 
-`TabPagerX` is a SwiftUI-based library designed to help iOS developers create customizable tab pagers with ease.
+`SwiftUITabPager` is a SwiftUI-based library designed to help iOS developers create customizable tab pagers with ease.
 It offers flexible layouts, per-tab state preservation, and extensive styling options for tab labels and indicators, making it a perfect choice for building tab-based navigation in your SwiftUI applications.
 
 <br>
@@ -51,7 +51,7 @@ It offers flexible layouts, per-tab state preservation, and extensive styling op
 
 ## 💥 Anatomy
 
-A `TabPagerX` is a vertical stack of three parts. Each part maps to the API that controls it:
+A `TabPager` is a vertical stack of three parts. Each part maps to the API that controls it:
 
 ```
 ┌───────────────────────────────────────────────┐
@@ -84,7 +84,7 @@ A `TabPagerX` is a vertical stack of three parts. Each part maps to the API that
 In Xcode, go to File > Add Packages
 
 ```
-https://github.com/camosss/TabPagerX.git
+https://github.com/camosss/SwiftUITabPager.git
 ```
 
 ### CocoaPods
@@ -92,7 +92,7 @@ https://github.com/camosss/TabPagerX.git
 Add to your `Podfile`
 
 ``` ruby
-pod 'TabPagerX'
+pod 'SwiftUITabPager'
 ```
 
 Run
@@ -117,7 +117,7 @@ pod install
 @State private var selection: MyItem.ID? = nil
 private let items = [..]
 
-TabPagerX(
+TabPager(
     selection: $selection,
     items: items
 ) { item in
@@ -154,7 +154,7 @@ private let items = [
     TabItem(id: "profile", title: "Profile", content: "Profile content", color: .orange)
 ]
 
-TabPagerX(
+TabPager(
     selection: $selection,
     items: items
 ) { item in
@@ -210,7 +210,7 @@ private let items = [
     MixedTabItem(id: "custom", type: .custom, title: "Custom")
 ]
 
-TabPagerX(
+TabPager(
     selection: $selection,
     items: items
 ) { item in
@@ -266,7 +266,7 @@ private let items = [
     // ...
 ]
 
-TabPagerX(
+TabPager(
     selection: $selection,
     items: items
 ) { item in
@@ -308,7 +308,7 @@ var body: some View {
         Button("Reload") { loadData() }
 
         // No isLoading guard needed — safe with empty items
-        TabPagerX(
+        TabPager(
             selection: $selection,
             items: items
         ) { item in
@@ -354,7 +354,7 @@ func loadData() {
 @State private var selection: String? = nil
 @State private var items: [TabItem] = [/* ... */]
 
-TabPagerX(selection: $selection, items: items) { item in
+TabPager(selection: $selection, items: items) { item in
     /* a scrollable page */
 } label: { item, state in
     /* label */
@@ -386,7 +386,7 @@ selection = "event"
 - Can be toggled at runtime.
 
 ```swift
-TabPagerX(
+TabPager(
     selection: $selection,
     items: items
 ) { item in
@@ -408,7 +408,7 @@ TabPagerX(
 
 <br>
 
-For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/tree/main/Example/TabPagerXSample/TabPagerXSample). Each usage case is a focused, heavily commented file grouped by topic:
+For more examples, browse the [sample app](https://github.com/camosss/SwiftUITabPager/tree/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample). Each usage case is a focused, heavily commented file grouped by topic:
 
 | Topic | Cases |
 |-------|-------|
@@ -559,14 +559,14 @@ The 2.x index-based initializer still compiles (deprecated) — migrate at your 
 
 ```swift
 // 2.x
-TabPagerX(selectedIndex: $index, initialIndex: 1, items: items) { item in
+TabPager(selectedIndex: $index, initialIndex: 1, items: items) { item in
     ...
 } tabTitle: { item, isSelected in
     Text(item.title).foregroundColor(isSelected ? .blue : .gray)
 }
 
 // 3.0
-TabPagerX(selection: $selection, items: items) { item in
+TabPager(selection: $selection, items: items) { item in
     ...
 } label: { item, state in
     Text(item.title).foregroundColor(state.isSelected ? .blue : .gray)
@@ -579,7 +579,7 @@ Also make sure your items use **stable ids** — replace `let id = UUID()` with 
 
 ## 💥 Contributing
 
-Issues and pull requests are welcome. If you find a bug or want a feature, please [open an issue](https://github.com/camosss/TabPagerX/issues). For pull requests, keep changes focused and make sure the test suite passes (`⌘U`, or `xcodebuild test` on an iOS Simulator) — CI runs the same suite on every PR.
+Issues and pull requests are welcome. If you find a bug or want a feature, please [open an issue](https://github.com/camosss/SwiftUITabPager/issues). For pull requests, keep changes focused and make sure the test suite passes (`⌘U`, or `xcodebuild test` on an iOS Simulator) — CI runs the same suite on every PR.
 
 <br>
 
@@ -590,4 +590,4 @@ Created and maintained by [camosss](https://github.com/camosss).
 <br>
 
 ## 💥 License
-`TabPagerX` is released under an MIT license. See [License](https://github.com/camosss/TabPagerX/blob/main/LICENSE) for more information.
+`SwiftUITabPager` is released under an MIT license. See [License](https://github.com/camosss/SwiftUITabPager/blob/main/LICENSE) for more information.
