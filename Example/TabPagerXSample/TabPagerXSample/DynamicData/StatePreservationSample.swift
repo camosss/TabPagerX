@@ -71,6 +71,8 @@ struct StatePreservationSample: View {
             .tabBarLayoutStyle(.scrollable)
             .tabBarLayoutConfig(buttonSpacing: 6, sidePadding: 12)
             .tabIndicatorStyle(height: 3, color: .blue)
+            // Fill the content down to the physical bottom edge
+            .contentIgnoresSafeArea(edges: .bottom)
         }
         .navigationTitle("State Preservation")
         .navigationBarTitleDisplayMode(.inline)

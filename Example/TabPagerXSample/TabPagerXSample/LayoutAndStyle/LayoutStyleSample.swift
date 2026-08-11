@@ -22,10 +22,20 @@ struct LayoutStyleSample: View {
         let title: String
     }
 
-    // A longer list so `.scrollable` actually has something to scroll.
-    private let items: [TabItem] = [
+    // Each style gets the item count it is designed for:
+    //  - .fixed      → a few tabs, so equal-width buttons keep labels on one line
+    //  - .scrollable → a longer list, so there is actually something to scroll
+    private let fixedItems: [TabItem] = [
+        "All", "Music", "Food", "Art"
+    ].map { TabItem(id: $0.lowercased(), title: $0) }
+
+    private let scrollableItems: [TabItem] = [
         "All", "Music", "Sports", "Gaming", "Food", "Travel", "Science", "Art"
     ].map { TabItem(id: $0.lowercased(), title: $0) }
+
+    private var items: [TabItem] {
+        useScrollable ? scrollableItems : fixedItems
+    }
 
     @State private var selection: String? = nil
     @State private var useScrollable = false
