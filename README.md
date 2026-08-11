@@ -9,7 +9,9 @@
 Effortless SwiftUI tab pager with dynamic customization.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5dd27b8c-63ea-4c6e-a98c-1c7e1668c218" alt="TabPagerX real-time indicator demo" width="320" />
+  <img src="https://github.com/user-attachments/assets/30816226-5f96-4628-a8d2-8211b876c5fc" alt="Same Content demo" width="250" />
+  <img src="https://github.com/user-attachments/assets/51612cbc-b36d-4f62-a687-e28ab1fce4d0" alt="State preservation demo" width="250" />
+  <img src="https://github.com/user-attachments/assets/67e3f2eb-9ed5-4f74-a152-7c132539e22a" alt="Indicator customization demo" width="250" />
 </p>
 
 `TabPagerX` is a SwiftUI-based library designed to help iOS developers create customizable tab pagers with ease.
