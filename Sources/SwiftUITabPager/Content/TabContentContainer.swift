@@ -53,7 +53,12 @@ struct TabContentContainer<Content: View>: UIViewControllerRepresentable {
         context.coordinator.scrollProgress = $scrollProgress
 
         uiViewController.updateSwipeEnabled(isSwipeEnabled)
-        uiViewController.updateTabData(itemIDs: itemIDs, content: content)
+        // scrollProgress re-renders this view every frame during a swipe —
+        // refreshing page roots then would diff full hierarchies at 60Hz+,
+        // so defer data refresh until the gesture settles back to 0
+        if scrollProgress == 0 {
+            uiViewController.updateTabData(itemIDs: itemIDs, content: content)
+        }
         uiViewController.updateIndex(to: selectedIndex)
     }
 }
