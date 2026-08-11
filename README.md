@@ -8,12 +8,9 @@
 
 Effortless SwiftUI tab pager with dynamic customization.
 
-<!-- TODO(image): HERO GIF — the headline demo. Record a scrollable tab bar being swiped slowly so the indicator (and label color/scale) track the finger in real time. This is the library's #1 selling point and should be the first thing a visitor sees. Suggested: ~4s loop, width 420px, 10–12fps, centered. -->
-<!--
 <p align="center">
-  <img src="REPLACE_WITH_HERO_GIF_URL" alt="TabPagerX real-time indicator demo" width="420" />
+  <img src="https://github.com/user-attachments/assets/5dd27b8c-63ea-4c6e-a98c-1c7e1668c218" alt="TabPagerX real-time indicator demo" width="320" />
 </p>
--->
 
 `TabPagerX` is a SwiftUI-based library designed to help iOS developers create customizable tab pagers with ease.
 It offers flexible layouts, per-tab state preservation, and extensive styling options for tab labels and indicators, making it a perfect choice for building tab-based navigation in your SwiftUI applications.
@@ -135,20 +132,9 @@ TabPagerX(
 ### Same Content (all items share the same view)
 - Ideal for simple static lists or repeating the same layout.
 - All tabs use the same view structure with different data.
-<table style="width:100%; table-layout:fixed; border-collapse:collapse;">
-  <tr>
-    <td style="width:50%; padding:0 6px 0 0; vertical-align:top;">
-      <img src="https://github.com/user-attachments/assets/f74a9dc8-7c4c-402b-9732-547c5d8bdf9e"
-           alt="Same Content Example 1"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-    <td style="width:50%; padding:0 0 0 6px; vertical-align:top;">
-      <img src="https://github.com/user-attachments/assets/806c7c89-1c56-4228-8e57-656fdd6329a8"
-           alt="Same Content Example 2"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/30816226-5f96-4628-a8d2-8211b876c5fc" alt="Same Content demo" width="280" />
+</p>
 
 ```swift
 struct TabItem: Identifiable, Equatable {
@@ -197,20 +183,9 @@ TabPagerX(
 ### Different Views by Type (render different view per type)
 - Renders different views based on each item's `type`.
 - Useful when each tab needs heterogeneous UI.
-<table style="width:100%; table-layout:fixed; border-collapse:collapse;">
-  <tr>
-    <td style="width:50%; padding:0 6px 0 0; vertical-align:top;">
-      <img src="https://github.com/user-attachments/assets/30ba27e8-0734-4dc7-9af6-f5bdf539bb66"
-           alt="Different Views - Image 1"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-    <td style="width:50%; padding:0 0 0 6px; vertical-align:top;">
-      <img src="https://github.com/user-attachments/assets/585ba450-9aef-484f-a3de-5d1dc886fa15"
-           alt="Different Views - Image 2"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e39a02f5-11cd-4825-b3ad-5932432cfa17" alt="Different Views by Type demo" width="280" />
+</p>
 
 ```swift
 struct MixedTabItem: Identifiable, Equatable {
@@ -275,7 +250,9 @@ TabPagerX(
 - Scrollable layout for many tabs with button spacing and side padding.
 - `state.selectionProgress` (0...1) follows your finger — interpolate color, opacity, or scale for a continuous transition.
 
-<!-- TODO(image): GIF — swipe slowly between tabs so the label color and scale visibly interpolate mid-swipe (not just snap). A still image cannot convey selectionProgress. Suggested: ~4s loop, width 420px. -->
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5dd27b8c-63ea-4c6e-a98c-1c7e1668c218" alt="Scrollable tabs with real-time label tracking demo" width="280" />
+</p>
 
 ```swift
 @State private var selection: String? = nil
@@ -316,7 +293,9 @@ TabPagerX(
 - Safe with empty or async-loaded items — no `isLoading` guard needed.
 - Tabs render automatically when data arrives; the first tab (or a preset id) is selected.
 
-<!-- TODO(image): GIF — start on an empty screen, then after ~1s the tabs appear as the fake API returns. Demonstrates "no isLoading guard needed". Suggested: ~3s loop, width 420px. -->
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a5e5e7da-c429-4a66-bfdf-6fe0fe5cd557" alt="Dynamic async tabs demo" width="280" />
+</p>
 
 ```swift
 @State private var selection: Item.ID? = nil
@@ -365,7 +344,9 @@ func loadData() {
 - Pages are cached by item **id**, so each tab keeps its scroll position and internal state across item updates.
 - Appending a tab preserves the existing tabs; reordering moves each page with its item; removing drops only that page.
 
-<!-- TODO(image): GIF — scroll one page down, then tap "Append" or "Shuffle"; the previously scrolled page keeps its exact offset. This is the strongest proof of the id-based cache. Suggested: ~5s loop, width 420px. -->
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/51612cbc-b36d-4f62-a687-e28ab1fce4d0" alt="State preservation across append and shuffle demo" width="280" />
+</p>
 
 ```swift
 @State private var selection: String? = nil
@@ -388,8 +369,6 @@ items.shuffle()
 - Preset the binding to start on a specific tab — no index math, works regardless of server-driven tab order.
 - Assigning the id from anywhere (a deep link, a button) moves the pager to that tab.
 
-<!-- TODO(image): GIF — tap an external "Open <tab>" button and watch the pager jump to that tab. Demonstrates driving selection from outside the pager. Suggested: ~3s loop, width 420px. -->
-
 ```swift
 // Start on the "profile" tab once items load
 @State private var selection: String? = "profile"
@@ -403,8 +382,6 @@ selection = "event"
 ### Swipe Disabled (instant tab switch)
 - When swipe is disabled, tapping a tab switches content instantly with no slide animation.
 - Can be toggled at runtime.
-
-<!-- TODO(image): GIF — tap tabs with swipe disabled to show instant switching (no slide), ideally next to the default sliding behavior for contrast. Suggested: ~3s loop, width 420px. -->
 
 ```swift
 TabPagerX(
@@ -449,22 +426,9 @@ For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/
 - Choose between fixed or scrollable layouts.
 - Custom tab views are fully supported in both layouts.
 
-<table style="width:100%; table-layout:fixed; border-collapse:collapse;">
-  <tr>
-    <td style="width:50%; text-align:center; vertical-align:top; padding:0 6px 0 0;">
-      <pre style="margin:0 0 6px 0;"><code>.tabBarLayoutStyle(.fixed)</code></pre>
-      <img src="https://github.com/user-attachments/assets/7b5e28f0-2a84-4228-bbd5-413a96b9524d"
-           alt="Fixed layout screenshot"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-    <td style="width:50%; text-align:center; vertical-align:top; padding:0 0 0 6px;">
-      <pre style="margin:0 0 6px 0;"><code>.tabBarLayoutStyle(.scrollable)</code></pre>
-      <img src="https://github.com/user-attachments/assets/5be3f178-2a30-42a6-8542-298a9d92d860"
-           alt="Scrollable layout screenshot"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/aab1980a-7c5e-40e3-a763-4d85fd072405" alt="Fixed vs scrollable layout demo" width="280" />
+</p>
 
 ```swift
 // Fixed: tabs share equal width across the screen (default)
@@ -493,7 +457,9 @@ For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/
 - You can set `height`, `color`, `horizontalInset`, `cornerRadius`, and `animationDuration`.
 - The indicator tracks your finger in real-time during swipe gestures.
 
-<!-- TODO(image): Still — 2–3 stills side by side showing indicator variants (thin underline / rounded pill / inset pill) so the parameters are visually concrete. Suggested: width 420px each, in an HTML table like the layoutStyle section. -->
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/67e3f2eb-9ed5-4f74-a152-7c132539e22a" alt="Indicator customization demo" width="280" />
+</p>
 
 ```swift
 // Thin blue underline
@@ -530,7 +496,9 @@ For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/
 - By default the pager **respects the safe area**, so it can sit above tab bars or toolbars without layout issues.
 - For full-screen content, opt in to extend into safe area edges.
 
-<!-- TODO(image): Still — before/after pair showing the BOTTOM edge of the screen: default (content stops at the safe area) vs contentIgnoresSafeArea (content bleeds to the very bottom). Make sure the home-indicator area is visible. Suggested: width 420px each in a 2-col table. -->
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f2da8a61-80c4-4b39-aaf7-46db2047bbcb" alt="Safe area default vs extended demo" width="280" />
+</p>
 
 ```swift
 // Full-screen content — extend into the bottom safe area (v2 default behavior)
@@ -560,20 +528,9 @@ For more examples, browse the [sample app](https://github.com/camosss/TabPagerX/
 )
 ```
 
-<table style="width:100%; table-layout:fixed; border-collapse:collapse;">
-  <tr>
-    <td style="width:50%; padding:0 6px 0 0; vertical-align:top;">
-      <img src="https://github.com/user-attachments/assets/6002f1bc-0b4a-4943-af22-295153501f81"
-           alt="Separator ON"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-    <td style="width:50%; padding:0 0 0 6px; vertical-align:top;">
-      <img src="https://github.com/user-attachments/assets/caf0ec84-f7a3-4da0-8a94-c934a4ad2630"
-           alt="Separator OFF"
-           style="width:100%; max-width:420px; height:auto; display:block; margin:0 auto;" />
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/da568ee0-418c-4ba8-9af8-4a3ae8d13e53" alt="Separator on and off demo" width="280" />
+</p>
 
 ### onTabChanged
 - Observe tab index changes via callback.
