@@ -125,10 +125,7 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
     private var selectedIndexBinding: Binding<Int> {
         Binding(
             get: {
-                guard let id = selection.wrappedValue,
-                      let index = items.firstIndex(where: { $0.id == id })
-                else { return 0 }
-                return index
+                TabPagerSelection.index(of: selection.wrappedValue, in: items)
             },
             set: { newIndex in
                 guard let item = items[safe: newIndex] else { return }
@@ -172,14 +169,9 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
 private extension TabPager {
     /// Ensures the selection points at a valid tab — called on appear and whenever items change
     private func resolveSelection(in items: [Item]) {
-        // Keep a preset id while items are still loading — it may become valid
-        guard !items.isEmpty else { return }
-
-        if let id = selection.wrappedValue,
-           items.contains(where: { $0.id == id }) {
-            return
-        }
-        selection.wrappedValue = items[0].id
+        let resolved = TabPagerSelection.resolved(current: selection.wrappedValue, in: items)
+        guard resolved != selection.wrappedValue else { return }
+        selection.wrappedValue = resolved
     }
 }
 
