@@ -103,12 +103,14 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
         }
         .ignoresSafeArea(edges: ignoredSafeAreaEdges)
         .onAppear {
-            resolveSelection()
+            resolveSelection(in: items)
         }
-        .onChangeCompat(of: items) {
-            resolveSelection()
+        .onChangeCompat(of: items) { newItems in
+            // Resolve against the value delivered by onChange — before iOS 17
+            // the captured `items` here is still the previous array
+            resolveSelection(in: newItems)
         }
-        .onChangeCompat(of: selection.wrappedValue) {
+        .onChangeCompat(of: selection.wrappedValue) { _ in
             // Keyed to the id, not the index — reordering items moves the
             // selected tab's position without changing which item is selected
             if let id = selection.wrappedValue,
@@ -169,7 +171,7 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
 
 private extension TabPager {
     /// Ensures the selection points at a valid tab — called on appear and whenever items change
-    private func resolveSelection() {
+    private func resolveSelection(in items: [Item]) {
         // Keep a preset id while items are still loading — it may become valid
         guard !items.isEmpty else { return }
 

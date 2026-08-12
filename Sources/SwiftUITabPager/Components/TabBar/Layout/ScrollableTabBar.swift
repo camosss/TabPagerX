@@ -33,9 +33,9 @@ struct ScrollableTabBar<Label: View>: View {
                         guard selectedIndex > 0 else { return }
                         proxy.scrollTo(selectedIndex, anchor: .center)
                     }
-                    .onChangeCompat(of: selectedIndex) {
+                    .onChangeCompat(of: selectedIndex) { newIndex in
                         withAnimation(.easeInOut) {
-                            proxy.scrollTo(selectedIndex, anchor: .center)
+                            proxy.scrollTo(newIndex, anchor: .center)
                         }
                     }
                 }
