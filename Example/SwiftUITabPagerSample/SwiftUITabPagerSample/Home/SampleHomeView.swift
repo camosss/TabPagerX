@@ -46,7 +46,7 @@ struct SampleHomeView: View {
                     NavigationLink("VoiceOver", destination: VoiceOverSample())
                 }
             }
-            .navigationTitle("SwiftUITabPager Samples")
+            .navigationTitle("SwiftUITabPager")
         }
         // Use stack style so pushing a full-screen pager behaves predictably on iPad too.
         .navigationViewStyle(.stack)

@@ -6,7 +6,11 @@
 //
 //  `.tabBarSeparator(...)` draws a hairline under the tab bar to visually
 //  detach it from the page content. It's off by default; add the modifier to
-//  turn it on. A Toggle here lets you compare on/off side by side.
+//  turn it on. Every parameter is tunable here so you can feel what each does:
+//    - color             : line color
+//    - height            : line thickness
+//    - horizontalPadding : inset from both screen edges
+//    - isHidden          : keep the modifier attached and toggle it instead
 //
 
 import SwiftUI
@@ -25,18 +29,29 @@ struct SeparatorSample: View {
         TabItem(id: "alerts", title: "Alerts")
     ]
 
+    private let palette: [(name: String, color: Color)] = [
+        ("Gray", .gray.opacity(0.3)),
+        ("Blue", .blue),
+        ("Orange", .orange),
+        ("Black", .black)
+    ]
+
     @State private var selection: String? = nil
     @State private var showSeparator = true
+
+    // Live-tunable separator parameters.
+    @State private var height: CGFloat = 1
+    @State private var horizontalPadding: CGFloat = 0
+    @State private var colorIndex = 0
 
     var body: some View {
         VStack(spacing: 0) {
             CaseBanner(
                 title: "Separator",
-                description: "A hairline between the tab bar and content. Off by default; the toggle shows the difference."
+                description: "A hairline between the tab bar and content. Tune color, thickness and side padding live."
             )
 
-            Toggle("Show separator", isOn: $showSeparator)
-                .padding()
+            controls
 
             TabPager(
                 selection: $selection,
@@ -56,17 +71,69 @@ struct SeparatorSample: View {
             }
             .tabBarLayoutStyle(.fixed)
             .tabIndicatorStyle(height: 2, color: .blue)
+            // Rebuilt whenever a control changes, so edits apply immediately.
             // `isHidden` lets you keep the modifier in place and toggle it,
             // rather than conditionally attaching/removing the modifier.
             .tabBarSeparator(
-                color: .gray.opacity(0.3),
-                height: 1,
-                horizontalPadding: 0,
+                color: palette[colorIndex].color,
+                height: height,
+                horizontalPadding: horizontalPadding,
                 isHidden: !showSeparator
             )
         }
         .navigationTitle("Separator")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var controls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle("Show separator", isOn: $showSeparator)
+                .font(.caption)
+
+            slider("Height", value: $height, range: 0.5...8, format: "%.1f")
+            slider("Padding", value: $horizontalPadding, range: 0...60, format: "%.0f")
+
+            HStack(spacing: 8) {
+                Text("Color")
+                    .font(.caption)
+                    .frame(width: 56, alignment: .leading)
+
+                ForEach(palette.indices, id: \.self) { index in
+                    Button {
+                        colorIndex = index
+                    } label: {
+                        Circle()
+                            .fill(palette[index].color)
+                            .frame(width: 24, height: 24)
+                            .overlay(
+                                Circle().stroke(.blue, lineWidth: colorIndex == index ? 2 : 0)
+                            )
+                            .padding(2)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(palette[index].name)
+                }
+                Spacer()
+            }
+        }
+        .padding()
+    }
+
+    private func slider(
+        _ title: String,
+        value: Binding<CGFloat>,
+        range: ClosedRange<CGFloat>,
+        format: String
+    ) -> some View {
+        HStack {
+            Text(title)
+                .font(.caption)
+                .frame(width: 56, alignment: .leading)
+            Slider(value: value, in: range)
+            Text(String(format: format, value.wrappedValue))
+                .font(.caption.monospacedDigit())
+                .frame(width: 32, alignment: .trailing)
+        }
     }
 }
 

@@ -37,8 +37,15 @@ struct LayoutStyleSample: View {
         useScrollable ? scrollableItems : fixedItems
     }
 
-    @State private var selection: String? = nil
+    // One selection per style. Sharing a single binding would carry the tab you
+    // picked in one layout over to the other, which muddles the comparison.
+    @State private var fixedSelection: String? = nil
+    @State private var scrollableSelection: String? = nil
     @State private var useScrollable = false
+
+    private var selection: Binding<String?> {
+        useScrollable ? $scrollableSelection : $fixedSelection
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -55,7 +62,7 @@ struct LayoutStyleSample: View {
             .padding()
 
             TabPager(
-                selection: $selection,
+                selection: selection,
                 items: items
             ) { item in
                 DemoContentBlock(
@@ -76,6 +83,9 @@ struct LayoutStyleSample: View {
             // touching each other and the screen edges.
             .tabBarLayoutConfig(buttonSpacing: 4, sidePadding: 12)
             .tabIndicatorStyle(height: 3, color: .blue, cornerRadius: 1.5)
+            // Rebuild the pager when the style changes so each layout starts
+            // from a clean slate instead of inheriting the other one's pages
+            .id(useScrollable)
         }
         .navigationTitle("Layout Style")
         .navigationBarTitleDisplayMode(.inline)

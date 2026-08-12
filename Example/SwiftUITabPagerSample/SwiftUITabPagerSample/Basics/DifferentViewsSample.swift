@@ -6,7 +6,9 @@
 //
 //  When each tab needs genuinely different UI, switch on the item inside the
 //  `content` closure. Because `content` is a normal @ViewBuilder, you can return
-//  completely different view trees per item — text, image, custom shapes, etc.
+//  completely different view trees per item — plain text, a List, a grid, a
+//  custom shape. Scrollable containers keep their own vertical scrolling while
+//  the pager keeps the horizontal swipe.
 //
 
 import SwiftUI
@@ -22,14 +24,16 @@ struct DifferentViewsSample: View {
         // Model the "what to show" as data on the item, then switch on it.
         enum Kind: Equatable {
             case text(String)
-            case symbol(String)
+            case list
+            case grid
             case gradient
         }
     }
 
     private let items = [
         MixedItem(id: "text", title: "Text", kind: .text("Hello, TabPager")),
-        MixedItem(id: "image", title: "Image", kind: .symbol("star.fill")),
+        MixedItem(id: "list", title: "List", kind: .list),
+        MixedItem(id: "grid", title: "Grid", kind: .grid),
         MixedItem(id: "custom", title: "Custom", kind: .gradient)
     ]
 
@@ -55,12 +59,11 @@ struct DifferentViewsSample: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.blue.opacity(0.08))
 
-                case .symbol(let name):
-                    Image(systemName: name)
-                        .font(.system(size: 80))
-                        .foregroundColor(.yellow)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.yellow.opacity(0.08))
+                case .list:
+                    listPage
+
+                case .grid:
+                    gridPage
 
                 case .gradient:
                     Circle()
@@ -82,14 +85,19 @@ struct DifferentViewsSample: View {
                 HStack(spacing: 4) {
                     switch item.kind {
                     case .text: EmptyView()
-                    case .symbol: Image(systemName: "photo").font(.caption)
+                    case .list: Image(systemName: "list.bullet").font(.caption)
+                    case .grid: Image(systemName: "square.grid.2x2").font(.caption)
                     case .gradient: Image(systemName: "paintpalette").font(.caption)
                     }
                     Text(item.title)
                 }
-                .font(state.isSelected ? .headline : .body)
+                // Four tabs in a fixed bar leave little room per tab, so keep the
+                // label on one line and let it shrink instead of wrapping.
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .font(state.isSelected ? .subheadline.bold() : .subheadline)
                 .foregroundColor(state.isSelected ? .purple : .secondary)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 6)
                 .padding(.vertical, 8)
             }
             .tabBarLayoutStyle(.fixed)
@@ -97,6 +105,51 @@ struct DifferentViewsSample: View {
         }
         .navigationTitle("Different Views")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    // A native List keeps its own vertical scrolling inside the page, and its
+    // rows stay tappable while a horizontal swipe still changes tabs.
+    private var listPage: some View {
+        List {
+            Section("Inbox") {
+                ForEach(0..<12, id: \.self) { row in
+                    HStack {
+                        Image(systemName: "envelope")
+                            .foregroundColor(.purple)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Message \(row + 1)")
+                            Text("Tap a row, swipe to change tabs")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
+        }
+        .listStyle(.plain)
+    }
+
+    // A lazy grid, to show the page can host any scrollable container.
+    private var gridPage: some View {
+        ScrollView {
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
+                spacing: 12
+            ) {
+                ForEach(0..<18, id: \.self) { index in
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(SamplePalette.color(index).opacity(0.25))
+                        .frame(height: 90)
+                        .overlay(
+                            Text("\(index + 1)")
+                                .font(.headline)
+                                .foregroundColor(SamplePalette.color(index))
+                        )
+                }
+            }
+            .padding()
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
