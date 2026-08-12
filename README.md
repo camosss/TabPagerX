@@ -64,13 +64,13 @@ A `TabPager` is a vertical stack of three parts. Each part maps to the API that 
 
 ```
 ┌───────────────────────────────────────────────┐
-│   Home       Search       Profile              │ ← tab labels   label: { item, state in }
-│  ▔▔▔▔▔▔                                         │ ← indicator    .tabIndicatorStyle(…)
-│ ─────────────────────────────────────────────  │ ← separator    .tabBarSeparator(…)
-│                                                 │
-│                 page content                    │ ← content      content: { item in }
-│            ◀ swipe to change tabs ▶             │   paging       .contentSwipeEnabled(…)
-│                                                 │
+│   Home       Search       Profile             │ ← tab labels   label: { item, state in }
+│  ▔▔▔▔▔▔                                       │ ← indicator    .tabIndicatorStyle(…)
+│ ───────────────────────────────────────────── │ ← separator    .tabBarSeparator(…)
+│                                               │
+│                 page content                  │ ← content      content: { item in }
+│            ◀ swipe to change tabs ▶           │   paging       .contentSwipeEnabled(…)
+│                                               │
 └───────────────────────────────────────────────┘
         ▲
         └ tab bar layout   .tabBarLayoutStyle(.fixed / .scrollable)
