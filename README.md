@@ -1,7 +1,7 @@
 # SwiftUITabPager
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-4.0.0-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-4.1.0-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-iOS%2015.0%2B-lightgrey.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
@@ -10,8 +10,8 @@
 A data-driven SwiftUI tab pager — built for tab lists that come from an API and change at runtime. iOS 15+.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/30816226-5f96-4628-a8d2-8211b876c5fc" alt="Same Content demo" width="250" />
-  <img src="https://github.com/user-attachments/assets/51612cbc-b36d-4f62-a687-e28ab1fce4d0" alt="State preservation demo" width="250" />
+  <img src="https://github.com/user-attachments/assets/592bde66-563c-40ea-9549-ec2f92834ff7" alt="Different views by type demo" width="250" />
+  <img src="https://github.com/user-attachments/assets/462615ec-f3cc-4ecb-b736-844a04f57792" alt="State preservation demo" width="250" />
   <img src="https://github.com/user-attachments/assets/67e3f2eb-9ed5-4f74-a152-7c132539e22a" alt="Indicator customization demo" width="250" />
 </p>
 
@@ -52,7 +52,7 @@ Each page is cached by its item `id`, so tabs keep their scroll position and int
 
 **Styling**
 - **Generic Data API**: Work with any `Identifiable & Equatable` data model, with closure-based `content` and `label` per item.
-- **Configurable Layouts**: Fixed/Scrollable tab bar with spacing and padding controls.
+- **Configurable Layouts**: Fixed/Scrollable tab bar with spacing and padding controls. Fixed tabs are pinned to an equal share, so long labels can't push the bar off screen.
 - **Indicator Customization**: Height, color, corner radius, horizontal inset, animation.
 - **Optional Separator**: Built-in separator between TabBar and content via modifier.
 
@@ -138,6 +138,8 @@ TabPager(
 
 > **Use stable ids.** Give items a stable identity (`let id: String` from your data), not `UUID()` created on the fly — stable ids are what make selection and per-tab state survive item updates.
 
+> **Pages fill their area.** Each page gets the whole page frame, so `.background()` on your page content covers the entire tab. One SwiftUI gotcha to know: if your page is a `ScrollView` whose content doesn't stretch horizontally, SwiftUI sizes the scroll view to that content and draws its scroll indicator mid-screen. Add `.frame(maxWidth: .infinity)` to the content to push it back to the edge.
+
 <br>
 
 ### Same Content (all items share the same view)
@@ -195,7 +197,7 @@ TabPager(
 - Renders different views based on each item's `type`.
 - Useful when each tab needs heterogeneous UI.
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e39a02f5-11cd-4825-b3ad-5932432cfa17" alt="Different Views by Type demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/592bde66-563c-40ea-9549-ec2f92834ff7" alt="Different Views by Type demo" width="280" />
 </p>
 
 ```swift
@@ -262,7 +264,7 @@ TabPager(
 - `state.selectionProgress` (0...1) follows your finger — interpolate color, opacity, or scale for a continuous transition.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5dd27b8c-63ea-4c6e-a98c-1c7e1668c218" alt="Scrollable tabs with real-time label tracking demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/ecfa1ea9-5b47-4359-9a1b-c3dca0175693" alt="Scrollable tabs with real-time label tracking demo" width="280" />
 </p>
 
 ```swift
@@ -305,7 +307,7 @@ TabPager(
 - Tabs render automatically when data arrives; the first tab (or a preset id) is selected.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a5e5e7da-c429-4a66-bfdf-6fe0fe5cd557" alt="Dynamic async tabs demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/527badd3-9608-4d29-888d-1e0fbccd489a" alt="Dynamic async tabs demo" width="280" />
 </p>
 
 ```swift
@@ -356,7 +358,7 @@ func loadData() {
 - Appending a tab preserves the existing tabs; reordering moves each page with its item; removing drops only that page.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/51612cbc-b36d-4f62-a687-e28ab1fce4d0" alt="State preservation across append and shuffle demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/462615ec-f3cc-4ecb-b736-844a04f57792" alt="State preservation across append and shuffle demo" width="280" />
 </p>
 
 ```swift
@@ -443,13 +445,16 @@ open SwiftUITabPagerSample.xcodeproj
 - Set Tab Bar Layout Style.
 - Choose between fixed or scrollable layouts.
 - Custom tab views are fully supported in both layouts.
+- In `.fixed`, every tab is pinned to exactly the same share of the bar, so a long title — or any title once the user raises the text size — is clipped inside its own tab instead of pushing the bar past the screen edge.
+- Debug builds print a warning when a label needs more room than its tab has, so you find out on your machine rather than from a screenshot.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/aab1980a-7c5e-40e3-a763-4d85fd072405" alt="Fixed vs scrollable layout demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/7cee0f9c-7907-4380-bc87-fe0b7058886b" alt="Fixed vs scrollable layout demo" width="280" />
 </p>
 
 ```swift
-// Fixed: tabs share equal width across the screen (default)
+// Fixed: tabs share equal width across the screen (default).
+// Best for a few short titles — reach for .scrollable once they get long.
 .tabBarLayoutStyle(.fixed)
 
 // Scrollable: tabs size to content, horizontally scrollable
@@ -512,20 +517,22 @@ open SwiftUITabPagerSample.xcodeproj
 .contentSwipeEnabled(false)
 ```
 
-### contentIgnoresSafeArea
-- By default the pager **respects the safe area**, so it can sit above tab bars or toolbars without layout issues.
-- For full-screen content, opt in to extend into safe area edges.
+### contentIgnoresSafeArea / contentRespectsSafeArea
+- The pager **fills the bottom safe area by default**, so a page reaches the bottom edge of the screen with no setup.
+- Opt out with `.contentRespectsSafeArea()` when the pager sits above a tab bar or toolbar and its content must not run underneath.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/f2da8a61-80c4-4b39-aaf7-46db2047bbcb" alt="Safe area default vs extended demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/30968c6d-b937-440c-80a8-c9f8917d4281" alt="Safe area filled by default, toggled off" width="280" />
 </p>
 
 ```swift
-// Full-screen content — extend into the bottom safe area (v2 default behavior)
-.contentIgnoresSafeArea()
+// Default — content already reaches the bottom edge, nothing to write
 
-// Or specify edges explicitly
+// Extend into more edges
 .contentIgnoresSafeArea(edges: [.bottom, .horizontal])
+
+// Keep the pager inside the safe area instead
+.contentRespectsSafeArea()
 ```
 
 ### tabBarSeparator
@@ -549,7 +556,7 @@ open SwiftUITabPagerSample.xcodeproj
 ```
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/da568ee0-418c-4ba8-9af8-4a3ae8d13e53" alt="Separator on and off demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/4782b3e9-bac4-4071-a91c-577a68ba5bbe" alt="Separator color, thickness and padding demo" width="280" />
 </p>
 
 ### onTabChanged
@@ -573,7 +580,7 @@ The 2.x index-based initializer was removed in 4.0 — update call sites as foll
 | `selectedIndex: Binding<Int>` | `selection: Binding<Item.ID?>` |
 | `initialIndex: 2` | preset the binding: `@State var selection: ID? = "someId"` |
 | `tabTitle: { item, isSelected in }` | `label: { item, state in }` — use `state.isSelected` |
-| bottom safe area always ignored | respected by default — add `.contentIgnoresSafeArea()` to keep the old behavior |
+| bottom safe area always ignored | unchanged — still filled by default, opt out with `.contentRespectsSafeArea()` |
 
 ```swift
 // 2.x
