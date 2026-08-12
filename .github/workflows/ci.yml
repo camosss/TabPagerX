@@ -15,10 +15,32 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
+      # Runner images drop and rename simulators, so resolve whatever iPhone
+      # this image actually ships rather than pinning a model name.
+      - name: Pick an iPhone simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          runtimes = json.load(sys.stdin)["devices"]
+          for runtime in sorted(runtimes, reverse=True):
+              for device in runtimes[runtime]:
+                  if device["name"].startswith("iPhone"):
+                      print(device["udid"])
+                      raise SystemExit
+          ')
+          if [ -z "$UDID" ]; then
+            echo "No iPhone simulator available on this runner" >&2
+            xcrun simctl list devices available >&2
+            exit 1
+          fi
+          xcrun simctl list devices available | grep -B1 "$UDID" || true
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
       - name: Build & Test
         run: |
           set -o pipefail
           xcodebuild test \
             -scheme SwiftUITabPager \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
             -skipPackagePluginValidation
