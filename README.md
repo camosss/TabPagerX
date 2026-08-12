@@ -1,7 +1,7 @@
 # SwiftUITabPager
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-4.1.1-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-4.1.2-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-iOS%2015.0%2B-lightgrey.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
