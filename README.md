@@ -1,7 +1,7 @@
 # SwiftUITabPager
 
 ![Swift Version](https://img.shields.io/badge/Swift-5.5-orange.svg)
-![Release Version](https://img.shields.io/badge/Release-4.1.0-blue.svg)
+![Release Version](https://img.shields.io/badge/Release-4.1.1-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-iOS%2015.0%2B-lightgrey.svg)
 ![SPM](https://img.shields.io/badge/SPM-compatible-green.svg)
 ![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-green.svg)
@@ -10,8 +10,8 @@
 A data-driven SwiftUI tab pager — built for tab lists that come from an API and change at runtime. iOS 15+.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/592bde66-563c-40ea-9549-ec2f92834ff7" alt="Different views by type demo" width="250" />
-  <img src="https://github.com/user-attachments/assets/462615ec-f3cc-4ecb-b736-844a04f57792" alt="State preservation demo" width="250" />
+  <img src="https://github.com/user-attachments/assets/0ce33828-57cb-4ee5-952c-a209a0196135" alt="Different views by type demo" width="250" />
+  <img src="https://github.com/user-attachments/assets/5367584d-f5ea-42fd-91fa-79de003ff362" alt="State preservation demo" width="250" />
   <img src="https://github.com/user-attachments/assets/67e3f2eb-9ed5-4f74-a152-7c132539e22a" alt="Indicator customization demo" width="250" />
 </p>
 
@@ -197,7 +197,7 @@ TabPager(
 - Renders different views based on each item's `type`.
 - Useful when each tab needs heterogeneous UI.
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/592bde66-563c-40ea-9549-ec2f92834ff7" alt="Different Views by Type demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/0ce33828-57cb-4ee5-952c-a209a0196135" alt="Different Views by Type demo" width="280" />
 </p>
 
 ```swift
@@ -264,7 +264,7 @@ TabPager(
 - `state.selectionProgress` (0...1) follows your finger — interpolate color, opacity, or scale for a continuous transition.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ecfa1ea9-5b47-4359-9a1b-c3dca0175693" alt="Scrollable tabs with real-time label tracking demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/216d973e-603e-4917-92a6-5a45307f4fbe" alt="Scrollable tabs with real-time label tracking demo" width="280" />
 </p>
 
 ```swift
@@ -307,7 +307,7 @@ TabPager(
 - Tabs render automatically when data arrives; the first tab (or a preset id) is selected.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/527badd3-9608-4d29-888d-1e0fbccd489a" alt="Dynamic async tabs demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/6a83e0aa-0528-4403-bcdb-86008175db4f" alt="Dynamic async tabs demo" width="280" />
 </p>
 
 ```swift
@@ -358,7 +358,7 @@ func loadData() {
 - Appending a tab preserves the existing tabs; reordering moves each page with its item; removing drops only that page.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/462615ec-f3cc-4ecb-b736-844a04f57792" alt="State preservation across append and shuffle demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/5367584d-f5ea-42fd-91fa-79de003ff362" alt="State preservation across append and shuffle demo" width="280" />
 </p>
 
 ```swift
@@ -449,7 +449,7 @@ open SwiftUITabPagerSample.xcodeproj
 - Debug builds print a warning when a label needs more room than its tab has, so you find out on your machine rather than from a screenshot.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7cee0f9c-7907-4380-bc87-fe0b7058886b" alt="Fixed vs scrollable layout demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/d96023fc-1a9b-410c-a0c7-b29a4a145f1f" alt="Fixed vs scrollable layout demo" width="280" />
 </p>
 
 ```swift
@@ -522,7 +522,7 @@ open SwiftUITabPagerSample.xcodeproj
 - Opt out with `.contentRespectsSafeArea()` when the pager sits above a tab bar or toolbar and its content must not run underneath.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/30968c6d-b937-440c-80a8-c9f8917d4281" alt="Safe area filled by default, toggled off" width="280" />
+  <img src="https://github.com/user-attachments/assets/cac88ff5-f63a-4052-a9cd-973220aab685" alt="Safe area filled by default, toggled off" width="280" />
 </p>
 
 ```swift
@@ -556,7 +556,7 @@ open SwiftUITabPagerSample.xcodeproj
 ```
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/4782b3e9-bac4-4071-a91c-577a68ba5bbe" alt="Separator color, thickness and padding demo" width="280" />
+  <img src="https://github.com/user-attachments/assets/05648052-e0a3-4624-8daa-f84870d0d532" alt="Separator color, thickness and padding demo" width="280" />
 </p>
 
 ### onTabChanged
