@@ -140,43 +140,23 @@ TabPager(
 
 > **Pages fill their area.** Each page gets the whole page frame, so `.background()` on your page content covers the entire tab. One SwiftUI gotcha to know: if your page is a `ScrollView` whose content doesn't stretch horizontally, SwiftUI sizes the scroll view to that content and draws its scroll indicator mid-screen. Add `.frame(maxWidth: .infinity)` to the content to push it back to the edge.
 
+The sections below show only what is distinctive about each case — every one links to a complete, runnable screen in the sample app.
+
 <br>
 
 ### Same Content (all items share the same view)
 - Ideal for simple static lists or repeating the same layout.
 - All tabs use the same view structure with different data.
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/30816226-5f96-4628-a8d2-8211b876c5fc" alt="Same Content demo" width="280" />
 </p>
 
 ```swift
-struct TabItem: Identifiable, Equatable {
-    let id: String
-    let title: String
-    let content: String
-    let color: Color
-}
-
-@State private var selection: String? = nil
-
-private let items = [
-    TabItem(id: "home", title: "Home", content: "Welcome to Home", color: .blue),
-    TabItem(id: "search", title: "Search", content: "Search content", color: .green),
-    TabItem(id: "profile", title: "Profile", content: "Profile content", color: .orange)
-]
-
-TabPager(
-    selection: $selection,
-    items: items
-) { item in
+TabPager(selection: $selection, items: items) { item in
     VStack {
-        Text(item.content)
-            .font(.title2)
-            .foregroundColor(item.color)
-        Rectangle()
-            .fill(item.color)
-            .frame(height: 200)
-            .cornerRadius(12)
+        Text(item.content).foregroundColor(item.color)
+        Rectangle().fill(item.color).frame(height: 200).cornerRadius(12)
     }
     .padding()
 
@@ -184,78 +164,50 @@ TabPager(
     Text(item.title)
         .font(state.isSelected ? .headline : .body)
         .foregroundColor(state.isSelected ? item.color : .secondary)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
 }
 .tabBarLayoutStyle(.fixed)
 .tabIndicatorStyle(height: 3, color: .blue, horizontalInset: 16)
 ```
+
+📄 [`Basics/SameContentSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Basics/SameContentSample.swift)
 
 <br>
 
 ### Different Views by Type (render different view per type)
 - Renders different views based on each item's `type`.
 - Useful when each tab needs heterogeneous UI.
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/0ce33828-57cb-4ee5-952c-a209a0196135" alt="Different Views by Type demo" width="280" />
 </p>
 
 ```swift
-struct MixedTabItem: Identifiable, Equatable {
-    let id: String
-    let type: TabItemType
-    let title: String
-
-    enum TabItemType: Equatable {
-        case text(String)
-        case image(String)
-        case custom
-    }
-}
-
-@State private var selection: String? = nil
-
-private let items = [
-    MixedTabItem(id: "text", type: .text("Hello World"), title: "Text"),
-    MixedTabItem(id: "image", type: .image("star.fill"), title: "Image"),
-    MixedTabItem(id: "custom", type: .custom, title: "Custom")
-]
-
-TabPager(
-    selection: $selection,
-    items: items
-) { item in
-    switch item.type {
+TabPager(selection: $selection, items: items) { item in
+    // Any view tree per tab — a List and a grid keep their own scrolling
+    // while the pager keeps the horizontal swipe.
+    switch item.kind {
     case .text(let text):
-        Text(text)
-            .font(.largeTitle)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-    case .image(let name):
-        Image(systemName: name)
-            .font(.system(size: 60))
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Text(text).font(.largeTitle)
+    case .list:
+        List { /* rows */ }
+    case .grid:
+        ScrollView { LazyVGrid(columns: columns) { /* cells */ } }
     case .custom:
-        Circle()
-            .fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-            .frame(width: 100, height: 100)
+        Circle().fill(.purple)
     }
 
 } label: { item, state in
-    HStack {
-        if case .image = item.type {
-            Image(systemName: "photo")
-        } else if case .custom = item.type {
-            Image(systemName: "star.circle")
-        }
+    // The label can branch on the item too
+    HStack(spacing: 4) {
+        if let icon = item.icon { Image(systemName: icon).font(.caption) }
         Text(item.title)
     }
-    .font(state.isSelected ? .headline : .body)
-    .foregroundColor(state.isSelected ? .blue : .secondary)
-    .padding(.horizontal, 12)
-    .padding(.vertical, 8)
+    .lineLimit(1)
+    .foregroundColor(state.isSelected ? .purple : .secondary)
 }
-.tabIndicatorStyle(height: 4, color: .purple)
 ```
+
+📄 [`Basics/DifferentViewsSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Basics/DifferentViewsSample.swift)
 
 <br>
 
@@ -268,37 +220,18 @@ TabPager(
 </p>
 
 ```swift
-@State private var selection: String? = nil
-
-private let items = [
-    CategoryItem(id: "all", title: "All", emoji: "🌐", color: .blue),
-    CategoryItem(id: "music", title: "Music", emoji: "🎵", color: .pink),
-    CategoryItem(id: "sports", title: "Sports", emoji: "⚽", color: .green),
-    // ...
-]
-
-TabPager(
-    selection: $selection,
-    items: items
-) { item in
-    VStack(spacing: 16) {
-        Text(item.emoji).font(.system(size: 80))
-        Text(item.title).font(.title).foregroundColor(item.color)
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-} label: { item, state in
+label: { item, state in
+    // selectionProgress interpolates while the finger moves, so the label
+    // fades and grows with the swipe instead of snapping at the end
     Text("\(item.emoji) \(item.title)")
-        .font(.subheadline)
         .foregroundColor(item.color.opacity(0.35 + 0.65 * state.selectionProgress))
         .scaleEffect(1 + 0.08 * state.selectionProgress)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
 }
 .tabBarLayoutStyle(.scrollable)
 .tabBarLayoutConfig(buttonSpacing: 4, sidePadding: 12)
-.tabIndicatorStyle(height: 3, color: .blue, cornerRadius: 1.5)
 ```
+
+📄 [`LayoutAndStyle/ScrollableLabelSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/ScrollableLabelSample.swift)
 
 <br>
 
@@ -311,45 +244,17 @@ TabPager(
 </p>
 
 ```swift
-@State private var selection: Item.ID? = nil
-@State private var items: [Item] = [] // starts empty
+@State private var items: [Item] = []   // starts empty, and that is fine
 
-var body: some View {
-    VStack {
-        Button("Reload") { loadData() }
-
-        // No isLoading guard needed — safe with empty items
-        TabPager(
-            selection: $selection,
-            items: items
-        ) { item in
-            Text(item.content)
-                .font(.title2)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-        } label: { item, state in
-            HStack {
-                Image(systemName: item.icon)
-                Text(item.title)
-            }
-            .font(state.isSelected ? .headline : .body)
-            .foregroundColor(state.isSelected ? item.color : .secondary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-        }
-        .tabBarLayoutStyle(.scrollable)
-        .tabIndicatorStyle(height: 3, color: .green, horizontalInset: 8)
-    }
-    .onAppear { loadData() }
-}
+// No isLoading guard around the pager — an empty array simply renders nothing
+TabPager(selection: $selection, items: items) { item in ... } label: { ... }
 
 func loadData() {
-    items = []
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-        items = [/* fetched data */]
-    }
+    Task { items = await api.fetchTabs() }   // tabs appear when this lands
 }
 ```
+
+📄 [`DynamicData/DynamicTabsSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/DynamicData/DynamicTabsSample.swift)
 
 <br>
 
@@ -362,19 +267,12 @@ func loadData() {
 </p>
 
 ```swift
-@State private var selection: String? = nil
-@State private var items: [TabItem] = [/* ... */]
-
-TabPager(selection: $selection, items: items) { item in
-    /* a scrollable page */
-} label: { item, state in
-    /* label */
-}
-
-// Later — existing tabs keep their state because their ids are unchanged
+// Existing tabs keep their scroll position because their ids are unchanged
 items.append(TabItem(id: "new", title: "New"))
 items.shuffle()
 ```
+
+📄 [`DynamicData/StatePreservationSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/DynamicData/StatePreservationSample.swift)
 
 <br>
 
@@ -390,6 +288,8 @@ items.shuffle()
 selection = "event"
 ```
 
+📄 [`Selection/PresetSelectionSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Selection/PresetSelectionSample.swift) · [`Selection/DeepLinkSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Selection/DeepLinkSample.swift)
+
 <br>
 
 ### Swipe Disabled (instant tab switch)
@@ -397,41 +297,28 @@ selection = "event"
 - Can be toggled at runtime.
 
 ```swift
-TabPager(
-    selection: $selection,
-    items: items
-) { item in
-    Text(item.title)
-        .font(.largeTitle)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-} label: { item, state in
-    Text(item.title)
-        .font(state.isSelected ? .headline : .body)
-        .foregroundColor(state.isSelected ? item.color : .secondary)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-}
-.tabBarLayoutStyle(.fixed)
-.tabIndicatorStyle(height: 3, color: .red)
 .contentSwipeEnabled(false) // no swipe, no slide animation on tap
 ```
 
+📄 [`Interaction/SwipeDisabledSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Interaction/SwipeDisabledSample.swift) · [`Interaction/RuntimeSwipeToggleSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Interaction/RuntimeSwipeToggleSample.swift)
+
 <br>
 
-For more examples, browse the [sample app](https://github.com/camosss/SwiftUITabPager/tree/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample). Each usage case is a focused, heavily commented file grouped by topic:
+### Sample app
+
+Every case above, plus a few more, is a focused and heavily commented screen:
 
 | Topic | Cases |
 |-------|-------|
-| **Basics** | Same Content, Different Views by Type |
-| **Layout & Style** | Fixed vs Scrollable, Real-time Label (`selectionProgress`), Indicator Customization, Separator, Safe Area |
-| **Interaction** | Swipe Disabled, Runtime Swipe Toggle |
-| **Selection** | Preset Selection (by id), Deep Link / Programmatic, Observe Tab Changes |
-| **Dynamic Data** | Dynamic / Async Tabs, State Preservation (append / reorder) |
-| **Accessibility** | VoiceOver |
+| **Basics** | [Same Content](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Basics/SameContentSample.swift), [Different Views by Type](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Basics/DifferentViewsSample.swift) |
+| **Layout & Style** | [Fixed vs Scrollable](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/LayoutStyleSample.swift), [Real-time Label](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/ScrollableLabelSample.swift), [Indicator Customization](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/IndicatorStyleSample.swift), [Separator](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/SeparatorSample.swift), [Safe Area](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/SafeAreaSample.swift) |
+| **Interaction** | [Swipe Disabled](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Interaction/SwipeDisabledSample.swift), [Runtime Swipe Toggle](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Interaction/RuntimeSwipeToggleSample.swift) |
+| **Selection** | [Preset Selection](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Selection/PresetSelectionSample.swift), [Deep Link](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Selection/DeepLinkSample.swift), [Observe Tab Changes](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Selection/ObserveChangeSample.swift) |
+| **Dynamic Data** | [Dynamic / Async Tabs](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/DynamicData/DynamicTabsSample.swift), [State Preservation](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/DynamicData/StatePreservationSample.swift) |
+| **Accessibility** | [VoiceOver](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Accessibility/VoiceOverSample.swift) |
 
 ```bash
-# Run the sample app (the Xcode project is generated, not checked in)
+# Run them — the Xcode project is generated, not checked in
 brew install xcodegen
 cd Example/SwiftUITabPagerSample && xcodegen generate
 open SwiftUITabPagerSample.xcodeproj
@@ -460,6 +347,8 @@ open SwiftUITabPagerSample.xcodeproj
 // Scrollable: tabs size to content, horizontally scrollable
 .tabBarLayoutStyle(.scrollable)
 ```
+
+📄 [`LayoutAndStyle/LayoutStyleSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/LayoutStyleSample.swift)
 
 ### tabBarLayoutConfig
 - Configure Tab Bar Layout.
@@ -502,6 +391,8 @@ open SwiftUITabPagerSample.xcodeproj
 .tabIndicatorStyle(.hidden)
 ```
 
+📄 [`LayoutAndStyle/IndicatorStyleSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/IndicatorStyleSample.swift)
+
 ### contentSwipeEnabled
 - Enable or Disable Content Swipe.
 - Allow or disable swipe gesture to switch between tabs.
@@ -535,6 +426,8 @@ open SwiftUITabPagerSample.xcodeproj
 .contentRespectsSafeArea()
 ```
 
+📄 [`LayoutAndStyle/SafeAreaSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/SafeAreaSample.swift)
+
 ### tabBarSeparator
 - Adds a separator line between the TabBar and the content area.
 - Use to visually distinguish the tab bar from page content.
@@ -559,6 +452,8 @@ open SwiftUITabPagerSample.xcodeproj
   <img src="https://github.com/user-attachments/assets/05648052-e0a3-4624-8daa-f84870d0d532" alt="Separator color, thickness and padding demo" width="280" />
 </p>
 
+📄 [`LayoutAndStyle/SeparatorSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/SeparatorSample.swift)
+
 ### onTabChanged
 - Observe changes of the selected item via callback.
 - Keyed to the item's id — reordering tabs doesn't fire it unless the selected item actually changes.
@@ -568,6 +463,8 @@ open SwiftUITabPagerSample.xcodeproj
     print("Selected tab: \(item.title)")
 }
 ```
+
+📄 [`Selection/ObserveChangeSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Selection/ObserveChangeSample.swift)
 
 <br>
 
