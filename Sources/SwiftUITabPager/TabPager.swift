@@ -35,8 +35,10 @@ where Item: Identifiable & Equatable, Content: View, Label: View {
     /// Separator style between TabBar and TabContent
     private var separatorStyle: TabBarSeparatorStyle = .none
 
-    /// Safe area edges the pager extends into — respects the safe area by default
-    private var ignoredSafeAreaEdges: Edge.Set = []
+    /// Safe area edges the pager extends into.
+    /// Fills the bottom safe area by default so full-bleed pages need no setup —
+    /// opt out per usage with `contentRespectsSafeArea()`
+    private var ignoredSafeAreaEdges: Edge.Set = .bottom
 
     /// Continuous scroll progress from page swipe (-1 to 1)
     @State private var scrollProgress: CGFloat = 0
@@ -229,11 +231,20 @@ public extension TabPager {
         return new
     }
 
-    /// Extends the pager into the given safe area edges — full-screen content etc.
-    /// v2 always ignored the bottom edge; apply this modifier to restore that behavior
+    /// Extends the pager into the given safe area edges.
+    /// The bottom edge is already filled by default — use this to widen that
+    /// (e.g. `[.bottom, .horizontal]`) rather than to turn it on
     func contentIgnoresSafeArea(edges: Edge.Set = .bottom) -> Self {
         var new = self
         new.ignoredSafeAreaEdges = edges
+        return new
+    }
+
+    /// Keeps the pager inside the safe area — use when it sits above a tab bar
+    /// or toolbar and content must not run underneath it
+    func contentRespectsSafeArea() -> Self {
+        var new = self
+        new.ignoredSafeAreaEdges = []
         return new
     }
 

@@ -71,8 +71,6 @@ struct DynamicTabsSample: View {
                 .tabBarLayoutStyle(.scrollable)
                 .tabBarLayoutConfig(buttonSpacing: 6, sidePadding: 12)
                 .tabIndicatorStyle(height: 3, color: .green, horizontalInset: 8)
-                // Fill the content down to the physical bottom edge
-                .contentIgnoresSafeArea(edges: .bottom)
 
                 if isLoading {
                     ProgressView()

@@ -2,14 +2,13 @@
 //  SafeAreaSample.swift
 //  SwiftUITabPagerSample
 //
-//  CASE: Safe area behavior (contentIgnoresSafeArea).
+//  CASE: Safe area behavior.
 //
-//  By DEFAULT (since 3.0) TabPager RESPECTS the safe area, so it sits cleanly
-//  above a bottom tab bar / toolbar / home indicator with no extra work.
+//  By DEFAULT the pager FILLS the bottom safe area, so media, maps and colour
+//  washes reach the bottom edge of the screen with no extra work.
 //
-//  For full-screen content (media, maps, color washes that should bleed to the
-//  bottom edge) opt in with `.contentIgnoresSafeArea(edges:)`. This restores the
-//  pre-3.0 behavior, but now it's your choice per usage.
+//  When the pager sits above a bottom tab bar or toolbar and its content must
+//  not run underneath, opt out with `.contentRespectsSafeArea()`.
 //
 
 import SwiftUI
@@ -30,16 +29,16 @@ struct SafeAreaSample: View {
     ]
 
     @State private var selection: String? = nil
-    @State private var extendIntoSafeArea = false
+    @State private var respectSafeArea = false
 
     var body: some View {
         VStack(spacing: 0) {
             CaseBanner(
                 title: "Safe Area",
-                description: "Default respects the safe area. Toggle on to let content bleed into the bottom safe area."
+                description: "Default fills the bottom safe area. Toggle on to keep the pager inside it instead."
             )
 
-            Toggle("Extend into bottom safe area", isOn: $extendIntoSafeArea)
+            Toggle("Respect the bottom safe area", isOn: $respectSafeArea)
                 .padding()
 
             pager
@@ -57,7 +56,7 @@ struct SafeAreaSample: View {
             items: items
         ) { item in
             // A full-bleed color makes the safe-area difference obvious:
-            // with the toggle ON, the color reaches the very bottom of the screen.
+            // with the toggle ON, the color stops above the home indicator.
             item.color.opacity(0.25)
                 .overlay(
                     Text("Watch the bottom edge")
@@ -76,8 +75,8 @@ struct SafeAreaSample: View {
         .tabBarLayoutStyle(.fixed)
         .tabIndicatorStyle(height: 3, color: .blue)
 
-        if extendIntoSafeArea {
-            base.contentIgnoresSafeArea(edges: .bottom)
+        if respectSafeArea {
+            base.contentRespectsSafeArea()
         } else {
             base
         }
