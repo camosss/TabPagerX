@@ -9,6 +9,8 @@
 
 # Xcode
 *.xcodeproj
+# ...but the sample app ships its project so it opens straight from a clone
+!Example/**/*.xcodeproj
 **/xcuserdata/
 **/xcshareddata/
 DerivedData/

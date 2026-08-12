@@ -318,10 +318,8 @@ Every case above, plus a few more, is a focused and heavily commented screen:
 | **Accessibility** | [VoiceOver](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/Accessibility/VoiceOverSample.swift) |
 
 ```bash
-# Run them — the Xcode project is generated, not checked in
-brew install xcodegen
-cd Example/SwiftUITabPagerSample && xcodegen generate
-open SwiftUITabPagerSample.xcodeproj
+# Run them
+open Example/SwiftUITabPagerSample/SwiftUITabPagerSample.xcodeproj
 ```
 
 <br>
