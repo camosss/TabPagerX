@@ -350,6 +350,8 @@ open SwiftUITabPagerSample.xcodeproj
 
 📄 [`LayoutAndStyle/LayoutStyleSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/LayoutStyleSample.swift)
 
+<br>
+
 ### tabBarLayoutConfig
 - Configure Tab Bar Layout.
 - Adjust `buttonSpacing` and `sidePadding`. (defaults to 0)
@@ -363,6 +365,8 @@ open SwiftUITabPagerSample.xcodeproj
 // With spacing and padding
 .tabBarLayoutConfig(buttonSpacing: 8, sidePadding: 12)
 ```
+
+<br>
 
 ### tabIndicatorStyle
 - Customize Tab underline (indicator) with `.tabIndicatorStyle(...)`.
@@ -393,6 +397,8 @@ open SwiftUITabPagerSample.xcodeproj
 
 📄 [`LayoutAndStyle/IndicatorStyleSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/IndicatorStyleSample.swift)
 
+<br>
+
 ### contentSwipeEnabled
 - Enable or Disable Content Swipe.
 - Allow or disable swipe gesture to switch between tabs.
@@ -407,6 +413,8 @@ open SwiftUITabPagerSample.xcodeproj
 // Swipe disabled — tap only, instant content switch
 .contentSwipeEnabled(false)
 ```
+
+<br>
 
 ### contentIgnoresSafeArea / contentRespectsSafeArea
 - The pager **fills the bottom safe area by default**, so a page reaches the bottom edge of the screen with no setup.
@@ -427,6 +435,8 @@ open SwiftUITabPagerSample.xcodeproj
 ```
 
 📄 [`LayoutAndStyle/SafeAreaSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/SafeAreaSample.swift)
+
+<br>
 
 ### tabBarSeparator
 - Adds a separator line between the TabBar and the content area.
@@ -453,6 +463,8 @@ open SwiftUITabPagerSample.xcodeproj
 </p>
 
 📄 [`LayoutAndStyle/SeparatorSample.swift`](https://github.com/camosss/SwiftUITabPager/blob/main/Example/SwiftUITabPagerSample/SwiftUITabPagerSample/LayoutAndStyle/SeparatorSample.swift)
+
+<br>
 
 ### onTabChanged
 - Observe changes of the selected item via callback.
